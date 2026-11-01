@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Automata Lab — Interactive Automata Theory Simulator</title>
+  <meta name="description" content="An interactive educational platform for learning Automata Theory. Convert NFAs to DFAs, visualize automata, and test strings — step by step." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/components/layout.js" defer></script>
+  <script src="js/data/simulatorRegistry.js"></script>
+</head>
+<body>
+
+  <!-- Hero -->
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div class="hero-kicker" aria-label="University Project">
+          ✦ CSET302 — Automata Theory &amp; Computability
+        </div>
+        <h1>Understand Automata Theory<br/><span style="color:var(--accent)">Interactively</span></h1>
+        <p>Automata Lab is a hands-on simulator for Automata Theory. Enter an NFA, watch the Subset Construction algorithm execute step by step, and test your own strings — all in your browser.</p>
+        <div class="hero-actions">
+          <a href="simulator.html" class="btn btn-primary btn-lg">
+            Open Simulator →
+          </a>
+          <a href="learning.html" class="btn btn-secondary btn-lg">
+            Learn the Theory
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Feature strip -->
+    <section class="section-sm" aria-label="Key features">
+      <div class="container">
+        <div class="feature-strip">
+          <div class="feature-item"><span class="fi-icon" aria-hidden="true">✓</span> Real subset construction algorithm</div>
+          <div class="feature-item"><span class="fi-icon" aria-hidden="true">✓</span> Step-by-step execution with back/forward</div>
+          <div class="feature-item"><span class="fi-icon" aria-hidden="true">✓</span> Interactive DFA graph visualization</div>
+          <div class="feature-item"><span class="fi-icon" aria-hidden="true">✓</span> String acceptance testing</div>
+          <div class="feature-item"><span class="fi-icon" aria-hidden="true">✓</span> Dark &amp; light themes</div>
+          <div class="feature-item"><span class="fi-icon" aria-hidden="true">✓</span> No account needed</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- What is Automata Theory -->
+    <section class="section" aria-labelledby="what-is-heading">
+      <div class="container-sm">
+        <h2 id="what-is-heading">What is Automata Theory?</h2>
+        <p class="section-subtitle">The mathematical study of abstract machines and the problems they can solve.</p>
+        <div class="grid-2" style="gap:1.5rem">
+          <div class="card">
+            <h3 style="margin-bottom:.5rem">Finite Automata</h3>
+            <p>Abstract machines that process strings of symbols over an alphabet. They read one symbol at a time and decide whether to accept or reject the input based on their current state and transitions.</p>
+          </div>
+          <div class="card">
+            <h3 style="margin-bottom:.5rem">Regular Languages</h3>
+            <p>The class of languages recognised by finite automata. Every regular language can be described by a regular expression and processed by a DFA in linear time.</p>
+          </div>
+          <div class="card">
+            <h3 style="margin-bottom:.5rem">NFA vs DFA</h3>
+            <p>A Non-deterministic Finite Automaton (NFA) can have multiple transitions for the same symbol. A Deterministic Finite Automaton (DFA) has exactly one. Every NFA can be converted to an equivalent DFA.</p>
+          </div>
+          <div class="card">
+            <h3 style="margin-bottom:.5rem">Computability</h3>
+            <p>Automata theory forms the foundation for understanding what problems computers can and cannot solve — from compilers and pattern matching to the limits of computation itself.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="section" style="background:var(--bg-elevated)" aria-labelledby="how-heading">
+      <div class="container">
+        <h2 id="how-heading" class="section-title">How the Simulator Works</h2>
+        <p class="section-subtitle">Three steps from NFA to fully visualised DFA.</p>
+        <div class="steps">
+          <div class="step-card animate-in">
+            <div class="step-num" aria-hidden="true">1</div>
+            <h3>Define Your NFA</h3>
+            <p>Enter states, alphabet symbols, initial and final states, and the transition function. Use one of the built-in examples or enter your own from scratch.</p>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num" aria-hidden="true">2</div>
+            <h3>Run the Algorithm</h3>
+            <p>Click "Run Subset Construction" and watch the algorithm process each NFA subset. Step forward and backward through every decision the algorithm makes.</p>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num" aria-hidden="true">3</div>
+            <h3>Explore &amp; Test</h3>
+            <p>Inspect the resulting DFA graph and transition table. Then test any string to trace the exact path through the DFA and see whether it is accepted or rejected.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Available modules -->
+    <section class="section" aria-labelledby="modules-heading">
+      <div class="container">
+        <h2 id="modules-heading" class="section-title">Available Simulators</h2>
+        <p class="section-subtitle">Automata Lab is designed to grow. One fully-functional module now, fifteen planned.</p>
+        <div class="grid-auto" id="home-module-grid" role="list">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section-sm" aria-label="Call to action">
+      <div class="container-sm" style="text-align:center">
+        <div class="card" style="padding:3rem 2rem">
+          <h2 style="margin-bottom:.75rem">Ready to explore?</h2>
+          <p style="margin-bottom:2rem;max-width:400px;margin-left:auto;margin-right:auto">Open the NFA → DFA simulator, enter a custom automaton and watch the algorithm run.</p>
+          <a href="simulator.html" class="btn btn-primary btn-lg">Open NFA → DFA Simulator</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Render module preview grid
+    document.addEventListener('DOMContentLoaded', function () {
+      const grid = document.getElementById('home-module-grid');
+      if (!grid || typeof SIMULATORS === 'undefined') return;
+
+      SIMULATORS.forEach(function (mod) {
+        const isActive = mod.status === 'active';
+        const div = document.createElement(isActive ? 'a' : 'div');
+        if (isActive) div.href = mod.page || 'simulator.html';
+        div.className = 'module-card' + (isActive ? ' active-module' : ' coming-soon');
+        div.setAttribute('role', 'listitem');
+        div.innerHTML = `
+          <div class="module-icon" aria-hidden="true">${mod.icon}</div>
+          <div>
+            <div class="module-title">${mod.title}</div>
+            <div class="module-desc">${mod.description}</div>
+          </div>
+          <div class="module-meta">
+            <span class="badge ${isActive ? 'badge-active' : 'badge-soon'}">
+              ${isActive ? '● Active' : 'Coming Soon'}
+            </span>
+            <span class="badge badge-info">${mod.topic}</span>
+          </div>
+        `;
+        grid.appendChild(div);
+      });
+    });
+  </script>
+</body>
+</html>

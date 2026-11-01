@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Automata Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/components/layout.js" defer></script>
+  <script src="js/data/simulatorRegistry.js"></script>
+</head>
+<body>
+  <main>
+    <div class="section">
+      <div class="container">
+
+        <!-- Welcome -->
+        <div style="margin-bottom:2.5rem">
+          <h1 style="margin-bottom:.5rem">Dashboard</h1>
+          <p>Your workspace for exploring Automata Theory. Select a simulator module to begin.</p>
+        </div>
+
+        <!-- Quick access card -->
+        <div class="card" style="border-color:var(--accent);padding:1.5rem;margin-bottom:2rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
+          <div class="module-icon active-module" style="width:52px;height:52px;font-size:1.25rem" aria-hidden="true">⇌</div>
+          <div style="flex:1;min-width:200px">
+            <div style="font-weight:700;font-size:1.0625rem;margin-bottom:.25rem">NFA → DFA Conversion</div>
+            <div style="font-size:.875rem;color:var(--text-secondary)">The primary simulator. Enter any NFA and watch the Subset Construction algorithm convert it to a DFA — step by step.</div>
+          </div>
+          <a href="simulator.html" class="btn btn-primary btn-lg" style="white-space:nowrap">Open Simulator →</a>
+        </div>
+
+        <!-- All modules -->
+        <div style="margin-bottom:1rem">
+          <h2>All Simulator Modules</h2>
+          <p style="margin-top:.25rem;margin-bottom:1.5rem">15 modules planned. 1 fully active.</p>
+        </div>
+
+        <!-- Filter row -->
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem">
+          <button class="btn btn-secondary btn-sm filter-btn active" data-filter="all">All (15)</button>
+          <button class="btn btn-secondary btn-sm filter-btn" data-filter="active">Active (1)</button>
+          <button class="btn btn-secondary btn-sm filter-btn" data-filter="Finite Automata">Finite Automata</button>
+          <button class="btn btn-secondary btn-sm filter-btn" data-filter="Regular Languages">Regular Languages</button>
+          <button class="btn btn-secondary btn-sm filter-btn" data-filter="Context-Free Languages">Context-Free</button>
+          <button class="btn btn-secondary btn-sm filter-btn" data-filter="Computability">Computability</button>
+        </div>
+
+        <div class="grid-auto" id="dashboard-grid" role="list">
+          <!-- rendered by JS -->
+        </div>
+
+        <div class="divider" style="margin-top:2.5rem"></div>
+
+        <!-- Learning Resources -->
+        <div style="margin-bottom:1rem">
+          <h2>Learning Resources</h2>
+        </div>
+        <div class="grid-3" style="margin-bottom:2rem">
+          <a href="learning.html#nfa" class="card" style="text-decoration:none">
+            <div style="font-size:1.5rem;margin-bottom:.5rem" aria-hidden="true">📖</div>
+            <h3>NFA &amp; DFA Theory</h3>
+            <p style="margin-top:.25rem;font-size:.875rem">Definitions, formal notation, and key differences between NFA and DFA.</p>
+          </a>
+          <a href="learning.html#algorithm" class="card" style="text-decoration:none">
+            <div style="font-size:1.5rem;margin-bottom:.5rem" aria-hidden="true">⚙️</div>
+            <h3>Subset Construction</h3>
+            <p style="margin-top:.25rem;font-size:.875rem">A full walkthrough of the algorithm with pseudocode and a worked example.</p>
+          </a>
+          <a href="learning.html#practice" class="card" style="text-decoration:none">
+            <div style="font-size:1.5rem;margin-bottom:.5rem" aria-hidden="true">✏️</div>
+            <h3>Practice Questions</h3>
+            <p style="margin-top:.25rem;font-size:.875rem">Test your understanding with exam-style NFA→DFA conversion exercises.</p>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const grid = document.getElementById('dashboard-grid');
+      if (!grid || typeof SIMULATORS === 'undefined') return;
+
+      let currentFilter = 'all';
+
+      function renderGrid(filter) {
+        grid.innerHTML = '';
+        const list = SIMULATORS.filter(function (mod) {
+          if (filter === 'all')    return true;
+          if (filter === 'active') return mod.status === 'active';
+          return mod.topic === filter;
+        });
+        list.forEach(function (mod) {
+          const isActive = mod.status === 'active';
+          const el = document.createElement(isActive ? 'a' : 'div');
+          if (isActive) el.href = mod.page || 'simulator.html';
+          el.className = 'module-card' + (isActive ? ' active-module' : ' coming-soon');
+          el.setAttribute('role', 'listitem');
+          el.innerHTML = `
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem">
+              <div class="module-icon ${isActive ? 'active-module' : ''}" aria-hidden="true">${mod.icon}</div>
+              <span class="badge ${isActive ? 'badge-active' : 'badge-soon'}">${isActive ? '● Active' : 'Soon'}</span>
+            </div>
+            <div>
+              <div class="module-title">${mod.title}</div>
+              <div class="module-desc">${mod.description}</div>
+            </div>
+            <div class="module-meta">
+              <span class="badge badge-info">${mod.topic}</span>
+              <span class="badge badge-soon">${mod.difficulty}</span>
+            </div>
+          `;
+          grid.appendChild(el);
+        });
+        if (list.length === 0) {
+          grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><p>No modules match this filter.</p></div>';
+        }
+      }
+
+      // Filter buttons
+      document.querySelectorAll('.filter-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentFilter = btn.dataset.filter;
+          renderGrid(currentFilter);
+        });
+      });
+
+      renderGrid('all');
+    });
+  </script>
+</body>
+</html>

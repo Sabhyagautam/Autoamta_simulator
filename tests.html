@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test Suite — Automata Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/components/layout.js" defer></script>
+  <script src="js/utils/stateSetUtils.js"></script>
+  <script src="js/validators/nfaValidator.js"></script>
+  <script src="js/algorithms/nfaToDfa.js"></script>
+</head>
+<body>
+<main>
+<div class="section">
+<div class="container">
+  <h1 style="margin-bottom:.25rem">Test Suite</h1>
+  <p style="margin-bottom:1.5rem">Automated correctness tests for the subset construction algorithm and string tester.</p>
+
+  <div style="display:flex;gap:.75rem;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap">
+    <button class="btn btn-primary" id="run-all-btn">▶ Run All Tests</button>
+    <div id="summary" class="badge" style="font-size:.875rem;padding:.375rem .875rem"></div>
+  </div>
+
+  <div id="test-results" style="display:flex;flex-direction:column;gap:.5rem" role="list" aria-live="polite"></div>
+</div>
+</div>
+</main>
+
+<script>
+/* ─────────────────────────────────────────────────────────────
+   Automata Lab Test Suite
+   Tests subsetConstruction() and testStringOnDFA()
+   ───────────────────────────────────────────────────────────── */
+
+const TESTS = [
+
+  // T-01: Single-state NFA
+  {
+    id: 'T-01',
+    name: 'Single-state NFA — trivial DFA',
+    description: 'NFA with one state that is both initial and final. DFA should have exactly one accepting state.',
+    run() {
+      const nfa = {
+        states: ['q0'], alphabet: ['a'],
+        initialState: 'q0', finalStates: ['q0'],
+        transitions: { q0: { a: ['q0'] } }
+      };
+      const { dfa } = subsetConstruction(nfa);
+      assert(dfa.states.length === 1, `Expected 1 DFA state, got ${dfa.states.length}`);
+      assert(dfa.finalStates.length === 1, `Expected 1 accepting state, got ${dfa.finalStates.length}`);
+      assert(dfa.initialState === '{q0}', `Expected initial state {q0}, got ${dfa.initialState}`);
+    }
+  },
+
+  // T-02: Assignment example — canonical validation
+  {
+    id: 'T-02',
+    name: 'Assignment example — 4-state DFA (canonical validation)',
+    description: 'The NFA from the CSET302 assignment must produce exactly 4 DFA states.',
+    run() {
+      const nfa = {
+        states: ['q0','q1','q2'], alphabet: ['0','1'],
+        initialState: 'q0', finalStates: ['q2'],
+        transitions: {
+          q0: { '0': ['q0'], '1': ['q0','q1'] },
+          q1: { '0': ['q2'], '1': ['q2'] },
+          q2: { '0': ['q2'], '1': ['q2'] }
+        }
+      };
+      const { dfa } = subsetConstruction(nfa);
+      assert(dfa.states.length === 4, `Expected 4 DFA states, got ${dfa.states.length}: ${dfa.states.join(', ')}`);
+
+      const expectedStates = ['{q0}','{q0,q1}','{q0,q2}','{q0,q1,q2}'];
+      expectedStates.forEach(s => {
+        assert(dfa.states.includes(s), `Missing expected DFA state: ${s}`);
+      });
+
+      const expectedFinals = ['{q0,q2}','{q0,q1,q2}'];
+      expectedFinals.forEach(s => {
+        assert(dfa.finalStates.includes(s), `Missing expected accepting state: ${s}`);
+      });
+
+      assert(!dfa.finalStates.includes('{q0}'), '{q0} should NOT be accepting');
+      assert(!dfa.finalStates.includes('{q0,q1}'), '{q0,q1} should NOT be accepting');
+
+      assert(dfa.deadState === null, 'No dead state expected for this NFA');
+
+      // Check specific transitions
+      assert(dfa.transitions['{q0}']['0'] === '{q0}', `δ({q0},0) should be {q0}`);
+      assert(dfa.transitions['{q0}']['1'] === '{q0,q1}', `δ({q0},1) should be {q0,q1}`);
+      assert(dfa.transitions['{q0,q1}']['0'] === '{q0,q2}', `δ({q0,q1},0) should be {q0,q2}`);
+      assert(dfa.transitions['{q0,q1}']['1'] === '{q0,q1,q2}', `δ({q0,q1},1) should be {q0,q1,q2}`);
+    }
+  },
+
+  // T-03: NFA with multiple final states
+  {
+    id: 'T-03',
+    name: 'NFA with multiple final states',
+    description: 'Any DFA subset containing q1 OR q2 should be accepting.',
+    run() {
+      const nfa = {
+        states: ['q0','q1','q2'], alphabet: ['a','b'],
+        initialState: 'q0', finalStates: ['q1','q2'],
+        transitions: {
+          q0: { a: ['q1'], b: ['q2'] },
+          q1: { a: ['q1'], b: [] },
+          q2: { a: [],     b: ['q2'] }
+        }
+      };
+      const { dfa } = subsetConstruction(nfa);
+      // Every state that includes q1 or q2 must be accepting
+      dfa.states.forEach(s => {
+        const set = s.replace(/[{}]/g,'').split(',').filter(Boolean);
+        const shouldAccept = set.includes('q1') || set.includes('q2');
+        const isAccepting  = dfa.finalStates.includes(s);
+        if (s !== '∅') {
+          assert(shouldAccept === isAccepting, `State ${s}: expected accepting=${shouldAccept}, got ${isAccepting}`);
+        }
+      });
+    }
+  },
+
+  // T-04: Multiple transitions for same symbol
+  {
+    id: 'T-04',
+    name: 'Multiple transitions for same symbol — correct union',
+    description: 'δ*(S, a) must be the union of all individual δ(q, a) for q in S.',
+    run() {
+      const nfa = {
+        states: ['s0','s1','s2','s3'], alphabet: ['a'],
+        initialState: 's0', finalStates: ['s3'],
+        transitions: {
+          s0: { a: ['s1','s2'] },
+          s1: { a: ['s3'] },
+          s2: { a: ['s3'] },
+          s3: { a: ['s3'] }
+        }
+      };
+      const { dfa } = subsetConstruction(nfa);
+      // From {s0} on 'a' → {s1,s2}
+      assert(dfa.transitions['{s0}']['a'] === '{s1,s2}', `δ({s0},a) should be {s1,s2}, got ${dfa.transitions['{s0}'] && dfa.transitions['{s0}']['a']}`);
+      // From {s1,s2} on 'a' → {s3}
+      assert(dfa.transitions['{s1,s2}']['a'] === '{s3}', `δ({s1,s2},a) should be {s3}`);
+    }
+  },
+
+  // T-05: Unreachable NFA states
+  {
+    id: 'T-05',
+    name: 'Unreachable NFA states — not in DFA',
+    description: 'Unreachable NFA states should not produce DFA states.',
+    run() {
+      const nfa = {
+        states: ['q0','q1','q2'], alphabet: ['a'],
+        initialState: 'q0', finalStates: ['q1'],
+        transitions: {
+          q0: { a: ['q1'] },
+          q1: { a: ['q1'] },
+          q2: { a: ['q2'] }  // q2 unreachable from q0
+        }
+      };
+      const { dfa } = subsetConstruction(nfa);
+      const allLabels = dfa.states.join(' ');
+      assert(!allLabels.includes('q2') || allLabels.includes('q0,q2'), 'Unreachable state q2 should not appear alone in DFA states');
+      // q2 should not appear as a standalone DFA state
+      assert(!dfa.states.includes('{q2}'), 'Standalone {q2} should not exist (unreachable)');
+    }
+  },
+
+  // T-06: Missing transitions → dead state
+  {
+    id: 'T-06',
+    name: 'Missing transitions → dead/trap state created',
+    description: 'When some NFA transitions are undefined, the DFA must have a dead state ∅.',
+    run() {
+      const nfa = {
+        states: ['s0','s1'], alphabet: ['0','1'],
+        initialState: 's0', finalStates: ['s1'],
+        transitions: {
+          s0: { '0': ['s1'] },  // s0 on '1' undefined; s1 on both undefined
+          s1: {}
+        }
+      };
+      const { dfa } = subsetConstruction(nfa);
+      assert(dfa.deadState !== null, 'Dead state should be created');
+      assert(dfa.states.includes('∅'), 'Dead state ∅ should be in DFA states');
+      // Dead state should not be accepting
+      assert(!dfa.finalStates.includes('∅'), 'Dead state ∅ must not be accepting');
+      // All transitions from dead state should loop back to it
+      dfa.alphabet.forEach(sym => {
+        assert(dfa.transitions['∅'][sym] === '∅', `δ(∅,${sym}) should be ∅`);
+      });
+    }
+  },
+
+  // T-07: Self-loops
+  {
+    id: 'T-07',
+    name: 'NFA with self-loops',
+    description: 'Self-loops in the NFA must be preserved correctly in the DFA.',
+    run() {
+      const nfa = {
+        states: ['p','q'], alphabet: ['0','1'],
+        initialState: 'p', finalStates: ['q'],
+        transitions: {
+          p: { '0': ['p'], '1': ['p','q'] },
+          q: { '0': ['q'], '1': ['q'] }
+        }
+      };
+      const { dfa } = subsetConstruction(nfa);
+      // {p} on 0 → {p}  (self-loop preserved)
+      assert(dfa.transitions['{p}']['0'] === '{p}', `δ({p},0) should be {p} (self-loop)`);
+      // {p,q} on 0 → {p,q} (both self-loop on 0)
+      assert(dfa.transitions['{p,q}']['0'] === '{p,q}', `δ({p,q},0) should be {p,q}`);
+    }
+  },
+
+  // T-08: Empty string — initial state IS accepting
+  {
+    id: 'T-08',
+    name: 'String tester — empty string ε (initial accepting)',
+    description: 'ε should be accepted when the DFA initial state is accepting.',
+    run() {
+      const nfa = {
+        states: ['q0'], alphabet: ['a'],
+        initialState: 'q0', finalStates: ['q0'],
+        transitions: { q0: { a: ['q0'] } }
+      };
+      const { dfa } = subsetConstruction(nfa);
+      const result = testStringOnDFA(dfa, '');
+      assert(result.accepted === true, 'Empty string should be ACCEPTED when initial state is final');
+      assert(result.verdict === 'ACCEPTED', `Expected ACCEPTED, got ${result.verdict}`);
+    }
+  },
+
+  // T-09: Empty string — initial state NOT accepting
+  {
+    id: 'T-09',
+    name: 'String tester — empty string ε (initial not accepting)',
+    description: 'ε should be rejected when the DFA initial state is not accepting.',
+    run() {
+      const nfa = {
+        states: ['q0','q1'], alphabet: ['a'],
+        initialState: 'q0', finalStates: ['q1'],
+        transitions: { q0: { a: ['q1'] }, q1: { a: [] } }
+      };
+      const { dfa } = subsetConstruction(nfa);
+      const result = testStringOnDFA(dfa, '');
+      assert(result.accepted === false, 'Empty string should be REJECTED when initial state is not final');
+      assert(result.verdict === 'REJECTED', `Expected REJECTED, got ${result.verdict}`);
+    }
+  },
+
+  // T-10: Valid accepted string
+  {
+    id: 'T-10',
+    name: 'String tester — accepted string "10"',
+    description: 'String "10" should be accepted by the assignment example DFA.',
+    run() {
+      const nfa = {
+        states: ['q0','q1','q2'], alphabet: ['0','1'],
+        initialState: 'q0', finalStates: ['q2'],
+        transitions: {
+          q0: { '0': ['q0'], '1': ['q0','q1'] },
+          q1: { '0': ['q2'], '1': ['q2'] },
+          q2: { '0': ['q2'], '1': ['q2'] }
+        }
+      };
+      const { dfa } = subsetConstruction(nfa);
+      const result = testStringOnDFA(dfa, '10');
+      assert(result.accepted === true, `"10" should be ACCEPTED, got ${result.verdict}`);
+    }
+  },
+
+  // T-11: Valid rejected string
+  {
+    id: 'T-11',
+    name: 'String tester — rejected string "000"',
+    description: 'String "000" should be rejected by the assignment example DFA (never reaches accepting state).',
+    run() {
+      const nfa = {
+        states: ['q0','q1','q2'], alphabet: ['0','1'],
+        initialState: 'q0', finalStates: ['q2'],
+        transitions: {
+          q0: { '0': ['q0'], '1': ['q0','q1'] },
+          q1: { '0': ['q2'], '1': ['q2'] },
+          q2: { '0': ['q2'], '1': ['q2'] }
+        }
+      };
+      const { dfa } = subsetConstruction(nfa);
+      const result = testStringOnDFA(dfa, '000');
+      assert(result.accepted === false, `"000" should be REJECTED, got ${result.verdict}`);
+    }
+  },
+
+  // T-12: Invalid alphabet symbol
+  {
+    id: 'T-12',
+    name: 'String tester — invalid symbol in input',
+    description: 'A string containing a symbol not in Σ should return verdict ERROR.',
+    run() {
+      const nfa = {
+        states: ['q0','q1'], alphabet: ['0','1'],
+        initialState: 'q0', finalStates: ['q1'],
+        transitions: { q0: { '0': ['q0'], '1': ['q1'] }, q1: { '0': ['q1'], '1': ['q1'] } }
+      };
+      const { dfa } = subsetConstruction(nfa);
+      const result = testStringOnDFA(dfa, '01a');
+      assert(result.verdict === 'ERROR', `Expected ERROR for symbol 'a', got ${result.verdict}`);
+      assert(result.errorSymbol === 'a', `Expected errorSymbol 'a', got ${result.errorSymbol}`);
+    }
+  },
+
+  // T-13: String leading to dead state
+  {
+    id: 'T-13',
+    name: 'String tester — string entering dead state',
+    description: 'A string that leads to the dead state ∅ must be rejected.',
+    run() {
+      const nfa = {
+        states: ['s0','s1'], alphabet: ['0','1'],
+        initialState: 's0', finalStates: ['s1'],
+        transitions: {
+          s0: { '0': ['s1'] },
+          s1: {}
+        }
+      };
+      const { dfa } = subsetConstruction(nfa);
+      // "01" should go s0→s1 on '0', then s1→∅ on '1'
+      const result = testStringOnDFA(dfa, '01');
+      assert(result.accepted === false, `"01" should be REJECTED after entering dead state`);
+      assert(result.verdict === 'REJECTED', `Expected REJECTED, got ${result.verdict}`);
+    }
+  }
+];
+
+// ── Test Runner ──────────────────────────────────────────────
+
+function assert(condition, message) {
+  if (!condition) throw new Error(message || 'Assertion failed');
+}
+
+function runTest(test) {
+  const start = performance.now();
+  try {
+    test.run();
+    const ms = (performance.now() - start).toFixed(1);
+    return { id: test.id, name: test.name, description: test.description, passed: true, ms };
+  } catch (e) {
+    const ms = (performance.now() - start).toFixed(1);
+    return { id: test.id, name: test.name, description: test.description, passed: false, error: e.message, ms };
+  }
+}
+
+function renderResult(result) {
+  const div = document.createElement('div');
+  div.setAttribute('role', 'listitem');
+  div.style.cssText = `
+    display:flex; gap:.75rem; align-items:flex-start;
+    padding:.875rem 1rem;
+    border-radius:8px;
+    border:1px solid ${result.passed ? 'var(--success)' : 'var(--danger)'};
+    background:${result.passed ? 'var(--success-bg)' : 'var(--danger-bg)'};
+  `;
+  div.innerHTML = `
+    <div style="font-size:1.25rem;margin-top:-.1rem">${result.passed ? '✓' : '✗'}</div>
+    <div style="flex:1">
+      <div style="display:flex;gap:.625rem;align-items:center;flex-wrap:wrap;margin-bottom:.2rem">
+        <span class="font-mono text-xs" style="color:var(--text-muted)">${result.id}</span>
+        <span style="font-weight:600;font-size:.875rem;color:var(--text)">${result.name}</span>
+        <span class="text-xs text-muted" style="margin-left:auto">${result.ms}ms</span>
+      </div>
+      <div style="font-size:.8rem;color:var(--text-secondary)">${result.description}</div>
+      ${result.error ? `<div class="alert alert-error" style="margin-top:.5rem;font-size:.8rem;font-family:var(--font-mono)">${result.error}</div>` : ''}
+    </div>
+  `;
+  return div;
+}
+
+document.getElementById('run-all-btn').addEventListener('click', function () {
+  const container = document.getElementById('test-results');
+  const summary   = document.getElementById('summary');
+  container.innerHTML = '';
+  summary.textContent = 'Running…';
+
+  let passed = 0, failed = 0;
+
+  TESTS.forEach(function (test) {
+    const result = runTest(test);
+    container.appendChild(renderResult(result));
+    if (result.passed) passed++; else failed++;
+  });
+
+  const total = passed + failed;
+  summary.textContent = `${passed} / ${total} passed`;
+  summary.className = 'badge ' + (failed === 0 ? 'badge-active' : 'badge-warning');
+  summary.style.fontSize = '.875rem';
+  summary.style.padding = '.375rem .875rem';
+});
+</script>
+</body>
+</html>

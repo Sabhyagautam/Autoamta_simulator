@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NFA → DFA Simulator — Automata Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/components/layout.js" defer></script>
+  <script src="js/data/examples.js"></script>
+  <script src="js/utils/stateSetUtils.js"></script>
+  <script src="js/validators/nfaValidator.js"></script>
+  <script src="js/algorithms/nfaToDfa.js"></script>
+</head>
+<body>
+<main>
+<div class="section-sm">
+<div class="container">
+
+  <!-- Header row -->
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem">
+    <div>
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.25rem">
+        <span class="badge badge-active">● Active</span>
+        <span class="badge badge-info">Finite Automata</span>
+      </div>
+      <h1 style="font-size:1.5rem;margin-bottom:.25rem">NFA → DFA Conversion</h1>
+      <p style="font-size:.875rem">Subset Construction Algorithm — enter any NFA and convert it step by step.</p>
+    </div>
+    <a href="learning.html#algorithm" class="btn btn-secondary btn-sm">📖 Theory</a>
+  </div>
+
+  <div class="workspace">
+
+    <!-- ── LEFT: Input Panel ───────────────────────────── -->
+    <div class="workspace-panel" id="input-panel">
+
+      <!-- Example selector -->
+      <div class="card-elevated">
+        <div class="panel-header">
+          <span class="panel-title">Load Example</span>
+        </div>
+        <select class="form-select" id="example-select" aria-label="Select an example NFA">
+          <option value="">— choose an example —</option>
+        </select>
+      </div>
+
+      <!-- States -->
+      <div class="card-elevated">
+        <div class="panel-header">
+          <span class="panel-title">States (Q)</span>
+        </div>
+        <div style="display:flex;gap:.5rem;margin-bottom:.625rem">
+          <input type="text" class="form-input" id="state-input" placeholder="e.g. q0" aria-label="New state name" style="flex:1" />
+          <button class="btn btn-secondary btn-sm" id="add-state-btn" aria-label="Add state">Add</button>
+        </div>
+        <div class="chip-list" id="state-chips" aria-label="State list" aria-live="polite"></div>
+      </div>
+
+      <!-- Alphabet -->
+      <div class="card-elevated">
+        <div class="panel-header">
+          <span class="panel-title">Alphabet (Σ)</span>
+        </div>
+        <div style="display:flex;gap:.5rem;margin-bottom:.625rem">
+          <input type="text" class="form-input" id="symbol-input" placeholder="e.g. 0" maxlength="4" aria-label="New symbol" style="flex:1" />
+          <button class="btn btn-secondary btn-sm" id="add-symbol-btn" aria-label="Add symbol">Add</button>
+        </div>
+        <div class="chip-list" id="alphabet-chips" aria-label="Alphabet list" aria-live="polite"></div>
+      </div>
+
+      <!-- Initial state -->
+      <div class="card-elevated">
+        <div class="panel-header"><span class="panel-title">Initial State (q₀)</span></div>
+        <select class="form-select" id="initial-select" aria-label="Select initial state">
+          <option value="">— select initial state —</option>
+        </select>
+      </div>
+
+      <!-- Final states -->
+      <div class="card-elevated">
+        <div class="panel-header"><span class="panel-title">Final States (F)</span></div>
+        <div id="final-checkboxes" style="display:flex;flex-direction:column;gap:.375rem" role="group" aria-label="Final states">
+          <span class="text-muted text-sm">Add states first.</span>
+        </div>
+      </div>
+
+      <!-- Transitions -->
+      <div class="card-elevated">
+        <div class="panel-header"><span class="panel-title">Transitions (δ)</span></div>
+        <p class="form-hint" style="margin-bottom:.625rem">Enter comma-separated target states per cell. Leave empty for no transition.</p>
+        <div style="overflow-x:auto">
+          <table class="transition-grid" id="transition-table" aria-label="NFA transition function">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Validation errors -->
+      <div id="validation-errors" role="alert" aria-live="assertive" style="display:none"></div>
+
+      <!-- Run button -->
+      <div style="display:flex;gap:.5rem">
+        <button class="btn btn-primary w-full" id="run-btn" aria-label="Run subset construction algorithm">
+          Run Subset Construction
+        </button>
+        <button class="btn btn-secondary" id="clear-btn" aria-label="Clear all inputs" title="Clear all inputs">✕</button>
+      </div>
+    </div>
+
+    <!-- ── RIGHT: Results Panel ───────────────────────── -->
+    <div class="workspace-panel">
+
+      <!-- Tabs -->
+      <div>
+        <div class="tabs" role="tablist" aria-label="Simulator views">
+          <button class="tab-btn active" role="tab" aria-selected="true" data-tab="graph-tab"   id="tab-graph">DFA Graph</button>
+          <button class="tab-btn"        role="tab" aria-selected="false" data-tab="table-tab"  id="tab-table">Transition Table</button>
+          <button class="tab-btn"        role="tab" aria-selected="false" data-tab="steps-tab"  id="tab-steps">Step View</button>
+          <button class="tab-btn"        role="tab" aria-selected="false" data-tab="test-tab"   id="tab-test">Test String</button>
+        </div>
+
+        <!-- DFA Graph tab -->
+        <div class="tab-pane active" id="graph-tab" role="tabpanel" aria-labelledby="tab-graph">
+          <div id="graph-container" aria-label="DFA graph visualization" role="img">
+            <div class="empty-state" id="graph-empty">
+              <div class="empty-icon" aria-hidden="true">⊙</div>
+              <p>Run the algorithm to generate the DFA graph.</p>
+            </div>
+            <svg id="graph-canvas" class="graph-svg" style="display:none"
+                 aria-label="Generated DFA automaton graph"
+                 role="img"
+                 xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7"
+                        refX="9" refY="3.5" orient="auto">
+                  <polygon points="0 0, 10 3.5, 0 7" fill="var(--text-secondary)" />
+                </marker>
+                <marker id="arrowhead-active" markerWidth="10" markerHeight="7"
+                        refX="9" refY="3.5" orient="auto">
+                  <polygon points="0 0, 10 3.5, 0 7" fill="var(--warning)" />
+                </marker>
+              </defs>
+              <g id="graph-root"></g>
+            </svg>
+            <div class="graph-controls" aria-label="Graph controls">
+              <button class="graph-btn" id="zoom-in"  title="Zoom in"        aria-label="Zoom in">+</button>
+              <button class="graph-btn" id="zoom-out" title="Zoom out"       aria-label="Zoom out">−</button>
+              <button class="graph-btn" id="fit-graph" title="Fit to screen" aria-label="Fit graph to screen">⊡</button>
+            </div>
+          </div>
+
+          <!-- Legend -->
+          <div style="display:flex;flex-wrap:wrap;gap:.625rem;margin-top:.75rem" role="list" aria-label="Graph legend">
+            <div role="listitem" style="display:flex;align-items:center;gap:.375rem;font-size:.75rem;color:var(--text-secondary)"><span style="width:14px;height:14px;border-radius:50%;background:var(--node-initial);border:2px solid var(--accent);display:inline-block"></span>Initial</div>
+            <div role="listitem" style="display:flex;align-items:center;gap:.375rem;font-size:.75rem;color:var(--text-secondary)"><span style="width:14px;height:14px;border-radius:50%;background:var(--node-final);border:2px solid var(--success);display:inline-block"></span>Accepting</div>
+            <div role="listitem" style="display:flex;align-items:center;gap:.375rem;font-size:.75rem;color:var(--text-secondary)"><span style="width:14px;height:14px;border-radius:50%;background:var(--node-dead);border:2px dashed var(--danger);display:inline-block"></span>Dead/Trap</div>
+            <div role="listitem" style="display:flex;align-items:center;gap:.375rem;font-size:.75rem;color:var(--text-secondary)"><span style="width:14px;height:14px;border-radius:50%;background:var(--node-active);border:2px solid var(--warning);display:inline-block"></span>Active (step)</div>
+            <div role="listitem" style="display:flex;align-items:center;gap:.375rem;font-size:.75rem;color:var(--text-secondary)"><span style="width:14px;height:14px;border-radius:50%;background:var(--node-new);border:2px solid var(--info);display:inline-block"></span>Newly found</div>
+          </div>
+        </div>
+
+        <!-- Transition Table tab -->
+        <div class="tab-pane" id="table-tab" role="tabpanel" aria-labelledby="tab-table">
+          <div id="dfa-table-wrap">
+            <div class="empty-state">
+              <div class="empty-icon" aria-hidden="true">⊞</div>
+              <p>Run the algorithm to generate the DFA transition table.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step View tab -->
+        <div class="tab-pane" id="steps-tab" role="tabpanel" aria-labelledby="tab-steps">
+          <div id="steps-panel">
+            <div class="empty-state">
+              <div class="empty-icon" aria-hidden="true">▷</div>
+              <p>Run the algorithm to view step-by-step execution.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- String Tester tab -->
+        <div class="tab-pane" id="test-tab" role="tabpanel" aria-labelledby="tab-test">
+          <div id="string-tester-panel">
+            <div class="empty-state">
+              <div class="empty-icon" aria-hidden="true">🔤</div>
+              <p>Run the algorithm first, then test strings here.</p>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end tabs -->
+    </div><!-- end right panel -->
+  </div><!-- end workspace -->
+
+</div>
+</div>
+</main>
+
+<script>
+/* ─────────────────────────────────────────────────────────────
+   Automata Lab — Simulator Controller
+   All algorithm logic lives in the external JS files loaded above.
+   This file only handles DOM interaction.
+   ───────────────────────────────────────────────────────────── */
+
+(function () {
+  'use strict';
+
+  // ── Application State ──────────────────────────────────────
+  const state = {
+    states:       [],
+    alphabet:     [],
+    initialState: '',
+    finalStates:  [],
+    transitions:  {},   // { state: { symbol: [states] } }
+
+    // Algorithm results
+    dfa:          null,
+    steps:        [],
+    currentStep:  -1,
+    isPlaying:    false,
+    speed:        500,  // ms
+    playTimer:    null,
+
+    // Graph view transform
+    graphScale:   1,
+    graphOffsetX: 0,
+    graphOffsetY: 0,
+  };
+
+  // ── DOM references ─────────────────────────────────────────
+  const $ = id => document.getElementById(id);
+
+  const stateInput       = $('state-input');
+  const addStateBtn      = $('add-state-btn');
+  const stateChips       = $('state-chips');
+  const symbolInput      = $('symbol-input');
+  const addSymbolBtn     = $('add-symbol-btn');
+  const alphabetChips    = $('alphabet-chips');
+  const initialSelect    = $('initial-select');
+  const finalCheckboxes  = $('final-checkboxes');
+  const transitionTable  = $('transition-table');
+  const validationErrors = $('validation-errors');
+  const runBtn           = $('run-btn');
+  const clearBtn         = $('clear-btn');
+  const exampleSelect    = $('example-select');
+
+  // ── Tab switching ──────────────────────────────────────────
+  document.querySelectorAll('.tab-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      $( btn.dataset.tab ).classList.add('active');
+    });
+  });
+
+  // ── Example selector ──────────────────────────────────────
+  if (typeof NFA_EXAMPLES !== 'undefined') {
+    NFA_EXAMPLES.forEach(function (ex) {
+      const opt = document.createElement('option');
+      opt.value = ex.id;
+      opt.textContent = ex.title;
+      exampleSelect.appendChild(opt);
+    });
+  }
+  exampleSelect.addEventListener('change', function () {
+    const ex = NFA_EXAMPLES.find(e => e.id === this.value);
+    if (!ex) return;
+    loadExample(ex);
+  });
+
+  function loadExample(ex) {
+    // Reset
+    clearAll();
+    ex.states.forEach(addState);
+    ex.alphabet.forEach(addSymbol);
+    state.initialState = ex.initialState;
+    state.finalStates  = [...ex.finalStates];
+    state.transitions  = JSON.parse(JSON.stringify(ex.transitions));
+    refreshInitialSelect();
+    refreshFinalCheckboxes();
+    refreshTransitionTable();
+  }
+
+  // ── State management ──────────────────────────────────────
+  stateInput.addEventListener('keydown', e => { if (e.key === 'Enter') { addStateBtn.click(); } });
+  addStateBtn.addEventListener('click', function () {
+    const val = stateInput.value.trim();
+    if (!val) return;
+    if (state.states.includes(val)) { showInlineError(stateInput, `"${val}" already exists.`); return; }
+    addState(val);
+    stateInput.value = '';
+    stateInput.focus();
+  });
+
+  function addState(name) {
+    state.states.push(name);
+    state.transitions[name] = state.transitions[name] || {};
+    state.alphabet.forEach(sym => {
+      state.transitions[name][sym] = state.transitions[name][sym] || [];
+    });
+    refreshStateChips();
+    refreshInitialSelect();
+    refreshFinalCheckboxes();
+    refreshTransitionTable();
+  }
+
+  function removeState(name) {
+    state.states = state.states.filter(s => s !== name);
+    delete state.transitions[name];
+    if (state.initialState === name) state.initialState = '';
+    state.finalStates = state.finalStates.filter(s => s !== name);
+    // Remove transitions pointing to this state
+    Object.keys(state.transitions).forEach(function (from) {
+      Object.keys(state.transitions[from]).forEach(function (sym) {
+        state.transitions[from][sym] = state.transitions[from][sym].filter(t => t !== name);
+      });
+    });
+    refreshStateChips();
+    refreshInitialSelect();
+    refreshFinalCheckboxes();
+    refreshTransitionTable();
+  }
+
+  function refreshStateChips() {
+    stateChips.innerHTML = '';
+    state.states.forEach(function (s) {
+      const isInit  = s === state.initialState;
+      const isFinal = state.finalStates.includes(s);
+      const chip = document.createElement('span');
+      chip.className = 'chip' + (isInit ? ' chip-initial' : isFinal ? ' chip-final' : '');
+      chip.innerHTML = (isInit ? '→ ' : '') + s + (isFinal ? ' *' : '') +
+        `<button class="chip-remove" aria-label="Remove state ${s}" data-state="${s}">✕</button>`;
+      stateChips.appendChild(chip);
+    });
+    stateChips.querySelectorAll('.chip-remove').forEach(function (btn) {
+      btn.addEventListener('click', () => removeState(btn.dataset.state));
+    });
+    if (state.states.length === 0) stateChips.innerHTML = '<span class="text-muted text-sm">No states added yet.</span>';
+  }
+
+  // ── Alphabet management ────────────────────────────────────
+  symbolInput.addEventListener('keydown', e => { if (e.key === 'Enter') addSymbolBtn.click(); });
+  addSymbolBtn.addEventListener('click', function () {
+    const val = symbolInput.value.trim();
+    if (!val) return;
+    if (state.alphabet.includes(val)) { showInlineError(symbolInput, `"${val}" already exists.`); return; }
+    addSymbol(val);
+    symbolInput.value = '';
+    symbolInput.focus();
+  });
+
+  function addSymbol(sym) {
+    state.alphabet.push(sym);
+    state.states.forEach(function (s) {
+      if (!state.transitions[s]) state.transitions[s] = {};
+      state.transitions[s][sym] = state.transitions[s][sym] || [];
+    });
+    refreshAlphabetChips();
+    refreshTransitionTable();
+  }
+
+  function removeSymbol(sym) {
+    state.alphabet = state.alphabet.filter(s => s !== sym);
+    state.states.forEach(function (s) {
+      if (state.transitions[s]) delete state.transitions[s][sym];
+    });
+    refreshAlphabetChips();
+    refreshTransitionTable();
+  }
+
+  function refreshAlphabetChips() {
+    alphabetChips.innerHTML = '';
+    state.alphabet.forEach(function (sym) {
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.innerHTML = sym + `<button class="chip-remove" aria-label="Remove symbol ${sym}" data-sym="${sym}">✕</button>`;
+      alphabetChips.appendChild(chip);
+    });
+    alphabetChips.querySelectorAll('.chip-remove').forEach(function (btn) {
+      btn.addEventListener('click', () => removeSymbol(btn.dataset.sym));
+    });
+    if (state.alphabet.length === 0) alphabetChips.innerHTML = '<span class="text-muted text-sm">No symbols added yet.</span>';
+  }
+
+  // ── Initial state select ───────────────────────────────────
+  function refreshInitialSelect() {
+    initialSelect.innerHTML = '<option value="">— select initial state —</option>';
+    state.states.forEach(function (s) {
+      const opt = document.createElement('option');
+      opt.value = s; opt.textContent = s;
+      if (s === state.initialState) opt.selected = true;
+      initialSelect.appendChild(opt);
+    });
+  }
+  initialSelect.addEventListener('change', function () {
+    state.initialState = this.value;
+    refreshStateChips();
+  });
+
+  // ── Final states checkboxes ────────────────────────────────
+  function refreshFinalCheckboxes() {
+    finalCheckboxes.innerHTML = '';
+    if (state.states.length === 0) {
+      finalCheckboxes.innerHTML = '<span class="text-muted text-sm">Add states first.</span>';
+      return;
+    }
+    state.states.forEach(function (s) {
+      const label = document.createElement('label');
+      label.style.cssText = 'display:flex;align-items:center;gap:.5rem;font-size:.875rem;cursor:pointer;font-family:var(--font-mono)';
+      const cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.value = s;
+      cb.checked = state.finalStates.includes(s);
+      cb.setAttribute('aria-label', `Mark ${s} as final state`);
+      cb.addEventListener('change', function () {
+        if (this.checked) { if (!state.finalStates.includes(s)) state.finalStates.push(s); }
+        else { state.finalStates = state.finalStates.filter(f => f !== s); }
+        refreshStateChips();
+      });
+      label.appendChild(cb);
+      label.appendChild(document.createTextNode(s));
+      finalCheckboxes.appendChild(label);
+    });
+  }
+
+  // ── Transition table editor ────────────────────────────────
+  function refreshTransitionTable() {
+    const thead = transitionTable.querySelector('thead');
+    const tbody = transitionTable.querySelector('tbody');
+    thead.innerHTML = '';
+    tbody.innerHTML = '';
+
+    if (state.states.length === 0 || state.alphabet.length === 0) {
+      const row = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = state.alphabet.length + 1;
+      td.style.cssText = 'color:var(--text-muted);font-size:.8rem;padding:.75rem;font-family:var(--font-sans)';
+      td.textContent = 'Add states and alphabet symbols to define transitions.';
+      tbody.appendChild(row);
+      row.appendChild(td);
+      return;
+    }
+
+    // Header
+    const headerRow = document.createElement('tr');
+    const thState = document.createElement('th');
+    thState.textContent = 'δ';
+    thState.style.textAlign = 'center';
+    headerRow.appendChild(thState);
+    state.alphabet.forEach(function (sym) {
+      const th = document.createElement('th');
+      th.textContent = sym;
+      headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+
+    // Rows
+    state.states.forEach(function (s) {
+      const row = document.createElement('tr');
+      const tdState = document.createElement('td');
+      tdState.className = 'row-state';
+      tdState.textContent = s;
+      if (s === state.initialState) tdState.textContent = '→ ' + s;
+      if (state.finalStates.includes(s)) tdState.textContent += ' *';
+      row.appendChild(tdState);
+
+      state.alphabet.forEach(function (sym) {
+        const td = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = '∅';
+        input.setAttribute('aria-label', `Transition from ${s} on ${sym}`);
+        const currentVal = (state.transitions[s] && state.transitions[s][sym]) || [];
+        input.value = currentVal.join(', ');
+        input.addEventListener('input', function () {
+          const raw = this.value.trim();
+          const targets = raw === '' ? [] : raw.split(',').map(t => t.trim()).filter(Boolean);
+          if (!state.transitions[s]) state.transitions[s] = {};
+          state.transitions[s][sym] = targets;
+        });
+        td.appendChild(input);
+        row.appendChild(td);
+      });
+      tbody.appendChild(row);
+    });
+  }
+
+  // ── Validation display ─────────────────────────────────────
+  function showErrors(errors) {
+    validationErrors.style.display = 'block';
+    validationErrors.innerHTML = '<ul class="error-list">' + errors.map(e => `<li>${e}</li>`).join('') + '</ul>';
+    validationErrors.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  function clearErrors() {
+    validationErrors.style.display = 'none';
+    validationErrors.innerHTML = '';
+  }
+  function showInlineError(inputEl, msg) {
+    inputEl.classList.add('error');
+    let err = inputEl.nextElementSibling;
+    if (!err || !err.classList.contains('inline-err')) {
+      err = document.createElement('span');
+      err.className = 'inline-err';
+      err.style.cssText = 'font-size:.75rem;color:var(--danger);margin-top:.2rem;display:block';
+      inputEl.parentNode.insertBefore(err, inputEl.nextSibling);
+    }
+    err.textContent = msg;
+    setTimeout(() => { inputEl.classList.remove('error'); if (err) err.remove(); }, 3000);
+  }
+
+  // ── Run algorithm ──────────────────────────────────────────
+  runBtn.addEventListener('click', runAlgorithm);
+
+  function runAlgorithm() {
+    clearErrors();
+
+    const nfa = {
+      states:       [...state.states],
+      alphabet:     [...state.alphabet],
+      initialState: state.initialState,
+      finalStates:  [...state.finalStates],
+      transitions:  JSON.parse(JSON.stringify(state.transitions))
+    };
+
+    const { valid, errors } = validateNFA(nfa);
+    if (!valid) { showErrors(errors); return; }
+
+    // Run subset construction
+    let result;
+    try {
+      result = subsetConstruction(nfa);
+    } catch (e) {
+      showErrors(['Algorithm error: ' + e.message]);
+      return;
+    }
+
+    state.dfa   = result.dfa;
+    state.steps = result.steps;
+    state.currentStep = -1;
+    state.isPlaying = false;
+    clearInterval(state.playTimer);
+
+    // Render outputs
+    renderDFAGraph(result.dfa);
+    renderDFATable(result.dfa);
+    renderStepsPanel(result.steps, result.dfa);
+    renderStringTester(result.dfa);
+
+    // Switch to graph tab
+    document.querySelector('[data-tab="graph-tab"]').click();
+  }
+
+  // ── Clear all ──────────────────────────────────────────────
+  clearBtn.addEventListener('click', clearAll);
+  function clearAll() {
+    state.states = []; state.alphabet = []; state.initialState = '';
+    state.finalStates = []; state.transitions = {};
+    state.dfa = null; state.steps = []; state.currentStep = -1;
+    clearInterval(state.playTimer);
+    exampleSelect.value = '';
+    refreshStateChips(); refreshAlphabetChips(); refreshInitialSelect();
+    refreshFinalCheckboxes(); refreshTransitionTable(); clearErrors();
+    $('graph-canvas').style.display = 'none';
+    $('graph-empty').style.display = 'flex';
+    $('dfa-table-wrap').innerHTML = '<div class="empty-state"><div class="empty-icon">⊞</div><p>Run the algorithm to generate the DFA transition table.</p></div>';
+    $('steps-panel').innerHTML = '<div class="empty-state"><div class="empty-icon">▷</div><p>Run the algorithm to view step-by-step execution.</p></div>';
+    $('string-tester-panel').innerHTML = '<div class="empty-state"><div class="empty-icon">🔤</div><p>Run the algorithm first, then test strings here.</p></div>';
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // DFA GRAPH RENDERER (pure SVG, no external lib)
+  // ═══════════════════════════════════════════════════════════
+
+  let graphNodes = [];  // { id, x, y, label, type }
+  let graphEdges = [];  // { from, to, label, selfLoop }
+
+  function renderDFAGraph(dfa) {
+    const canvas = $('graph-canvas');
+    const empty  = $('graph-empty');
+    const root   = $('graph-root');
+    root.innerHTML = '';
+    canvas.style.display = 'block';
+    empty.style.display  = 'none';
+
+    graphNodes = [];
+    graphEdges = [];
+
+    // Layout nodes in a grid / circle
+    const stateList = dfa.states;
+    const n = stateList.length;
+    const cx = 400, cy = 240, R = Math.min(180, 60 * n / 2 + 60);
+    const nodeR = 32;
+
+    stateList.forEach(function (s, i) {
+      let x, y;
+      if (n === 1) { x = cx; y = cy; }
+      else {
+        const angle = (2 * Math.PI * i / n) - Math.PI / 2;
+        x = cx + R * Math.cos(angle);
+        y = cy + R * Math.sin(angle);
+      }
+      let type = 'normal';
+      if (s === dfa.initialState && dfa.finalStates.includes(s)) type = 'initial-final';
+      else if (s === dfa.initialState) type = 'initial';
+      else if (dfa.finalStates.includes(s)) type = 'final';
+      else if (s === dfa.deadState) type = 'dead';
+      graphNodes.push({ id: s, x, y, label: s, type });
+    });
+
+    // Build edges (merge parallel edges with multi-symbol labels)
+    const edgeMap = {};
+    Object.keys(dfa.transitions).forEach(function (from) {
+      Object.keys(dfa.transitions[from]).forEach(function (sym) {
+        const to  = dfa.transitions[from][sym];
+        const key = from + '→' + to;
+        if (!edgeMap[key]) edgeMap[key] = { from, to, symbols: [], selfLoop: from === to };
+        edgeMap[key].symbols.push(sym);
+      });
+    });
+    graphEdges = Object.values(edgeMap).map(e => ({ ...e, label: e.symbols.join(',') }));
+
+    drawGraph(dfa, -1);
+    setupGraphControls();
+    setupDrag();
+  }
+
+  function drawGraph(dfa, activeStepIndex) {
+    const root = $('graph-root');
+    root.innerHTML = '';
+    const nodeR = 32;
+
+    // Apply transform
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('transform', `translate(${state.graphOffsetX},${state.graphOffsetY}) scale(${state.graphScale})`);
+    root.appendChild(g);
+
+    // Determine highlighted nodes from step
+    let activeNode = null, newNode = null;
+    if (activeStepIndex >= 0 && state.steps[activeStepIndex]) {
+      const step = state.steps[activeStepIndex];
+      activeNode = step.currentSubset;
+      newNode    = step.isNewState ? step.resultingSubset : null;
+    }
+
+    // Draw edges first (behind nodes)
+    graphEdges.forEach(function (edge) {
+      const fromNode = graphNodes.find(n => n.id === edge.from);
+      const toNode   = graphNodes.find(n => n.id === edge.to);
+      if (!fromNode || !toNode) return;
+      drawEdge(g, fromNode, toNode, edge, nodeR, activeNode);
+    });
+
+    // Draw nodes
+    graphNodes.forEach(function (node) {
+      const isActive = node.id === activeNode;
+      const isNew    = node.id === newNode;
+      drawNode(g, node, nodeR, isActive, isNew, dfa);
+    });
+  }
+
+  function drawNode(g, node, r, isActive, isNew, dfa) {
+    const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    group.setAttribute('class', 'graph-node');
+    group.setAttribute('data-id', node.id);
+    group.setAttribute('transform', `translate(${node.x},${node.y})`);
+
+    // Determine style
+    let type = node.type;
+    if (isActive) type = 'active';
+    else if (isNew) type = 'new';
+
+    const fills = {
+      normal: 'var(--node-normal)', initial: 'var(--node-initial)',
+      final: 'var(--node-final)', 'initial-final': 'var(--node-initial)',
+      dead: 'var(--node-dead)', active: 'var(--node-active)', new: 'var(--node-new)'
+    };
+    const strokes = {
+      normal: 'var(--border-strong)', initial: 'var(--accent)',
+      final: 'var(--success)', 'initial-final': 'var(--accent)',
+      dead: 'var(--danger)', active: 'var(--warning)', new: 'var(--info)'
+    };
+    const strokeWidths = { active: '3', new: '3' };
+    const dashArrays   = { dead: '5,3' };
+
+    // Outer circle
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('r', r);
+    circle.setAttribute('fill', fills[type] || fills.normal);
+    circle.setAttribute('stroke', strokes[type] || strokes.normal);
+    circle.setAttribute('stroke-width', strokeWidths[type] || '2');
+    if (dashArrays[type]) circle.setAttribute('stroke-dasharray', dashArrays[type]);
+    group.appendChild(circle);
+
+    // Double ring for final states
+    const isFinal = dfa.finalStates.includes(node.id);
+    if (isFinal) {
+      const inner = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      inner.setAttribute('r', r - 5);
+      inner.setAttribute('fill', 'none');
+      inner.setAttribute('stroke', strokes[isActive ? 'active' : isNew ? 'new' : 'final'] || strokes.final);
+      inner.setAttribute('stroke-width', '1.5');
+      group.appendChild(inner);
+    }
+
+    // Initial state arrow
+    if (node.id === dfa.initialState) {
+      const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      arrow.setAttribute('x1', -(r + 28)); arrow.setAttribute('y1', '0');
+      arrow.setAttribute('x2', -(r + 2));  arrow.setAttribute('y2', '0');
+      arrow.setAttribute('stroke', 'var(--accent)');
+      arrow.setAttribute('stroke-width', '2');
+      arrow.setAttribute('marker-end', 'url(#arrowhead)');
+      group.appendChild(arrow);
+    }
+
+    // Label — shorten long subset labels
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    let displayLabel = node.label;
+    if (displayLabel.length > 12) {
+      // Show as "S1", "S2"... but with a tooltip
+      const idx = graphNodes.findIndex(n => n.id === node.id);
+      displayLabel = 'D' + (idx + 1);
+    }
+    text.textContent = displayLabel;
+    text.setAttribute('fill', 'var(--text)');
+    text.setAttribute('font-size', displayLabel.length > 6 ? '9' : '11');
+    group.appendChild(text);
+
+    g.appendChild(group);
+  }
+
+  function drawEdge(g, fromNode, toNode, edge, r, activeNode) {
+    const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    group.setAttribute('class', 'graph-edge');
+
+    if (edge.selfLoop) {
+      // Self-loop
+      const lx = fromNode.x, ly = fromNode.y - r;
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const dx = 28, dy = 38;
+      path.setAttribute('d', `M ${lx - dx/2} ${ly} C ${lx - dx*1.5} ${ly - dy*2} ${lx + dx*1.5} ${ly - dy*2} ${lx + dx/2} ${ly}`);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', 'var(--text-secondary)');
+      path.setAttribute('stroke-width', '1.8');
+      path.setAttribute('marker-end', 'url(#arrowhead)');
+      group.appendChild(path);
+
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', lx);
+      text.setAttribute('y', ly - dy * 1.5);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('fill', 'var(--text)');
+      text.setAttribute('font-size', '11');
+      text.setAttribute('font-family', 'var(--font-mono)');
+      text.textContent = edge.label;
+      group.appendChild(text);
+    } else {
+      // Check if there's a reverse edge (need curve)
+      const hasReverse = graphEdges.some(e => e.from === edge.to && e.to === edge.from);
+      const dx = toNode.x - fromNode.x;
+      const dy = toNode.y - fromNode.y;
+      const len = Math.sqrt(dx*dx + dy*dy);
+
+      // Start/end points on circle circumference
+      const startX = fromNode.x + (dx / len) * (r + 2);
+      const startY = fromNode.y + (dy / len) * (r + 2);
+      const endX   = toNode.x   - (dx / len) * (r + 4);
+      const endY   = toNode.y   - (dy / len) * (r + 4);
+
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      let d;
+      if (hasReverse) {
+        // Quadratic curve
+        const cpX = (startX + endX) / 2 - dy * 0.3;
+        const cpY = (startY + endY) / 2 + dx * 0.3;
+        d = `M ${startX} ${startY} Q ${cpX} ${cpY} ${endX} ${endY}`;
+      } else {
+        d = `M ${startX} ${startY} L ${endX} ${endY}`;
+      }
+      path.setAttribute('d', d);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', 'var(--text-secondary)');
+      path.setAttribute('stroke-width', '1.8');
+      path.setAttribute('marker-end', 'url(#arrowhead)');
+      group.appendChild(path);
+
+      // Label
+      const midX = hasReverse ? (startX + endX) / 2 - dy * 0.3 : (startX + endX) / 2;
+      const midY = hasReverse ? (startY + endY) / 2 + dx * 0.3 : (startY + endY) / 2;
+      // Label background
+      const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      bg.setAttribute('x', midX - 10); bg.setAttribute('y', midY - 9);
+      bg.setAttribute('width', 20); bg.setAttribute('height', 14);
+      bg.setAttribute('rx', 3); bg.setAttribute('fill', 'var(--bg)');
+      group.appendChild(bg);
+
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', midX); text.setAttribute('y', midY + 1);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('fill', 'var(--text)');
+      text.setAttribute('font-size', '11');
+      text.setAttribute('font-family', 'var(--font-mono)');
+      text.textContent = edge.label;
+      group.appendChild(text);
+    }
+
+    g.appendChild(group);
+  }
+
+  // ── Graph controls ─────────────────────────────────────────
+  function setupGraphControls() {
+    $('zoom-in').onclick  = function () { state.graphScale = Math.min(state.graphScale + 0.2, 3); redrawGraph(); };
+    $('zoom-out').onclick = function () { state.graphScale = Math.max(state.graphScale - 0.2, 0.3); redrawGraph(); };
+    $('fit-graph').onclick = function () { state.graphScale = 1; state.graphOffsetX = 0; state.graphOffsetY = 0; redrawGraph(); };
+  }
+
+  // ── Graph drag ─────────────────────────────────────────────
+  function setupDrag() {
+    const canvas = $('graph-canvas');
+    let dragging = false, lastX = 0, lastY = 0;
+    canvas.addEventListener('mousedown', function (e) { dragging = true; lastX = e.clientX; lastY = e.clientY; });
+    canvas.addEventListener('mousemove', function (e) {
+      if (!dragging) return;
+      state.graphOffsetX += e.clientX - lastX;
+      state.graphOffsetY += e.clientY - lastY;
+      lastX = e.clientX; lastY = e.clientY;
+      redrawGraph();
+    });
+    canvas.addEventListener('mouseup',   () => dragging = false);
+    canvas.addEventListener('mouseleave',() => dragging = false);
+    // Touch
+    canvas.addEventListener('touchstart', function (e) { dragging = true; const t = e.touches[0]; lastX = t.clientX; lastY = t.clientY; }, { passive: true });
+    canvas.addEventListener('touchmove',  function (e) {
+      if (!dragging) return;
+      const t = e.touches[0];
+      state.graphOffsetX += t.clientX - lastX;
+      state.graphOffsetY += t.clientY - lastY;
+      lastX = t.clientX; lastY = t.clientY;
+      redrawGraph();
+    }, { passive: true });
+    canvas.addEventListener('touchend', () => dragging = false);
+  }
+
+  function redrawGraph() {
+    if (!state.dfa) return;
+    drawGraph(state.dfa, state.currentStep);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // DFA TRANSITION TABLE
+  // ═══════════════════════════════════════════════════════════
+  function renderDFATable(dfa) {
+    const wrap = $('dfa-table-wrap');
+    wrap.innerHTML = '';
+
+    // State label index for display
+    const stateIndex = {};
+    dfa.states.forEach((s, i) => stateIndex[s] = 'D' + (i + 1));
+
+    const container = document.createElement('div');
+    container.className = 'table-wrap';
+
+    const table = document.createElement('table');
+    table.className = 'trans-table';
+    table.setAttribute('aria-label', 'DFA transition table');
+
+    // Caption / legend
+    const caption = document.createElement('caption');
+    caption.style.cssText = 'text-align:left;padding:.5rem;font-size:.75rem;color:var(--text-muted)';
+    caption.textContent = '→ = initial state   * = accepting state   ∅ = dead/trap state';
+    table.appendChild(caption);
+
+    // Header
+    const thead = document.createElement('thead');
+    const hrow  = document.createElement('tr');
+    const thIdx = document.createElement('th'); thIdx.textContent = '#';   hrow.appendChild(thIdx);
+    const thSt  = document.createElement('th'); thSt.textContent = 'DFA State (NFA subset)'; hrow.appendChild(thSt);
+    dfa.alphabet.forEach(function (sym) {
+      const th = document.createElement('th');
+      th.innerHTML = `<span class="font-mono">${sym}</span>`;
+      hrow.appendChild(th);
+    });
+    thead.appendChild(hrow);
+    table.appendChild(thead);
+
+    // Body
+    const tbody = document.createElement('tbody');
+    dfa.states.forEach(function (s, i) {
+      const row = document.createElement('tr');
+      row.dataset.state = s;
+
+      const tdIdx = document.createElement('td');
+      tdIdx.className = 'state-cell font-mono text-muted';
+      tdIdx.textContent = stateIndex[s];
+      row.appendChild(tdIdx);
+
+      const tdSt = document.createElement('td');
+      tdSt.className = 'state-cell';
+      let prefix = '';
+      if (s === dfa.initialState) prefix += '→ ';
+      if (dfa.finalStates.includes(s)) prefix += '* ';
+      tdSt.innerHTML = `<span class="font-mono">${prefix}<strong>${s}</strong></span>`;
+      row.appendChild(tdSt);
+
+      dfa.alphabet.forEach(function (sym) {
+        const td = document.createElement('td');
+        const target = dfa.transitions[s] && dfa.transitions[s][sym];
+        if (!target || target === '∅') {
+          td.innerHTML = '<span class="cell-dead font-mono">∅</span>';
+        } else {
+          td.innerHTML = `<span class="font-mono">${target}</span>`;
+        }
+        row.appendChild(td);
+      });
+
+      tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    container.appendChild(table);
+    wrap.appendChild(container);
+
+    // State key
+    const keyDiv = document.createElement('div');
+    keyDiv.style.cssText = 'margin-top:.75rem;font-size:.8rem;color:var(--text-secondary)';
+    keyDiv.innerHTML = '<strong>State index:</strong> ' + dfa.states.map((s, i) => `<span class="font-mono">D${i+1} = ${s}</span>`).join(' &nbsp; ');
+    wrap.appendChild(keyDiv);
+  }
+
+  // Highlight active row during steps
+  function highlightTableRow(stateLabel) {
+    document.querySelectorAll('#dfa-table-wrap tbody tr').forEach(function (row) {
+      row.classList.toggle('row-active', row.dataset.state === stateLabel);
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // STEP-BY-STEP EXECUTION PANEL
+  // ═══════════════════════════════════════════════════════════
+  function renderStepsPanel(steps, dfa) {
+    const panel = $('steps-panel');
+    panel.innerHTML = '';
+
+    if (steps.length === 0) {
+      panel.innerHTML = '<div class="alert alert-info">No steps were generated. The DFA may be trivial.</div>';
+      return;
+    }
+
+    // Controls
+    const controls = document.createElement('div');
+    controls.innerHTML = `
+      <div class="execution-controls" style="margin-bottom:1rem" role="toolbar" aria-label="Step controls">
+        <button class="btn btn-secondary btn-sm" id="step-prev"  aria-label="Previous step">◀ Prev</button>
+        <button class="btn btn-primary  btn-sm" id="step-play"  aria-label="Play steps">▶ Play</button>
+        <button class="btn btn-secondary btn-sm" id="step-next"  aria-label="Next step">Next ▶</button>
+        <button class="btn btn-ghost    btn-sm" id="step-reset" aria-label="Reset to beginning">↺ Reset</button>
+        <span class="step-counter" id="step-counter" aria-live="polite">Step 0 / ${steps.length}</span>
+        <select class="speed-select" id="speed-select" aria-label="Playback speed">
+          <option value="1000">Slow</option>
+          <option value="500" selected>Normal</option>
+          <option value="200">Fast</option>
+        </select>
+      </div>
+    `;
+    panel.appendChild(controls);
+
+    // Step description box
+    const stepBox = document.createElement('div');
+    stepBox.className = 'step-box';
+    stepBox.id = 'step-box';
+    stepBox.innerHTML = '<div class="text-muted text-sm">Click "Play" or "Next" to start stepping through the algorithm.</div>';
+    panel.appendChild(stepBox);
+
+    // Queue display
+    const queueSection = document.createElement('div');
+    queueSection.style.marginTop = '.75rem';
+    queueSection.innerHTML = `
+      <div class="panel-title" style="margin-bottom:.5rem">Unprocessed Queue</div>
+      <div class="queue-list" id="queue-display" aria-live="polite"><span class="text-muted text-sm">—</span></div>
+    `;
+    panel.appendChild(queueSection);
+
+    // NFA transitions log
+    const transLog = document.createElement('div');
+    transLog.style.marginTop = '.75rem';
+    transLog.innerHTML = `
+      <div class="panel-title" style="margin-bottom:.5rem">NFA Transitions Examined</div>
+      <div id="nfa-trans-log" style="font-size:.8rem;font-family:var(--font-mono);color:var(--text-secondary)">—</div>
+    `;
+    panel.appendChild(transLog);
+
+    // Wire up controls
+    $('step-prev').addEventListener('click',  stepBack);
+    $('step-next').addEventListener('click',  stepForward);
+    $('step-reset').addEventListener('click', stepReset);
+    $('step-play').addEventListener('click',  togglePlay);
+    $('speed-select').addEventListener('change', function () {
+      state.speed = parseInt(this.value);
+      if (state.isPlaying) { clearInterval(state.playTimer); startPlay(); }
+    });
+  }
+
+  function updateStepView() {
+    const idx = state.currentStep;
+    const steps = state.steps;
+    const counter = $('step-counter');
+    if (counter) counter.textContent = `Step ${idx < 0 ? 0 : idx + 1} / ${steps.length}`;
+
+    if (idx < 0) {
+      const stepBox = $('step-box');
+      if (stepBox) stepBox.innerHTML = '<div class="text-muted text-sm">Click "Play" or "Next" to start stepping through the algorithm.</div>';
+      const queueDisplay = $('queue-display');
+      if (queueDisplay) queueDisplay.innerHTML = '<span class="text-muted text-sm">—</span>';
+      const nfaLog = $('nfa-trans-log');
+      if (nfaLog) nfaLog.textContent = '—';
+      redrawGraph();
+      highlightTableRow(null);
+      return;
+    }
+
+    const step = steps[idx];
+    if (!step) return;
+
+    // Step explanation
+    const stepBox = $('step-box');
+    if (stepBox) {
+      stepBox.innerHTML = `
+        <div class="step-label">Step ${idx + 1} of ${steps.length}</div>
+        <div class="step-detail"><span class="step-detail-key">Processing subset:</span><span class="step-detail-val">${step.currentSubset}</span></div>
+        <div class="step-detail"><span class="step-detail-key">Input symbol:</span><span class="step-detail-val">"${step.symbol}"</span></div>
+        <div class="step-detail"><span class="step-detail-key">Result (δ*):</span><span class="step-detail-val">${step.resultingSubset}</span></div>
+        <div class="step-detail"><span class="step-detail-key">Is new state:</span><span class="step-detail-val" style="color:${step.isNewState ? 'var(--success)' : 'var(--text-muted)'}">${step.isNewState ? '✓ Yes — added to queue' : '✗ Already discovered'}</span></div>
+        <div class="step-detail"><span class="step-detail-key">Is accepting:</span><span class="step-detail-val" style="color:${step.isAccepting ? 'var(--success)' : 'var(--text-muted)'}">${step.isAccepting ? '✓ Yes' : '✗ No'}</span></div>
+        <div style="margin-top:.625rem;font-size:.8rem;color:var(--text-secondary);line-height:1.6">${step.description}</div>
+      `;
+    }
+
+    // Queue
+    const queueDisplay = $('queue-display');
+    if (queueDisplay) {
+      if (step.queue.length === 0) {
+        queueDisplay.innerHTML = '<span class="badge badge-active">Queue empty — algorithm complete</span>';
+      } else {
+        queueDisplay.innerHTML = step.queue.map(q => `<span class="queue-item">${q}</span>`).join('');
+      }
+    }
+
+    // NFA transitions log
+    const nfaLog = $('nfa-trans-log');
+    if (nfaLog) {
+      nfaLog.textContent = step.nfaTransitionsExamined
+        .map(t => `δ(${t.from}, ${t.symbol}) = {${t.to.length > 0 ? t.to.join(', ') : '∅'}}`)
+        .join('  |  ');
+    }
+
+    // Graph highlight
+    redrawGraph();
+    // Table highlight
+    highlightTableRow(step.currentSubset);
+  }
+
+  function stepForward() {
+    if (state.currentStep < state.steps.length - 1) {
+      state.currentStep++;
+      updateStepView();
+      // Update button states
+      const prev = $('step-prev'), next = $('step-next');
+      if (prev) prev.disabled = state.currentStep <= 0;
+      if (next) next.disabled = state.currentStep >= state.steps.length - 1;
+    } else {
+      stopPlay();
+    }
+  }
+
+  function stepBack() {
+    if (state.currentStep > 0) {
+      state.currentStep--;
+      updateStepView();
+    } else if (state.currentStep === 0) {
+      state.currentStep = -1;
+      updateStepView();
+    }
+    const prev = $('step-prev'), next = $('step-next');
+    if (prev) prev.disabled = state.currentStep <= 0;
+    if (next) next.disabled = state.currentStep >= state.steps.length - 1;
+  }
+
+  function stepReset() {
+    stopPlay();
+    state.currentStep = -1;
+    updateStepView();
+    const prev = $('step-prev'), next = $('step-next');
+    if (prev) prev.disabled = true;
+    if (next) next.disabled = false;
+  }
+
+  function startPlay() {
+    state.isPlaying = true;
+    const playBtn = $('step-play');
+    if (playBtn) playBtn.textContent = '⏸ Pause';
+    state.playTimer = setInterval(function () {
+      if (state.currentStep >= state.steps.length - 1) { stopPlay(); return; }
+      stepForward();
+    }, state.speed);
+  }
+
+  function stopPlay() {
+    state.isPlaying = false;
+    clearInterval(state.playTimer);
+    const playBtn = $('step-play');
+    if (playBtn) playBtn.textContent = '▶ Play';
+  }
+
+  function togglePlay() {
+    if (state.isPlaying) stopPlay();
+    else startPlay();
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // STRING TESTER
+  // ═══════════════════════════════════════════════════════════
+  function renderStringTester(dfa) {
+    const panel = $('string-tester-panel');
+    panel.innerHTML = `
+      <div class="string-tester">
+        <div class="panel-title" style="margin-bottom:.5rem">Test a String on the DFA</div>
+        <p class="form-hint" style="margin-bottom:.75rem">Enter a string over Σ = {${dfa.alphabet.join(', ')}}. Use empty input to test ε.</p>
+        <div class="string-input-row">
+          <input type="text" class="form-input" id="test-string-input"
+                 placeholder="e.g. 10110"
+                 aria-label="Input string to test"
+                 autocomplete="off" spellcheck="false" />
+          <button class="btn btn-primary" id="test-string-btn" aria-label="Test this string">Test</button>
+        </div>
+        <div id="test-result" aria-live="polite"></div>
+      </div>
+    `;
+
+    $('test-string-btn').addEventListener('click', function () {
+      const input = $('test-string-input').value;
+      const result = testStringOnDFA(dfa, input);
+      renderTestResult(result, dfa);
+    });
+
+    $('test-string-input').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') $('test-string-btn').click();
+    });
+  }
+
+  function renderTestResult(result, dfa) {
+    const container = $('test-result');
+    if (!container) return;
+
+    let html = '';
+
+    // Verdict banner
+    let verdictClass = 'verdict-rejected';
+    if (result.verdict === 'ACCEPTED') verdictClass = 'verdict-accepted';
+    if (result.verdict === 'ERROR')    verdictClass = 'verdict-error';
+
+    const verdictEmoji = result.verdict === 'ACCEPTED' ? '✓' : result.verdict === 'ERROR' ? '⚠' : '✗';
+    html += `<div class="verdict ${verdictClass}" style="margin-top:1rem" role="status">${verdictEmoji} ${result.verdict}</div>`;
+
+    if (result.errorMessage) {
+      html += `<div class="alert alert-error" style="margin-top:.5rem">${result.errorMessage}</div>`;
+    }
+
+    // Trace
+    if (result.stateTrace.length > 0) {
+      html += `<div style="margin-top:1rem"><div class="panel-title" style="margin-bottom:.5rem">Execution Trace</div>`;
+      html += `<ul class="trace-list" aria-label="State trace">`;
+
+      // Initial state
+      html += `<li class="trace-item"><span class="trace-char" style="color:var(--text-muted)">start</span><span class="trace-arrow">→</span><span class="trace-state">${result.stateTrace[0]}</span></li>`;
+
+      result.transitionHistory.forEach(function (t, i) {
+        const isDead  = dfa.deadState && t.toState === dfa.deadState;
+        const isFinal = i === result.transitionHistory.length - 1 && result.accepted;
+        const cls = isDead ? 'trace-dead' : '';
+        html += `<li class="trace-item ${cls}">
+          <span class="trace-char">'${t.char}'</span>
+          <span class="trace-arrow">→</span>
+          <span class="trace-state">${t.toState}${isDead ? ' (dead)' : ''}</span>
+        </li>`;
+      });
+
+      const finalState = result.stateTrace[result.stateTrace.length - 1];
+      const finalClass = result.accepted ? 'trace-accepted' : 'trace-rejected';
+      html += `<li class="trace-item ${finalClass}">
+        <span class="trace-char" style="color:var(--text-secondary)">final</span>
+        <span class="trace-arrow">→</span>
+        <span class="trace-state">${finalState} ${result.accepted ? '✓ accepting' : '✗ not accepting'}</span>
+      </li>`;
+
+      html += '</ul></div>';
+    }
+
+    container.innerHTML = html;
+  }
+
+  // ── Initial state of controls ──────────────────────────────
+  refreshStateChips();
+  refreshAlphabetChips();
+  refreshInitialSelect();
+  refreshFinalCheckboxes();
+  refreshTransitionTable();
+
+})();
+</script>
+</body>
+</html>

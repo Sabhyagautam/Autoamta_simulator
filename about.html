@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Automata Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/components/layout.js" defer></script>
+  <script src="js/data/simulatorRegistry.js"></script>
+</head>
+<body>
+<main>
+<div class="section">
+<div class="container-sm">
+
+  <h1 style="margin-bottom:.5rem">About Automata Lab</h1>
+  <p style="margin-bottom:2.5rem">Project information, technical architecture, and course context.</p>
+
+  <!-- Project Info -->
+  <div class="learn-section">
+    <h2>Project Information</h2>
+    <div class="grid-2" style="gap:1rem;margin-top:1rem">
+      <div>
+        <div class="text-muted text-sm" style="margin-bottom:.25rem">Course</div>
+        <div style="font-weight:600">CSET302 — Automata Theory and Computability</div>
+      </div>
+      <div>
+        <div class="text-muted text-sm" style="margin-bottom:.25rem">Project Title</div>
+        <div style="font-weight:600">Automata Lab — Interactive Automata Simulator</div>
+      </div>
+      <div>
+        <div class="text-muted text-sm" style="margin-bottom:.25rem">Primary Simulator</div>
+        <div style="font-weight:600">NFA → DFA Conversion (Subset Construction)</div>
+      </div>
+      <div>
+        <div class="text-muted text-sm" style="margin-bottom:.25rem">Platform</div>
+        <div style="font-weight:600">Web browser (no backend, no installation)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical Stack -->
+  <div class="learn-section">
+    <h2>Technology Stack</h2>
+    <p>Automata Lab is built as a plain HTML/CSS/JavaScript static website. No frameworks, no npm, no build step required.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;margin-top:1rem">
+      <div class="card-elevated">
+        <div style="font-weight:600;margin-bottom:.25rem">HTML5</div>
+        <div class="text-muted text-sm">Semantic markup with ARIA roles for accessibility.</div>
+      </div>
+      <div class="card-elevated">
+        <div style="font-weight:600;margin-bottom:.25rem">CSS (custom)</div>
+        <div class="text-muted text-sm">CSS variables, dark/light themes, responsive grid.</div>
+      </div>
+      <div class="card-elevated">
+        <div style="font-weight:600;margin-bottom:.25rem">Vanilla JavaScript</div>
+        <div class="text-muted text-sm">ES6+. Algorithm in pure functions, no frameworks.</div>
+      </div>
+      <div class="card-elevated">
+        <div style="font-weight:600;margin-bottom:.25rem">SVG Graph</div>
+        <div class="text-muted text-sm">DFA visualisation with inline SVG, no external graph library.</div>
+      </div>
+      <div class="card-elevated">
+        <div style="font-weight:600;margin-bottom:.25rem">Google Fonts</div>
+        <div class="text-muted text-sm">Inter (UI) + JetBrains Mono (code/states).</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Architecture -->
+  <div class="learn-section">
+    <h2>Architecture</h2>
+    <p>The codebase is organised to separate concerns cleanly:</p>
+    <div class="math-def" style="font-size:.8rem;line-height:1.9">
+      automata-lab/<br/>
+      ├── css/style.css           — complete design system &amp; all components<br/>
+      ├── js/<br/>
+      │   ├── algorithms/nfaToDfa.js   — pure subset construction algorithm<br/>
+      │   ├── validators/nfaValidator.js — input validation, returns error list<br/>
+      │   ├── utils/stateSetUtils.js   — set operations (union, canonical label)<br/>
+      │   ├── data/examples.js         — pre-built NFA configurations<br/>
+      │   ├── data/simulatorRegistry.js — all 15 module definitions<br/>
+      │   └── components/layout.js     — shared navbar, footer, theme system<br/>
+      ├── index.html      — landing page<br/>
+      ├── dashboard.html  — module dashboard<br/>
+      ├── simulator.html  — NFA→DFA simulator workspace<br/>
+      ├── learning.html   — theory &amp; worked examples<br/>
+      └── about.html      — this page
+    </div>
+    <p style="margin-top:.75rem">The algorithm (<code>nfaToDfa.js</code>) is a pure function — it has no DOM dependencies and can be tested independently. The simulator page imports it and wires it to the UI.</p>
+  </div>
+
+  <!-- Algorithm correctness -->
+  <div class="learn-section">
+    <h2>Algorithm Correctness</h2>
+    <p>The subset construction implementation has been manually verified against the assignment example:</p>
+    <div class="alert alert-success" style="margin:.75rem 0">
+      ✓ Input NFA (q0,q1,q2) over {0,1} produces exactly 4 DFA states: {q0}, {q0,q1}, {q0,q2}, {q0,q1,q2}.<br/>
+      ✓ Accepting states correctly identified as {q0,q2} and {q0,q1,q2} (contain q2).<br/>
+      ✓ No dead state needed (all transitions defined).<br/>
+      ✓ Canonical state labels (always sorted) prevent duplicate states.
+    </div>
+    <p>Edge cases handled:</p>
+    <ul style="margin-left:1.25rem;color:var(--text-secondary);font-size:.875rem;display:flex;flex-direction:column;gap:.25rem">
+      <li>Missing NFA transitions → dead state ∅ added to DFA</li>
+      <li>Multiple NFA transitions for same symbol → union computed correctly</li>
+      <li>Unreachable NFA states → never appear in DFA (BFS only visits reachable subsets)</li>
+      <li>Self-loops → handled naturally by the algorithm</li>
+      <li>Empty string input → checked against initial DFA state directly</li>
+      <li>Invalid symbol in test string → rejected with error message</li>
+    </ul>
+  </div>
+
+  <!-- Module status -->
+  <div class="learn-section">
+    <h2>Simulator Modules</h2>
+    <p>15 modules are planned. Implementation status:</p>
+    <div id="about-modules" style="display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem">
+      <!-- rendered by JS -->
+    </div>
+  </div>
+
+</div>
+</div>
+</main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const container = document.getElementById('about-modules');
+    if (!container || typeof SIMULATORS === 'undefined') return;
+    SIMULATORS.forEach(function (mod) {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:.75rem;padding:.5rem .75rem;border-radius:8px;border:1px solid var(--border);font-size:.875rem';
+      row.innerHTML = `
+        <span style="font-family:var(--font-mono);width:28px;text-align:center">${mod.icon}</span>
+        <span style="flex:1;font-weight:500">${mod.title}</span>
+        <span class="badge ${mod.status === 'active' ? 'badge-active' : 'badge-soon'}">${mod.status === 'active' ? '● Active' : 'Coming Soon'}</span>
+      `;
+      container.appendChild(row);
+    });
+  });
+</script>
+</body>
+</html>

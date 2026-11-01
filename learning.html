@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Learn — Automata Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/components/layout.js" defer></script>
+</head>
+<body>
+<main>
+<div class="section">
+<div class="container-sm">
+
+  <h1 style="margin-bottom:.5rem">Automata Theory — Study Guide</h1>
+  <p style="margin-bottom:2.5rem">Everything you need to understand NFA → DFA conversion for CSET302.</p>
+
+  <!-- Table of contents -->
+  <nav class="card-elevated" style="margin-bottom:2rem" aria-label="Table of contents">
+    <div style="font-weight:600;margin-bottom:.5rem;font-size:.875rem">Contents</div>
+    <ol style="margin-left:1.25rem;font-size:.875rem;color:var(--text-secondary);display:flex;flex-direction:column;gap:.25rem">
+      <li><a href="#nfa">What is an NFA?</a></li>
+      <li><a href="#dfa">What is a DFA?</a></li>
+      <li><a href="#comparison">NFA vs DFA</a></li>
+      <li><a href="#algorithm">Subset Construction Algorithm</a></li>
+      <li><a href="#accepting">Accepting States &amp; Dead States</a></li>
+      <li><a href="#complexity">Time &amp; Space Complexity</a></li>
+      <li><a href="#worked">Worked Example</a></li>
+      <li><a href="#mistakes">Common Mistakes</a></li>
+      <li><a href="#practice">Practice Questions</a></li>
+    </ol>
+  </nav>
+
+  <!-- NFA -->
+  <div class="learn-section" id="nfa">
+    <h2>1. What is a Non-deterministic Finite Automaton (NFA)?</h2>
+    <p>An NFA is a 5-tuple M = (Q, Σ, δ, q₀, F) where:</p>
+    <div class="math-def">
+      Q  — finite set of states<br/>
+      Σ  — finite input alphabet<br/>
+      δ  — transition function: Q × Σ → 𝒫(Q) &nbsp; (maps to a <em>set</em> of states)<br/>
+      q₀ — initial state, q₀ ∈ Q<br/>
+      F  — set of final/accepting states, F ⊆ Q
+    </div>
+    <p>The key difference from a DFA is the transition function: δ maps a state and a symbol to a <strong>set of possible next states</strong> (including the empty set ∅). This "non-determinism" means the machine can be in multiple states simultaneously.</p>
+    <p>An NFA accepts a string w if <em>any</em> possible computation path reaches an accepting state.</p>
+  </div>
+
+  <!-- DFA -->
+  <div class="learn-section" id="dfa">
+    <h2>2. What is a Deterministic Finite Automaton (DFA)?</h2>
+    <p>A DFA is also a 5-tuple M = (Q, Σ, δ, q₀, F), but with a stricter transition function:</p>
+    <div class="math-def">
+      δ : Q × Σ → Q &nbsp; (maps to exactly <em>one</em> next state)
+    </div>
+    <p>In a DFA:</p>
+    <ul style="margin-left:1.25rem;color:var(--text-secondary);font-size:.875rem;display:flex;flex-direction:column;gap:.25rem">
+      <li>Every state has exactly one transition per input symbol.</li>
+      <li>There is no ambiguity — the next state is always uniquely determined.</li>
+      <li>Simulation is linear in the length of the input string.</li>
+    </ul>
+    <p style="margin-top:.75rem">A DFA accepts a string w = a₁a₂…aₙ if starting from q₀ and following transitions δ(q, aᵢ) one character at a time, the machine ends in a state q ∈ F.</p>
+  </div>
+
+  <!-- Comparison -->
+  <div class="learn-section" id="comparison">
+    <h2>3. NFA vs DFA — Key Differences</h2>
+    <div style="overflow-x:auto;margin:1rem 0">
+      <table class="comparison-table" aria-label="NFA vs DFA comparison">
+        <thead>
+          <tr><th>Property</th><th>NFA</th><th>DFA</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Transition function output</td><td>Set of states 𝒫(Q)</td><td>Single state Q</td></tr>
+          <tr><td>Transitions per symbol</td><td>0, 1, or many</td><td>Exactly 1</td></tr>
+          <tr><td>Missing transitions</td><td>Allowed (= ∅)</td><td>Must go to a dead state</td></tr>
+          <tr><td>Simulation complexity</td><td>O(|w| · |Q|)</td><td>O(|w|)</td></tr>
+          <tr><td>Number of states (worst case)</td><td>n</td><td>2ⁿ (subset construction)</td></tr>
+          <tr><td>Expressive power</td><td colspan="2" style="text-align:center">Equal — both recognise exactly the regular languages</td></tr>
+          <tr><td>Ease of design</td><td>Easier to construct</td><td>Easier to simulate</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Despite the apparent difference in power, NFAs and DFAs recognise the <strong>same class of languages</strong> — the regular languages. Every NFA can be converted to an equivalent DFA using the Subset Construction algorithm.</p>
+  </div>
+
+  <!-- Algorithm -->
+  <div class="learn-section" id="algorithm">
+    <h2>4. Subset Construction Algorithm</h2>
+    <p>The Subset Construction (also called Powerset Construction) converts any NFA into an equivalent DFA. Each DFA state represents a <em>set of NFA states</em> that the NFA could simultaneously be in.</p>
+
+    <h3 style="margin:1rem 0 .5rem">Intuition</h3>
+    <p>When an NFA reads symbol 'a' from state q, it may transition to several states at once. We represent this "set of possibilities" as a single DFA state. The DFA then tracks which sets are reachable.</p>
+
+    <h3 style="margin:1rem 0 .5rem">Pseudocode</h3>
+    <div class="math-def" style="font-size:.8rem;line-height:1.8">
+      FUNCTION subsetConstruction(NFA M = (Q, Σ, δ, q₀, F)):<br/>
+      <br/>
+      &nbsp;&nbsp;initial_set ← {q₀}<br/>
+      &nbsp;&nbsp;DFA_states  ← ∅<br/>
+      &nbsp;&nbsp;DFA_trans   ← ∅<br/>
+      &nbsp;&nbsp;queue       ← [initial_set]<br/>
+      &nbsp;&nbsp;visited     ← ∅<br/>
+      <br/>
+      &nbsp;&nbsp;WHILE queue ≠ ∅:<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;S ← dequeue(queue)<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;IF S ∈ visited: CONTINUE<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;visited ← visited ∪ {S}<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;DFA_states ← DFA_states ∪ {S}<br/>
+      <br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;FOR EACH symbol a ∈ Σ:<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T ← ∪ { δ(q, a) | q ∈ S }<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DFA_trans[S][a] ← T<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF T ∉ visited AND T ≠ ∅:<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;enqueue(queue, T)<br/>
+      <br/>
+      &nbsp;&nbsp;DFA_finals ← { S ∈ DFA_states | S ∩ F ≠ ∅ }<br/>
+      &nbsp;&nbsp;RETURN DFA(DFA_states, Σ, DFA_trans, initial_set, DFA_finals)
+    </div>
+
+    <h3 style="margin:1rem 0 .5rem">Key points</h3>
+    <ul style="margin-left:1.25rem;color:var(--text-secondary);font-size:.875rem;display:flex;flex-direction:column;gap:.375rem">
+      <li><strong>State labels</strong> — Each DFA state is labelled with the set of NFA states it represents, e.g. {q0, q1}.</li>
+      <li><strong>Canonical order</strong> — State sets are always sorted alphabetically so {q0,q1} and {q1,q0} are treated as the same state.</li>
+      <li><strong>Dead state</strong> — If δ*(S, a) = ∅, the DFA transitions to a trap state ∅ from which no accepting state is reachable.</li>
+      <li><strong>Accepting states</strong> — A DFA state S is accepting iff S ∩ F ≠ ∅ (i.e. it contains at least one NFA accepting state).</li>
+      <li><strong>Termination</strong> — The algorithm always terminates because there are finitely many subsets of Q (at most 2|Q|).</li>
+    </ul>
+  </div>
+
+  <!-- Accepting / dead states -->
+  <div class="learn-section" id="accepting">
+    <h2>5. Accepting States and Dead States</h2>
+
+    <h3 style="margin-bottom:.5rem">Accepting (Final) States</h3>
+    <p>A DFA state S (which represents a set of NFA states) is an accepting state if and only if:</p>
+    <div class="math-def">S ∩ F ≠ ∅</div>
+    <p>That is, at least one of the NFA states in S is a final state in the original NFA.</p>
+
+    <h3 style="margin:1rem 0 .5rem">Dead / Trap States</h3>
+    <p>When an NFA has no transitions defined for a particular (state, symbol) pair, the result is the empty set ∅. In the DFA, ∅ becomes a <strong>dead state</strong> (also called a trap state):</p>
+    <ul style="margin-left:1.25rem;color:var(--text-secondary);font-size:.875rem;display:flex;flex-direction:column;gap:.25rem">
+      <li>Once the DFA enters ∅, it cannot leave (all transitions from ∅ loop back to ∅).</li>
+      <li>∅ is never an accepting state.</li>
+      <li>It is only added to the DFA if at least one transition would otherwise be undefined.</li>
+    </ul>
+  </div>
+
+  <!-- Complexity -->
+  <div class="learn-section" id="complexity">
+    <h2>6. Time and Space Complexity</h2>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
+      <div>
+        <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:.25rem">Worst-case DFA states</div>
+        <span class="complexity-badge">O(2ⁿ)</span>
+      </div>
+      <div>
+        <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:.25rem">Algorithm time</div>
+        <span class="complexity-badge">O(2ⁿ · |Σ|)</span>
+      </div>
+      <div>
+        <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:.25rem">String simulation (DFA)</div>
+        <span class="complexity-badge">O(|w|)</span>
+      </div>
+    </div>
+    <p>The worst-case exponential blowup in states is unavoidable in general — there exist NFAs with n states for which the minimal equivalent DFA requires 2ⁿ states. In practice, most NFAs produce far fewer DFA states.</p>
+    <p>Once the DFA is constructed, simulating it on any input string runs in O(|w|) — linear time, reading each character exactly once.</p>
+  </div>
+
+  <!-- Worked example -->
+  <div class="learn-section" id="worked">
+    <h2>7. Worked Example — Assignment NFA</h2>
+    <p>This is the canonical example from the CSET302 assignment. Trace through it manually to verify your understanding.</p>
+
+    <h3 style="margin:1rem 0 .5rem">Input NFA</h3>
+    <div class="math-def">
+      Q = {q0, q1, q2} &nbsp; Σ = {0, 1} &nbsp; q₀ = q0 &nbsp; F = {q2}<br/><br/>
+      δ(q0, 0) = {q0}<br/>
+      δ(q0, 1) = {q0, q1}<br/>
+      δ(q1, 0) = {q2}<br/>
+      δ(q1, 1) = {q2}<br/>
+      δ(q2, 0) = {q2}<br/>
+      δ(q2, 1) = {q2}
+    </div>
+
+    <h3 style="margin:1rem 0 .5rem">Step-by-step trace</h3>
+    <div style="overflow-x:auto">
+      <table class="trans-table" style="font-size:.8rem" aria-label="Worked example step trace">
+        <thead>
+          <tr><th>#</th><th>Process subset</th><th>Symbol</th><th>NFA transitions</th><th>Result</th><th>New?</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td class="font-mono">{q0}</td><td class="font-mono">0</td><td class="font-mono">δ(q0,0)={q0}</td><td class="font-mono">{q0}</td><td>No</td></tr>
+          <tr><td>2</td><td class="font-mono">{q0}</td><td class="font-mono">1</td><td class="font-mono">δ(q0,1)={q0,q1}</td><td class="font-mono">{q0,q1}</td><td class="text-success">Yes ✓</td></tr>
+          <tr><td>3</td><td class="font-mono">{q0,q1}</td><td class="font-mono">0</td><td class="font-mono">δ(q0,0)={q0}, δ(q1,0)={q2}</td><td class="font-mono">{q0,q2}</td><td class="text-success">Yes ✓</td></tr>
+          <tr><td>4</td><td class="font-mono">{q0,q1}</td><td class="font-mono">1</td><td class="font-mono">δ(q0,1)={q0,q1}, δ(q1,1)={q2}</td><td class="font-mono">{q0,q1,q2}</td><td class="text-success">Yes ✓</td></tr>
+          <tr><td>5</td><td class="font-mono">{q0,q2}</td><td class="font-mono">0</td><td class="font-mono">δ(q0,0)={q0}, δ(q2,0)={q2}</td><td class="font-mono">{q0,q2}</td><td>No</td></tr>
+          <tr><td>6</td><td class="font-mono">{q0,q2}</td><td class="font-mono">1</td><td class="font-mono">δ(q0,1)={q0,q1}, δ(q2,1)={q2}</td><td class="font-mono">{q0,q1,q2}</td><td>No</td></tr>
+          <tr><td>7</td><td class="font-mono">{q0,q1,q2}</td><td class="font-mono">0</td><td class="font-mono">δ(q0,0)={q0}, δ(q1,0)={q2}, δ(q2,0)={q2}</td><td class="font-mono">{q0,q2}</td><td>No</td></tr>
+          <tr><td>8</td><td class="font-mono">{q0,q1,q2}</td><td class="font-mono">1</td><td class="font-mono">δ(q0,1)={q0,q1}, δ(q1,1)={q2}, δ(q2,1)={q2}</td><td class="font-mono">{q0,q1,q2}</td><td>No</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin:1rem 0 .5rem">Resulting DFA Transition Table</h3>
+    <div style="overflow-x:auto">
+      <table class="trans-table" aria-label="Resulting DFA transition table">
+        <thead><tr><th>DFA State</th><th>on 0</th><th>on 1</th><th>Initial</th><th>Final</th></tr></thead>
+        <tbody>
+          <tr><td class="font-mono">{q0}</td><td class="font-mono">{q0}</td><td class="font-mono">{q0,q1}</td><td>→</td><td></td></tr>
+          <tr><td class="font-mono">{q0,q1}</td><td class="font-mono">{q0,q2}</td><td class="font-mono">{q0,q1,q2}</td><td></td><td></td></tr>
+          <tr><td class="font-mono">{q0,q2}</td><td class="font-mono">{q0,q2}</td><td class="font-mono">{q0,q1,q2}</td><td></td><td>*</td></tr>
+          <tr><td class="font-mono">{q0,q1,q2}</td><td class="font-mono">{q0,q2}</td><td class="font-mono">{q0,q1,q2}</td><td></td><td>*</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:.75rem">The DFA has 4 states. All states containing q2 are accepting. No dead state is needed since all transitions are defined. <a href="simulator.html">Try this in the simulator →</a></p>
+  </div>
+
+  <!-- Common mistakes -->
+  <div class="learn-section" id="mistakes">
+    <h2>8. Common Mistakes</h2>
+    <div style="display:flex;flex-direction:column;gap:.75rem">
+      <div class="alert alert-warning">
+        <strong>⚠ Non-canonical state labels</strong><br/>
+        Always sort the states in a subset label. {q1,q0} and {q0,q1} are the same DFA state — using different orderings causes duplicate states and incorrect tables.
+      </div>
+      <div class="alert alert-warning">
+        <strong>⚠ Forgetting the dead state</strong><br/>
+        If any NFA transition is undefined (δ(q, a) = ∅), the DFA needs a dead/trap state ∅. Omitting it makes the DFA incomplete.
+      </div>
+      <div class="alert alert-warning">
+        <strong>⚠ Wrong accepting state rule</strong><br/>
+        A DFA state S is accepting iff S ∩ F ≠ ∅ — if it contains <em>any</em> NFA accepting state, not all of them.
+      </div>
+      <div class="alert alert-warning">
+        <strong>⚠ Confusing ε-NFA with NFA</strong><br/>
+        The basic Subset Construction does not handle epsilon transitions. If your NFA has ε-transitions you must first compute ε-closures. Automata Lab's NFA→DFA module does not accept ε.
+      </div>
+      <div class="alert alert-warning">
+        <strong>⚠ Stopping too early</strong><br/>
+        Every reachable subset must be processed. Keep processing until the queue is fully exhausted.
+      </div>
+    </div>
+  </div>
+
+  <!-- Practice -->
+  <div class="learn-section" id="practice">
+    <h2>9. Practice Questions</h2>
+    <div class="practice-q">
+      <strong>Q1.</strong> Convert the following NFA to a DFA using subset construction:<br/>
+      Q = {p, q, r}, Σ = {a, b}, q₀ = p, F = {r}<br/>
+      δ(p,a) = {p,q}, δ(p,b) = {p}, δ(q,a) = {}, δ(q,b) = {r}, δ(r,a) = {r}, δ(r,b) = {r}<br/>
+      <em>How many states does the DFA have? Is a dead state required?</em>
+    </div>
+    <div class="practice-q">
+      <strong>Q2.</strong> An NFA over {0,1} has states {A,B} with A initial and B final.<br/>
+      δ(A,0) = {A,B}, δ(A,1) = {A}, δ(B,0) = {}, δ(B,1) = {}<br/>
+      Convert to a DFA and test whether "010" is accepted.
+    </div>
+    <div class="practice-q">
+      <strong>Q3.</strong> True or False: A DFA always has more states than the NFA it was converted from. Justify your answer with an example.
+    </div>
+    <div class="practice-q">
+      <strong>Q4.</strong> What is the maximum number of states a DFA converted from an n-state NFA can have? When does this worst case occur?
+    </div>
+    <div class="practice-q">
+      <strong>Q5.</strong> In the assignment example NFA, test the string "110" against the DFA. Which states does the DFA visit? Is the string accepted?
+    </div>
+    <div style="margin-top:1rem">
+      <a href="simulator.html" class="btn btn-primary">Open Simulator to Verify Your Answers →</a>
+    </div>
+  </div>
+
+</div>
+</div>
+</main>
+</body>
+</html>
