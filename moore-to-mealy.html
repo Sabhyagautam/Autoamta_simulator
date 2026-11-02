@@ -9,101 +9,39 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
   <style>
-    /* ── Stepper bar ─────────────────────────────────── */
-    .stepper { display:flex; align-items:center; gap:0; margin-bottom:1.5rem; overflow-x:auto; }
-    .stepper-step {
-      display:flex; align-items:center; gap:.5rem;
-      padding:.5rem .875rem; font-size:.8rem; font-weight:500;
-      color:var(--text-muted); white-space:nowrap;
-      border-bottom:2px solid var(--border);
-      cursor:pointer; transition:all .15s;
-    }
-    .stepper-step:hover { color:var(--text); border-color:var(--border-strong); }
-    .stepper-step.active { color:var(--accent); border-color:var(--accent); }
-    .stepper-step.done   { color:var(--success); border-color:var(--success); }
-    .stepper-num {
-      width:20px; height:20px; border-radius:50%; font-size:.7rem; font-weight:700;
-      display:flex; align-items:center; justify-content:center;
-      background:var(--bg-subtle); border:1px solid var(--border);
-    }
-    .stepper-step.active .stepper-num { background:var(--accent); color:white; border-color:var(--accent); }
-    .stepper-step.done   .stepper-num { background:var(--success); color:white; border-color:var(--success); }
-
-    /* ── Pseudocode panel ────────────────────────────── */
-    .pseudocode {
-      background:var(--bg-subtle); border:1px solid var(--border);
-      border-radius:var(--radius); padding:.75rem 1rem;
-      font-family:var(--font-mono); font-size:.78rem; line-height:1.8;
-    }
-    .pc-line { padding:.1rem .5rem; border-radius:3px; display:block; }
-    .pc-line.highlighted { background:var(--node-active); color:var(--text); font-weight:600; }
-
-    /* ── Side-by-side graph area ─────────────────────── */
-    .dual-graph { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
-    @media(max-width:700px){ .dual-graph { grid-template-columns:1fr; } }
-    .graph-panel-title {
-      font-size:.75rem; font-weight:600; text-transform:uppercase;
-      letter-spacing:.05em; color:var(--text-secondary);
-      margin-bottom:.5rem;
-    }
-
-    /* ── Validation panel ────────────────────────────── */
-    .validation-panel { display:flex; flex-direction:column; gap:.375rem; }
-    .val-item {
-      display:flex; align-items:flex-start; gap:.5rem;
-      padding:.5rem .75rem; border-radius:var(--radius);
-      font-size:.8rem; border:1px solid transparent;
-    }
-    .val-error   { background:var(--danger-bg);  border-color:var(--danger);  color:var(--danger); }
-    .val-warning { background:var(--warning-bg); border-color:var(--warning); color:var(--warning); }
-    .val-ok      { background:var(--success-bg); border-color:var(--success); color:var(--success); }
-
-    /* ── Comparison view ─────────────────────────────── */
-    .output-compare {
-      display:grid; grid-template-columns:1fr 1fr; gap:1rem;
-      margin-top:1rem;
-    }
-    @media(max-width:600px){ .output-compare { grid-template-columns:1fr; } }
-    .output-box {
-      background:var(--bg-elevated); border:1px solid var(--border);
-      border-radius:var(--radius-lg); padding:1rem; text-align:center;
-    }
-    .output-string {
-      font-family:var(--font-mono); font-size:1.375rem; font-weight:700;
-      letter-spacing:.1em; margin:.5rem 0;
-    }
-    .output-highlight-first { color:var(--warning); text-decoration:underline; }
-
-    /* ── Practice mode ───────────────────────────────── */
-    .answer-cell {
-      font-family:var(--font-mono); font-size:.75rem;
-      background:none; border:1px solid var(--border);
-      border-radius:3px; padding:.2rem .4rem; width:80px;
-      text-align:center; color:var(--text);
-      outline:none;
-    }
-    .answer-cell:focus { border-color:var(--accent); }
-    .answer-cell.correct { border-color:var(--success); background:var(--success-bg); }
-    .answer-cell.wrong   { border-color:var(--danger);  background:var(--danger-bg);  }
-
-    /* ── Text editor ─────────────────────────────────── */
-    .text-editor {
-      width:100%; min-height:200px;
-      font-family:var(--font-mono); font-size:.8rem; line-height:1.7;
-      background:var(--bg-subtle); border:1px solid var(--border);
-      border-radius:var(--radius); padding:.75rem 1rem;
-      color:var(--text); resize:vertical; outline:none;
-    }
-    .text-editor:focus { border-color:var(--accent); }
-
-    /* ── Save/load section ───────────────────────────── */
-    .saved-item {
-      display:flex; align-items:center; gap:.625rem;
-      padding:.5rem .75rem; border:1px solid var(--border);
-      border-radius:var(--radius); background:var(--bg-elevated);
-      font-size:.875rem;
-    }
-    .saved-name { flex:1; font-weight:500; }
+    .stepper{display:flex;align-items:center;gap:0;margin-bottom:1.5rem;overflow-x:auto}
+    .stepper-step{display:flex;align-items:center;gap:.5rem;padding:.5rem .875rem;font-size:.8rem;font-weight:500;color:var(--text-muted);white-space:nowrap;border-bottom:2px solid var(--border);cursor:pointer;transition:all .15s}
+    .stepper-step:hover{color:var(--text);border-color:var(--border-strong)}
+    .stepper-step.active{color:var(--accent);border-color:var(--accent)}
+    .stepper-step.done{color:var(--success);border-color:var(--success)}
+    .stepper-num{width:20px;height:20px;border-radius:50%;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;background:var(--bg-subtle);border:1px solid var(--border)}
+    .stepper-step.active .stepper-num{background:var(--accent);color:white;border-color:var(--accent)}
+    .stepper-step.done .stepper-num{background:var(--success);color:white;border-color:var(--success)}
+    .pseudocode{background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem 1rem;font-family:var(--font-mono);font-size:.78rem;line-height:1.8}
+    .pc-line{padding:.1rem .5rem;border-radius:3px;display:block}
+    .pc-line.highlighted{background:var(--node-active);color:var(--text);font-weight:600}
+    .dual-graph{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    @media(max-width:700px){.dual-graph{grid-template-columns:1fr}}
+    .graph-panel-title{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);margin-bottom:.5rem}
+    .val-item{display:flex;align-items:flex-start;gap:.5rem;padding:.5rem .75rem;border-radius:var(--radius);font-size:.8rem;border:1px solid transparent}
+    .val-error{background:var(--danger-bg);border-color:var(--danger);color:var(--danger)}
+    .val-warning{background:var(--warning-bg);border-color:var(--warning);color:var(--warning)}
+    .val-ok{background:var(--success-bg);border-color:var(--success);color:var(--success)}
+    .output-compare{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}
+    @media(max-width:600px){.output-compare{grid-template-columns:1fr}}
+    .output-box{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;text-align:center}
+    .output-string{font-family:var(--font-mono);font-size:1.375rem;font-weight:700;letter-spacing:.1em;margin:.5rem 0}
+    .output-highlight-first{color:var(--warning);text-decoration:underline}
+    .answer-cell{font-family:var(--font-mono);font-size:.75rem;background:none;border:1px solid var(--border);border-radius:3px;padding:.2rem .4rem;width:80px;text-align:center;color:var(--text);outline:none}
+    .answer-cell:focus{border-color:var(--accent)}
+    .answer-cell.correct{border-color:var(--success);background:var(--success-bg)}
+    .answer-cell.wrong{border-color:var(--danger);background:var(--danger-bg)}
+    .text-editor{width:100%;min-height:200px;font-family:var(--font-mono);font-size:.8rem;line-height:1.7;background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem 1rem;color:var(--text);resize:vertical;outline:none}
+    .text-editor:focus{border-color:var(--accent)}
+    .saved-item{display:flex;align-items:center;gap:.625rem;padding:.5rem .75rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-elevated);font-size:.875rem}
+    .saved-name{flex:1;font-weight:500}
+    .graph-area{height:300px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-lg);position:relative;overflow:hidden}
+    .graph-area svg{width:100%;height:100%}
   </style>
   <script src="js/components/layout.js" defer></script>
   <script src="js/data/mooreExamples.js"></script>
@@ -114,7 +52,7 @@
 <div class="section-sm">
 <div class="container">
 
-  <!-- ── Page header ───────────────────────────────────────── -->
+  <!-- Header -->
   <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
     <div>
       <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.25rem">
@@ -123,7 +61,7 @@
         <span class="badge badge-soon">CSET302 — Bennett University</span>
       </div>
       <h1 style="font-size:1.5rem;margin-bottom:.25rem">Moore → Mealy Conversion</h1>
-      <p style="font-size:.875rem">M = (Q, Σ, Δ, δ, λ, q₀) &nbsp;→&nbsp; M' = (Q, Σ, Δ, δ, λ', q₀) &nbsp; where &nbsp; λ'(q, a) = λ(δ(q, a))</p>
+      <p style="font-size:.875rem">λ'(q, a) = λ(δ(q, a)) — output moves from states to transitions</p>
     </div>
     <div style="display:flex;gap:.5rem;flex-wrap:wrap">
       <a href="moore-theory.html" class="btn btn-secondary btn-sm">📖 Theory</a>
@@ -132,115 +70,86 @@
     </div>
   </div>
 
-  <!-- ── Stepper (workflow progress) ──────────────────────── -->
+  <!-- Stepper -->
   <nav class="stepper" id="stepper" aria-label="Workflow steps">
-    <div class="stepper-step active" data-step="0"><span class="stepper-num">1</span>Define Machine</div>
+    <div class="stepper-step active" data-step="0"><span class="stepper-num">1</span>Define</div>
     <div class="stepper-step"        data-step="1"><span class="stepper-num">2</span>Validate</div>
-    <div class="stepper-step"        data-step="2"><span class="stepper-num">3</span>Convert (Step-by-Step)</div>
+    <div class="stepper-step"        data-step="2"><span class="stepper-num">3</span>Convert Step-by-Step</div>
     <div class="stepper-step"        data-step="3"><span class="stepper-num">4</span>Mealy Result</div>
     <div class="stepper-step"        data-step="4"><span class="stepper-num">5</span>Simulate &amp; Compare</div>
     <div class="stepper-step"        data-step="5"><span class="stepper-num">6</span>Practice</div>
   </nav>
 
-  <!-- ══════════════════════════════════════════════════════════
-       PAGE 0: DEFINE MACHINE
-  ═══════════════════════════════════════════════════════════ -->
+  <!-- ══ PAGE 0: DEFINE ══════════════════════════════════════ -->
   <div class="page-section" id="page-0">
     <div class="workspace">
-
-      <!-- Left: Input methods -->
-      <div class="workspace-panel" id="input-panel">
-
-        <!-- Input method tabs -->
-        <div class="tabs" role="tablist" aria-label="Input method" style="margin-bottom:.75rem">
-          <button class="tab-btn active" data-tab="form-tab"  role="tab" aria-selected="true">Form</button>
-          <button class="tab-btn"        data-tab="text-tab"  role="tab" aria-selected="false">Text Editor</button>
-          <button class="tab-btn"        data-tab="saved-tab" role="tab" aria-selected="false">Saved</button>
+      <!-- Left: input -->
+      <div class="workspace-panel">
+        <div class="tabs" role="tablist" style="margin-bottom:.75rem">
+          <button class="tab-btn active" data-tab="tab-form"  role="tab" aria-selected="true">Form</button>
+          <button class="tab-btn"        data-tab="tab-text"  role="tab" aria-selected="false">Text</button>
+          <button class="tab-btn"        data-tab="tab-saved" role="tab" aria-selected="false">Saved</button>
         </div>
 
-        <!-- ── FORM TAB ── -->
-        <div class="tab-pane active" id="form-tab">
-
-          <!-- Presets -->
+        <!-- Form tab -->
+        <div class="tab-pane active" id="tab-form">
           <div class="card-elevated" style="margin-bottom:.75rem">
             <div class="panel-header"><span class="panel-title">Load Preset</span></div>
-            <select class="form-select" id="example-select" aria-label="Select preset Moore machine">
-              <option value="">— choose a preset —</option>
-            </select>
+            <select class="form-select" id="example-select" aria-label="Load preset"><option value="">— choose preset —</option></select>
           </div>
-
-          <!-- States -->
           <div class="card-elevated" style="margin-bottom:.75rem">
             <div class="panel-header"><span class="panel-title">States (Q)</span></div>
             <div style="display:flex;gap:.5rem;margin-bottom:.5rem">
-              <input type="text" class="form-input" id="state-input" placeholder="e.g. q0" style="flex:1" aria-label="New state" />
+              <input type="text" class="form-input" id="state-input" placeholder="e.g. q0" style="flex:1" />
               <button class="btn btn-secondary btn-sm" id="add-state-btn">Add</button>
             </div>
-            <div class="chip-list" id="state-chips" aria-live="polite"></div>
+            <div class="chip-list" id="state-chips"></div>
           </div>
-
-          <!-- Input Alphabet -->
           <div class="card-elevated" style="margin-bottom:.75rem">
             <div class="panel-header"><span class="panel-title">Input Alphabet (Σ)</span></div>
             <div style="display:flex;gap:.5rem;margin-bottom:.5rem">
-              <input type="text" class="form-input" id="symbol-input" placeholder="e.g. 0" maxlength="4" style="flex:1" aria-label="New symbol" />
+              <input type="text" class="form-input" id="symbol-input" placeholder="e.g. 0" maxlength="4" style="flex:1" />
               <button class="btn btn-secondary btn-sm" id="add-symbol-btn">Add</button>
             </div>
-            <div class="chip-list" id="alphabet-chips" aria-live="polite"></div>
+            <div class="chip-list" id="alphabet-chips"></div>
           </div>
-
-          <!-- Output Alphabet -->
           <div class="card-elevated" style="margin-bottom:.75rem">
             <div class="panel-header"><span class="panel-title">Output Alphabet (Δ)</span></div>
             <div style="display:flex;gap:.5rem;margin-bottom:.5rem">
-              <input type="text" class="form-input" id="output-symbol-input" placeholder="e.g. 0" maxlength="4" style="flex:1" aria-label="New output symbol" />
-              <button class="btn btn-secondary btn-sm" id="add-output-symbol-btn">Add</button>
+              <input type="text" class="form-input" id="out-sym-input" placeholder="e.g. 0" maxlength="4" style="flex:1" />
+              <button class="btn btn-secondary btn-sm" id="add-out-sym-btn">Add</button>
             </div>
-            <div class="chip-list" id="output-alphabet-chips" aria-live="polite"></div>
+            <div class="chip-list" id="out-alphabet-chips"></div>
           </div>
-
-          <!-- Initial state -->
           <div class="card-elevated" style="margin-bottom:.75rem">
             <div class="panel-header"><span class="panel-title">Initial State (q₀)</span></div>
-            <select class="form-select" id="initial-select" aria-label="Initial state">
-              <option value="">— select —</option>
-            </select>
+            <select class="form-select" id="initial-select"><option value="">— select —</option></select>
           </div>
-
-          <!-- State outputs λ(q) -->
           <div class="card-elevated" style="margin-bottom:.75rem">
             <div class="panel-header"><span class="panel-title">State Outputs λ: Q → Δ</span></div>
-            <p class="form-hint" style="margin-bottom:.5rem">Assign one output symbol per state.</p>
-            <div id="output-assignments" aria-label="State outputs">
-              <span class="text-muted text-sm">Add states and output alphabet first.</span>
-            </div>
+            <div id="output-assignments"><span class="text-muted text-sm">Add states and output alphabet first.</span></div>
           </div>
-
-          <!-- Transitions δ(q,a) -->
           <div class="card-elevated" style="margin-bottom:.75rem">
             <div class="panel-header"><span class="panel-title">Transitions δ: Q × Σ → Q</span></div>
-            <p class="form-hint" style="margin-bottom:.5rem">One next-state per cell. Empty = undefined transition.</p>
-            <div style="overflow-x:auto">
-              <table class="transition-grid" id="transition-table" aria-label="Transition function"></table>
-            </div>
+            <p class="form-hint" style="margin-bottom:.5rem">One next-state per cell.</p>
+            <div style="overflow-x:auto"><table class="transition-grid" id="transition-table"></table></div>
           </div>
-
-          <!-- Action buttons -->
-          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-            <button class="btn btn-primary" style="flex:1" id="validate-btn">① Validate Machine</button>
-            <button class="btn btn-secondary" id="clear-btn" title="Clear all" aria-label="Clear all">✕</button>
+          <div style="display:flex;gap:.5rem">
+            <button class="btn btn-primary" style="flex:1" id="validate-btn">① Validate</button>
+            <button class="btn btn-secondary" id="clear-btn" title="Clear">✕</button>
           </div>
         </div>
 
-        <!-- ── TEXT EDITOR TAB ── -->
-        <div class="tab-pane" id="text-tab">
-          <div style="margin-bottom:.5rem">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
-              <span class="panel-title">Text Format Editor</span>
-              <button class="btn btn-secondary btn-sm" id="generate-text-btn">↑ Generate from Machine</button>
-            </div>
-            <textarea class="text-editor" id="text-editor" spellcheck="false" aria-label="Moore machine text definition"># Moore machine text format
-# Lines starting with # are comments
+        <!-- Text tab -->
+        <div class="tab-pane" id="tab-text">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+            <span class="panel-title">Text Editor</span>
+            <button class="btn btn-secondary btn-sm" id="gen-text-btn">↑ From Machine</button>
+          </div>
+          <textarea class="text-editor" id="text-editor" spellcheck="false"># States: A,B,C
+# Alphabet: 0,1
+# Outputs: 0,1
+# Initial: A
 
 States: A,B,C
 Alphabet: 0,1
@@ -259,98 +168,55 @@ Transitions:
   B,1 -> A
   C,0 -> B
   C,1 -> C</textarea>
-            <div id="text-errors" style="margin-top:.5rem"></div>
-          </div>
-          <div style="display:flex;gap:.5rem">
-            <button class="btn btn-primary" style="flex:1" id="parse-text-btn">Parse &amp; Apply</button>
-          </div>
-          <details style="margin-top:.75rem">
-            <summary style="font-size:.8rem;color:var(--text-muted);cursor:pointer">Format instructions</summary>
-            <div class="math-def" style="margin-top:.5rem;font-size:.75rem;line-height:1.9">
-              States: state1, state2, ...<br/>
-              Alphabet: sym1, sym2, ...<br/>
-              Outputs: out1, out2, ...<br/>
-              Initial: stateName<br/>
-              <br/>
-              StateOutputs:<br/>
-              &nbsp;&nbsp;stateName -&gt; outputSymbol<br/>
-              <br/>
-              Transitions:<br/>
-              &nbsp;&nbsp;fromState,symbol -&gt; toState<br/>
-              <br/>
-              # Lines starting with # are comments
-            </div>
-          </details>
+          <div id="text-errors" style="margin-top:.5rem"></div>
+          <button class="btn btn-primary w-full" id="parse-btn" style="margin-top:.5rem">Parse &amp; Apply</button>
         </div>
 
-        <!-- ── SAVED TAB ── -->
-        <div class="tab-pane" id="saved-tab">
+        <!-- Saved tab -->
+        <div class="tab-pane" id="tab-saved">
           <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
-            <input type="text" class="form-input" id="save-name-input" placeholder="Machine name…" style="flex:1" aria-label="Name for saved machine" />
-            <button class="btn btn-secondary btn-sm" id="save-machine-btn">Save</button>
+            <input type="text" class="form-input" id="save-name" placeholder="Machine name…" style="flex:1" />
+            <button class="btn btn-secondary btn-sm" id="save-btn">Save</button>
           </div>
-          <div id="saved-list" style="display:flex;flex-direction:column;gap:.375rem">
-            <div class="empty-state" style="padding:1.5rem">
-              <div class="empty-icon">💾</div>
-              <p>No saved machines yet.</p>
-            </div>
-          </div>
+          <div id="saved-list"></div>
           <div class="divider"></div>
           <div style="display:flex;gap:.5rem;flex-wrap:wrap">
             <button class="btn btn-secondary btn-sm" id="export-json-btn">⬇ Export JSON</button>
-            <label class="btn btn-secondary btn-sm" style="cursor:pointer">
-              ⬆ Import JSON
-              <input type="file" id="import-json-input" accept=".json" style="display:none" />
-            </label>
+            <label class="btn btn-secondary btn-sm" style="cursor:pointer">⬆ Import JSON<input type="file" id="import-json" accept=".json" style="display:none"/></label>
           </div>
         </div>
+      </div>
 
-      </div><!-- end left panel -->
-
-      <!-- Right: Live Moore preview -->
+      <!-- Right: preview -->
       <div class="workspace-panel">
         <div class="panel-header"><span class="panel-title">Live Moore Machine Preview</span></div>
-
-        <!-- Validation panel -->
         <div id="validation-panel" style="margin-bottom:.75rem">
-          <div class="val-item val-ok"><span>✓</span><span>Define a machine to see validation results.</span></div>
+          <div class="val-item val-ok"><span>✓</span><span>Define a machine to validate.</span></div>
         </div>
-
-        <!-- Moore table -->
-        <div id="moore-table-wrap">
-          <div class="empty-state"><div class="empty-icon">⊞</div><p>Define states, alphabet and transitions.</p></div>
-        </div>
-
-        <!-- Formal tuple -->
+        <div id="moore-preview"></div>
         <div id="formal-tuple" style="margin-top:.75rem;display:none">
-          <div class="panel-title" style="margin-bottom:.5rem">Formal Specification</div>
+          <div class="panel-title" style="margin-bottom:.5rem">Formal 6-tuple</div>
           <div class="math-def" id="formal-tuple-text" style="font-size:.8rem;line-height:1.9"></div>
         </div>
-
-        <!-- Convert button -->
         <button class="btn btn-primary btn-lg w-full" id="run-btn" style="margin-top:.75rem" disabled>
           Convert to Mealy Machine →
         </button>
       </div>
-
     </div>
-  </div><!-- end page-0 -->
+  </div>
 
-  <!-- ══════════════════════════════════════════════════════════
-       PAGE 2: STEP-BY-STEP CONVERSION
-  ═══════════════════════════════════════════════════════════ -->
+  <!-- ══ PAGE 2: STEP-BY-STEP ════════════════════════════════ -->
   <div class="page-section" id="page-2" style="display:none">
-
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem">
       <h2 style="font-size:1.125rem">Step-by-Step Conversion</h2>
-      <div style="display:flex;gap:.5rem;align-items:center" role="toolbar" aria-label="Step controls">
+      <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
         <button class="btn btn-secondary btn-sm" id="step-prev">◀ Prev</button>
         <button class="btn btn-primary  btn-sm" id="step-play">▶ Play</button>
         <button class="btn btn-secondary btn-sm" id="step-next">Next ▶</button>
         <button class="btn btn-ghost    btn-sm" id="step-reset">↺ Reset</button>
-        <button class="btn btn-secondary btn-sm" id="skip-result-btn">Skip →</button>
-        <span class="step-counter" id="step-counter" aria-live="polite">Step 0 / 0</span>
-        <select class="speed-select" id="speed-select" aria-label="Speed">
+        <button class="btn btn-secondary btn-sm" id="skip-btn">Skip to Result →</button>
+        <span class="step-counter" id="step-counter">Step 0 / 0</span>
+        <select class="speed-select" id="speed-select">
           <option value="1500">Slow</option>
           <option value="700" selected>Normal</option>
           <option value="300">Fast</option>
@@ -361,116 +227,71 @@ Transitions:
     <!-- Side-by-side graphs -->
     <div class="dual-graph" style="margin-bottom:1rem">
       <div>
-        <div class="graph-panel-title">Moore Machine (source)</div>
-        <div style="height:300px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-lg);position:relative;overflow:hidden">
-          <svg id="moore-graph-canvas" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-label="Moore machine graph" role="img">
-            <defs>
-              <marker id="arr-moore" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                <polygon points="0 0,10 3.5,0 7" fill="var(--text-secondary)"/>
-              </marker>
-              <marker id="arr-moore-active" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                <polygon points="0 0,10 3.5,0 7" fill="var(--warning)"/>
-              </marker>
-            </defs>
-            <g id="moore-graph-root"></g>
-          </svg>
-          <div class="empty-state" id="moore-graph-empty" style="position:absolute;inset:0;background:var(--bg-elevated)">
-            <div class="empty-icon">⊙</div><p>Convert to see graph.</p>
-          </div>
+        <div class="graph-panel-title">Moore Machine — source (node labels: state/output)</div>
+        <div class="graph-area" id="moore-graph-wrap">
+          <svg id="moore-svg" xmlns="http://www.w3.org/2000/svg"></svg>
         </div>
       </div>
       <div>
-        <div class="graph-panel-title">Mealy Machine (being built)</div>
-        <div style="height:300px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-lg);position:relative;overflow:hidden">
-          <svg id="mealy-graph-canvas" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-label="Mealy machine graph being built" role="img">
-            <defs>
-              <marker id="arr-mealy" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                <polygon points="0 0,10 3.5,0 7" fill="var(--text-secondary)"/>
-              </marker>
-              <marker id="arr-mealy-new" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                <polygon points="0 0,10 3.5,0 7" fill="var(--success)"/>
-              </marker>
-            </defs>
-            <g id="mealy-graph-root"></g>
-          </svg>
-          <div class="empty-state" id="mealy-graph-empty" style="position:absolute;inset:0;background:var(--bg-elevated)">
-            <div class="empty-icon">⇄</div><p>Steps will build this graph.</p>
-          </div>
+        <div class="graph-panel-title">Mealy Machine — being built (edge labels: input/output)</div>
+        <div class="graph-area" id="mealy-graph-wrap">
+          <svg id="mealy-svg" xmlns="http://www.w3.org/2000/svg"></svg>
         </div>
       </div>
     </div>
 
     <!-- Step detail + pseudocode + progressive table -->
-    <div class="grid-2" style="gap:1rem;margin-bottom:1rem">
-      <!-- Step explanation -->
+    <div class="grid-2" style="gap:1rem">
       <div>
         <div class="panel-title" style="margin-bottom:.5rem">Current Step</div>
-        <div class="step-box" id="step-box" style="min-height:120px">
-          <div class="text-muted text-sm">Click Play or Next to begin.</div>
+        <div class="step-box" id="step-box" style="min-height:130px">
+          <div class="text-muted text-sm">Click ▶ Play or Next ▶ to start.</div>
         </div>
-        <!-- Pseudocode -->
         <div class="panel-title" style="margin:.75rem 0 .5rem">Algorithm Pseudocode</div>
-        <div class="pseudocode" id="pseudocode-panel">
+        <div class="pseudocode">
           <span class="pc-line" data-line="1">ALGORITHM MooreToMealy(M)</span>
-          <span class="pc-line" data-line="2">  Q' ← Q;  Σ' ← Σ;  Δ' ← Δ;  q0' ← q0;  δ' ← δ</span>
+          <span class="pc-line" data-line="2">  Q'←Q; Σ'←Σ; Δ'←Δ; q₀'←q₀; δ'←δ</span>
           <span class="pc-line" data-line="3">  CREATE empty table λ'</span>
           <span class="pc-line" data-line="4">  FOR each state q in Q:</span>
           <span class="pc-line" data-line="5">    FOR each symbol a in Σ:</span>
           <span class="pc-line" data-line="6">      p ← δ(q, a)</span>
-          <span class="pc-line" data-line="7">      λ'(q, a) ← λ(p)     // output of destination</span>
+          <span class="pc-line" data-line="7">      λ'(q,a) ← λ(p)  // output of destination</span>
           <span class="pc-line" data-line="8">  RETURN M'</span>
         </div>
       </div>
-      <!-- Progressive Mealy table -->
       <div>
         <div class="panel-title" style="margin-bottom:.5rem">Mealy Table (built progressively)</div>
-        <div id="progressive-mealy-wrap">
-          <div class="empty-state" style="padding:2rem"><div class="empty-icon">⊞</div><p>Will fill as steps progress.</p></div>
+        <div id="progressive-table">
+          <div class="empty-state" style="padding:2rem"><div class="empty-icon">⊞</div><p>Fills as steps progress.</p></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════════
-       PAGE 3: MEALY RESULT
-  ═══════════════════════════════════════════════════════════ -->
+  <!-- ══ PAGE 3: RESULT ══════════════════════════════════════ -->
   <div class="page-section" id="page-3" style="display:none">
     <h2 style="margin-bottom:1rem">Generated Mealy Machine</h2>
-
     <div class="grid-2" style="gap:1rem;margin-bottom:1.5rem">
-      <!-- Mealy graph -->
       <div>
-        <div class="panel-title" style="margin-bottom:.5rem">Mealy Graph</div>
-        <div style="height:320px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-lg);position:relative;overflow:hidden">
-          <svg id="result-mealy-canvas" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-label="Final Mealy machine graph" role="img">
-            <defs>
-              <marker id="arr-result" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                <polygon points="0 0,10 3.5,0 7" fill="var(--text-secondary)"/>
-              </marker>
-            </defs>
-            <g id="result-graph-root"></g>
-          </svg>
-          <div class="graph-controls" aria-label="Graph controls">
-            <button class="graph-btn" id="rg-zoom-in"  title="Zoom in">+</button>
-            <button class="graph-btn" id="rg-zoom-out" title="Zoom out">−</button>
-            <button class="graph-btn" id="rg-fit"      title="Fit to screen">⊡</button>
-          </div>
+        <div class="panel-title" style="margin-bottom:.5rem">Mealy Graph (edge labels: input/output)</div>
+        <div class="graph-area" id="result-graph-wrap" style="height:360px">
+          <svg id="result-svg" xmlns="http://www.w3.org/2000/svg"></svg>
         </div>
-        <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem" role="list" aria-label="Graph legend">
-          <div role="listitem" style="display:flex;align-items:center;gap:.375rem;font-size:.75rem;color:var(--text-secondary)"><span style="width:12px;height:12px;border-radius:50%;background:var(--node-initial);border:2px solid var(--accent);display:inline-block"></span>Initial</div>
-          <div role="listitem" style="display:flex;align-items:center;gap:.375rem;font-size:.75rem;color:var(--text-secondary)"><span style="width:12px;height:12px;border-radius:50%;background:var(--node-normal);border:2px solid var(--border-strong);display:inline-block"></span>State</div>
+        <div style="display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap">
+          <button class="graph-btn" id="rg-in"  title="Zoom in">+</button>
+          <button class="graph-btn" id="rg-out" title="Zoom out">−</button>
+          <button class="graph-btn" id="rg-fit" title="Fit to screen">⊡</button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:.625rem;margin-top:.5rem">
+          <div style="display:flex;align-items:center;gap:.375rem;font-size:.75rem;color:var(--text-secondary)"><span style="width:12px;height:12px;border-radius:50%;background:var(--node-initial);border:2px solid var(--accent);display:inline-block"></span>Initial state</div>
+          <div style="display:flex;align-items:center;gap:.375rem;font-size:.75rem;color:var(--text-secondary)"><span style="width:12px;height:12px;border-radius:50%;background:var(--node-normal);border:2px solid var(--border-strong);display:inline-block"></span>Normal state</div>
         </div>
       </div>
-      <!-- Formal tuple comparison -->
       <div>
         <div class="panel-title" style="margin-bottom:.5rem">Formal Comparison</div>
-        <div id="tuple-compare" class="card-elevated" style="font-size:.8rem;line-height:1.9;font-family:var(--font-mono)">
-          Run conversion first.
-        </div>
+        <div id="tuple-compare" class="card-elevated" style="font-size:.8rem;line-height:1.9;font-family:var(--font-mono)">Run conversion first.</div>
       </div>
     </div>
-
-    <!-- Tables side by side -->
     <div class="grid-2" style="gap:1rem;margin-bottom:1.5rem">
       <div>
         <div class="panel-title" style="margin-bottom:.5rem">Moore Transition Table</div>
@@ -481,259 +302,396 @@ Transitions:
         <div id="mealy-result-table"></div>
       </div>
     </div>
-
-    <!-- Export row -->
-    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-      <button class="btn btn-secondary btn-sm" id="export-json-result">⬇ Export JSON</button>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem">
+      <button class="btn btn-secondary btn-sm" id="export-result-btn">⬇ Export JSON</button>
       <button class="btn btn-secondary btn-sm" id="copy-text-btn">📋 Copy as Text</button>
     </div>
-
-    <button class="btn btn-primary btn-lg w-full" id="goto-simulate-btn" style="margin-top:1rem">
-      Simulate &amp; Compare →
-    </button>
+    <button class="btn btn-primary btn-lg w-full" id="goto-sim-btn">Simulate &amp; Compare →</button>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════════
-       PAGE 4: SIMULATE & COMPARE
-  ═══════════════════════════════════════════════════════════ -->
+  <!-- ══ PAGE 4: SIMULATE ════════════════════════════════════ -->
   <div class="page-section" id="page-4" style="display:none">
-    <h2 style="margin-bottom:1rem">Simulate &amp; Compare Both Machines</h2>
-
+    <h2 style="margin-bottom:.75rem">Simulate &amp; Compare</h2>
     <div class="alert alert-info" style="margin-bottom:1rem;font-size:.875rem">
-      <strong>Key property:</strong> For input of length n, Moore outputs n+1 symbols (including λ(q₀) before any input).
-      Mealy outputs n symbols. <strong>MealyOutput = MooreOutput[1:]</strong>
+      <strong>Key property:</strong> Moore outputs n+1 symbols; Mealy outputs n. <strong>MealyOutput = MooreOutput[1:]</strong>
     </div>
-
-    <!-- Single string tester -->
     <div class="card-elevated" style="margin-bottom:1rem">
       <div class="panel-title" style="margin-bottom:.75rem">Test a String</div>
       <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem">
-        <input type="text" class="form-input" id="sim-input" placeholder="Enter input string…"
-               style="flex:1;font-family:var(--font-mono)" aria-label="Input string" autocomplete="off" spellcheck="false" />
+        <input type="text" class="form-input" id="sim-input" placeholder="Enter string over Σ…" style="flex:1;font-family:var(--font-mono)" autocomplete="off" spellcheck="false"/>
         <button class="btn btn-primary" id="sim-btn">▶ Run Both</button>
-        <button class="btn btn-secondary btn-sm" id="random-string-btn" title="Random string">🎲</button>
+        <button class="btn btn-secondary btn-sm" id="rand-str-btn" title="Random string">🎲</button>
       </div>
-      <div id="sim-result" aria-live="polite"></div>
+      <div id="sim-result"></div>
     </div>
-
-    <!-- Batch tester -->
     <div class="card-elevated">
       <div class="panel-title" style="margin-bottom:.5rem">Batch Tester</div>
-      <p class="form-hint" style="margin-bottom:.5rem">One string per line. All strings tested for Moore/Mealy equivalence.</p>
-      <textarea class="text-editor" id="batch-input" style="min-height:100px" placeholder="0&#10;1&#10;01&#10;10&#10;101&#10;110" aria-label="Batch strings"></textarea>
+      <p class="form-hint" style="margin-bottom:.5rem">One string per line.</p>
+      <textarea class="text-editor" id="batch-input" style="min-height:90px" placeholder="0&#10;1&#10;01&#10;10&#10;101"></textarea>
       <div style="display:flex;gap:.5rem;margin-top:.5rem">
-        <button class="btn btn-secondary btn-sm" id="batch-run-btn">Run All</button>
+        <button class="btn btn-secondary btn-sm" id="batch-btn">Run All</button>
         <button class="btn btn-secondary btn-sm" id="batch-gen-btn">Generate up to length 4</button>
       </div>
       <div id="batch-result" style="margin-top:.75rem"></div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════════
-       PAGE 5: PRACTICE MODE
-  ═══════════════════════════════════════════════════════════ -->
+  <!-- ══ PAGE 5: PRACTICE ════════════════════════════════════ -->
   <div class="page-section" id="page-5" style="display:none">
     <h2 style="margin-bottom:1rem">Practice Mode</h2>
-
     <div class="grid-2" style="gap:1rem">
-      <!-- Quiz section -->
-      <div>
-        <div class="card-elevated" style="margin-bottom:.75rem">
-          <div class="panel-title" style="margin-bottom:.75rem">Quiz: Fill in the Mealy Table</div>
-          <p class="form-hint" style="margin-bottom:.75rem">
-            Convert the Moore machine below to a Mealy machine. Fill in each cell as <code>nextState/output</code>.
-          </p>
-          <div id="quiz-moore-display" style="margin-bottom:.75rem"></div>
-          <div id="quiz-answer-table" style="margin-bottom:.75rem"></div>
-          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-            <button class="btn btn-primary btn-sm" id="quiz-check-btn">Check Answers</button>
-            <button class="btn btn-secondary btn-sm" id="quiz-hint-btn">Hint</button>
-            <button class="btn btn-secondary btn-sm" id="quiz-reveal-btn">Reveal Solution</button>
-            <button class="btn btn-ghost btn-sm" id="quiz-new-btn">New Question</button>
-          </div>
-          <div id="quiz-feedback" style="margin-top:.75rem"></div>
+      <div class="card-elevated">
+        <div class="panel-title" style="margin-bottom:.75rem">Quiz: Fill in the Mealy Table</div>
+        <p class="form-hint" style="margin-bottom:.5rem">Format each cell as <code>nextState/output</code></p>
+        <div id="quiz-moore"></div>
+        <div id="quiz-table" style="margin:.75rem 0"></div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" id="quiz-check">Check</button>
+          <button class="btn btn-secondary btn-sm" id="quiz-hint">Hint</button>
+          <button class="btn btn-secondary btn-sm" id="quiz-reveal">Reveal</button>
+          <button class="btn btn-ghost btn-sm" id="quiz-new">New Question</button>
         </div>
+        <div id="quiz-feedback" style="margin-top:.75rem"></div>
       </div>
-
-      <!-- Random generator -->
-      <div>
-        <div class="card-elevated">
-          <div class="panel-title" style="margin-bottom:.75rem">Generate Random Machine</div>
-          <div style="display:flex;flex-direction:column;gap:.625rem">
-            <div class="form-group">
-              <label class="form-label" for="rand-states">Number of states</label>
-              <input type="range" id="rand-states" min="2" max="8" value="3" class="w-full" />
-              <span class="form-hint" id="rand-states-val">3 states</span>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="rand-alpha">Alphabet size</label>
-              <input type="range" id="rand-alpha" min="1" max="3" value="2" class="w-full" />
-              <span class="form-hint" id="rand-alpha-val">2 symbols</span>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="rand-out">Output alphabet size</label>
-              <input type="range" id="rand-out" min="2" max="4" value="2" class="w-full" />
-              <span class="form-hint" id="rand-out-val">2 output symbols</span>
-            </div>
-            <button class="btn btn-primary" id="rand-gen-btn">🎲 Generate &amp; Load</button>
+      <div class="card-elevated">
+        <div class="panel-title" style="margin-bottom:.75rem">Random Machine Generator</div>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div class="form-group">
+            <label class="form-label">States: <span id="rv-states">3</span></label>
+            <input type="range" id="r-states" min="2" max="8" value="3" class="w-full"/>
           </div>
+          <div class="form-group">
+            <label class="form-label">Alphabet size: <span id="rv-alpha">2</span></label>
+            <input type="range" id="r-alpha" min="1" max="3" value="2" class="w-full"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Output alphabet size: <span id="rv-out">2</span></label>
+            <input type="range" id="r-out" min="2" max="4" value="2" class="w-full"/>
+          </div>
+          <button class="btn btn-primary" id="rand-gen-btn">🎲 Generate &amp; Load</button>
         </div>
       </div>
     </div>
   </div>
 
-</div><!-- end container -->
-</div><!-- end section -->
+</div>
+</div>
 </main>
 
 <script>
-/* ─────────────────────────────────────────────────────────────
-   Automata Lab — Moore → Mealy Simulator Controller
-   All algorithm logic lives in mooreToMealy.js (external file).
-   This script handles all UI, state management, and rendering.
-   ───────────────────────────────────────────────────────────── */
-(function () {
+/* ================================================================
+   Automata Lab — Moore → Mealy Simulator
+   Single inline script. All core logic in mooreToMealy.js.
+================================================================ */
+(function(){
 'use strict';
 
-// ── App state ─────────────────────────────────────────────────
-const S = {
-  states: [], inputAlphabet: [], outputAlphabet: [],
-  initialState: '', outputs: {}, transitions: {},
-  mealy: null, mooreSrc: null, steps: [], currentStep: -1,
-  isPlaying: false, speed: 700, playTimer: null,
-  resultGraphScale: 1, resultGraphOffX: 0, resultGraphOffY: 0,
-  quizMoore: null, quizMealy: null, currentPage: 0
-};
+/* ── SVG GRAPH ENGINE ─────────────────────────────────────────
+   Self-contained. Renders any automata machine into a given
+   <svg> element. No external dependencies.
+─────────────────────────────────────────────────────────────── */
+var NS = 'http://www.w3.org/2000/svg';
 
-const $ = id => document.getElementById(id);
+function svgEl(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  if (attrs) Object.keys(attrs).forEach(function(k){ e.setAttribute(k, attrs[k]); });
+  return e;
+}
 
-// ── Page / stepper navigation ──────────────────────────────────
-function showPage(n) {
-  S.currentPage = n;
-  document.querySelectorAll('.page-section').forEach((el, i) => {
-    el.style.display = i === n ? '' : 'none';
+function addMarker(defs, id, color) {
+  var m = svgEl('marker', {id:id, markerWidth:'10', markerHeight:'7', refX:'9', refY:'3.5', orient:'auto'});
+  m.appendChild(svgEl('polygon', {points:'0 0,10 3.5,0 7', fill:color}));
+  defs.appendChild(m);
+}
+
+/** Compute circular layout */
+function circleLayout(states, W, H) {
+  var pos = {}, n = states.length;
+  if (!n) return pos;
+  var cx = W/2, cy = H/2, R = n===1 ? 0 : Math.min(cx,cy)*0.60;
+  states.forEach(function(s,i){
+    var a = (2*Math.PI*i/n) - Math.PI/2;
+    pos[s] = { x: n===1?cx : cx+R*Math.cos(a), y: n===1?cy : cy+R*Math.sin(a) };
   });
-  document.querySelectorAll('.stepper-step').forEach((el, i) => {
-    el.classList.toggle('active', i === n);
-    el.classList.toggle('done',   i < n);
+  return pos;
+}
+
+/**
+ * Draw an automata graph into an SVG element.
+ * @param {SVGSVGElement} svg
+ * @param {Object} machine  {states, inputAlphabet, transitions, initialState}
+ * @param {Object} [opts]   {
+ *   nodeLabel(s): string — label for node s  [default: s]
+ *   edgeLabel(from,sym,trans): string — label for edge  [default: sym]
+ *   activeState: string — highlighted yellow node
+ *   activeEdge: {from,to} — highlighted orange edge
+ *   newEdge: {from,to} — highlighted green edge (newly added)
+ *   drawnEdges: Set of "from→to" keys — only draw these edges (null=draw all)
+ *   offsetX, offsetY, scale — for pan/zoom
+ * }
+ */
+function drawGraph(svg, machine, opts) {
+  opts = opts || {};
+  // Clear
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  var rect = svg.getBoundingClientRect();
+  var W = rect.width  || 460;
+  var H = rect.height || 280;
+
+  // Defs
+  var defs = svgEl('defs');
+  addMarker(defs, 'ar',    'var(--text-secondary)');
+  addMarker(defs, 'ar-act','var(--warning)');
+  addMarker(defs, 'ar-new','var(--success)');
+  svg.appendChild(defs);
+
+  var root = svgEl('g');
+  if (opts.offsetX || opts.offsetY || opts.scale) {
+    var ox = opts.offsetX||0, oy = opts.offsetY||0, sc = opts.scale||1;
+    root.setAttribute('transform','translate('+ox+','+oy+') scale('+sc+')');
+  }
+  svg.appendChild(root);
+
+  var states = machine.states || [];
+  var alphabet = machine.inputAlphabet || [];
+  var transitions = machine.transitions || {};
+  var pos = circleLayout(states, W, H);
+  var R = 28;
+
+  // Build edge map: merge parallel edges into combined label strings
+  var edgeMap = {}; // "from→to" → {from,to,labels[],selfLoop}
+  states.forEach(function(from){
+    alphabet.forEach(function(sym){
+      var t = transitions[from] && transitions[from][sym];
+      if (!t) return;
+      var to = (typeof t === 'object') ? t.nextState : t;
+      if (!to) return;
+
+      // Filter: if drawnEdges set given, skip edges not in it
+      if (opts.drawnEdges) {
+        var outVal = (typeof t === 'object') ? t.output : '';
+        var has = opts.drawnEdges.has(from+'→'+to+'→'+sym+'/'+outVal)
+               || opts.drawnEdges.has(from+'→'+to+'→'+sym);
+        if (!has) return;
+      }
+
+      var label = opts.edgeLabel ? opts.edgeLabel(from,sym,t) : ((typeof t==='object')?(sym+'/'+t.output):sym);
+      var key = from+'→'+to;
+      if (!edgeMap[key]) edgeMap[key]={from:from,to:to,labels:[],selfLoop:from===to};
+      edgeMap[key].labels.push(label);
+    });
+  });
+
+  // Draw edges
+  Object.keys(edgeMap).forEach(function(key){
+    var edge = edgeMap[key];
+    var fp = pos[edge.from], tp = pos[edge.to];
+    if (!fp||!tp) return;
+
+    var isAct = opts.activeEdge && opts.activeEdge.from===edge.from && opts.activeEdge.to===edge.to;
+    var isNew = opts.newEdge    && opts.newEdge.from===edge.from    && opts.newEdge.to===edge.to;
+    var color  = isAct?'var(--warning)':isNew?'var(--success)':'var(--text-secondary)';
+    var markId = isAct?'ar-act':isNew?'ar-new':'ar';
+    var sw     = (isAct||isNew)?'2.5':'1.8';
+    var lbl    = edge.labels.join(', ');
+
+    var g = svgEl('g');
+
+    if (edge.selfLoop) {
+      var cx=fp.x, cy=fp.y-R, ddx=22, ddy=34;
+      var path = svgEl('path',{
+        d:'M'+(cx-ddx/2)+' '+cy+' C'+(cx-ddx*1.5)+' '+(cy-ddy*2)+' '+(cx+ddx*1.5)+' '+(cy-ddy*2)+' '+(cx+ddx/2)+' '+cy,
+        fill:'none',stroke:color,'stroke-width':sw,'marker-end':'url(#'+markId+')'
+      });
+      var tw = svgEl('text',{'text-anchor':'middle',fill:'var(--text)','font-family':'var(--font-mono)','font-size':'11',x:String(cx),y:String(cy-ddy*1.35)});
+      tw.textContent = lbl;
+      g.appendChild(path); g.appendChild(tw);
+
+    } else {
+      var hasRev = !!edgeMap[edge.to+'→'+edge.from];
+      var dx=tp.x-fp.x, dy=tp.y-fp.y, len=Math.sqrt(dx*dx+dy*dy)||1;
+      var sx=fp.x+(dx/len)*(R+2), sy=fp.y+(dy/len)*(R+2);
+      var ex=tp.x-(dx/len)*(R+5), ey=tp.y-(dy/len)*(R+5);
+      var ox2=hasRev?(-dy*0.22):0, oy2=hasRev?(dx*0.22):0;
+      var cpx=(sx+ex)/2+ox2, cpy=(sy+ey)/2+oy2;
+
+      var path2 = svgEl('path',{
+        d:'M'+sx+' '+sy+' Q'+cpx+' '+cpy+' '+ex+' '+ey,
+        fill:'none',stroke:color,'stroke-width':sw,'marker-end':'url(#'+markId+')'
+      });
+      g.appendChild(path2);
+
+      var lw = Math.max(lbl.length*6.5+8, 22);
+      var bg = svgEl('rect',{x:String(cpx-lw/2),y:String(cpy-8),width:String(lw),height:'14',rx:'3',fill:'var(--bg)'});
+      var tw2 = svgEl('text',{'text-anchor':'middle',fill:'var(--text)','font-family':'var(--font-mono)','font-size':'10',x:String(cpx),y:String(cpy+1)});
+      tw2.textContent = lbl;
+      g.appendChild(bg); g.appendChild(tw2);
+    }
+    root.appendChild(g);
+  });
+
+  // Draw nodes
+  states.forEach(function(s){
+    var p = pos[s]; if (!p) return;
+    var isInit = s===machine.initialState;
+    var isAct  = opts.activeState===s;
+
+    var fill   = isAct?'var(--node-active)':isInit?'var(--node-initial)':'var(--node-normal)';
+    var stroke = isAct?'var(--warning)':isInit?'var(--accent)':'var(--border-strong)';
+    var sw2    = isAct?'3':'2';
+
+    var g = svgEl('g',{transform:'translate('+p.x+','+p.y+')'});
+    g.appendChild(svgEl('circle',{r:String(R),fill:fill,stroke:stroke,'stroke-width':sw2}));
+
+    if (isInit) {
+      g.appendChild(svgEl('line',{x1:String(-(R+26)),y1:'0',x2:String(-(R+3)),y2:'0',stroke:'var(--accent)','stroke-width':'2','marker-end':'url(#ar)'}));
+    }
+
+    var lbl2 = opts.nodeLabel ? opts.nodeLabel(s) : s;
+    if (lbl2.length > 10) lbl2 = lbl2.slice(0,9)+'…';
+    var fs = lbl2.length > 6 ? '9' : '11';
+    var tw3 = svgEl('text',{'text-anchor':'middle','dominant-baseline':'middle',fill:'var(--text)','font-family':'var(--font-mono)','font-size':fs});
+    tw3.textContent = lbl2;
+    g.appendChild(tw3);
+    root.appendChild(g);
   });
 }
 
-document.querySelectorAll('.stepper-step').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const n = parseInt(btn.dataset.step);
-    if (n === 0) { showPage(0); return; }
-    if (n >= 2 && !S.mealy) { alert('Run the conversion first.'); return; }
+/* ── APP STATE ────────────────────────────────────────────── */
+var S = {
+  states:[], inputAlphabet:[], outputAlphabet:[],
+  initialState:'', outputs:{}, transitions:{},
+  mealy:null, mooreSrc:null, steps:[], currentStep:-1,
+  isPlaying:false, speed:700, playTimer:null,
+  rgScale:1, rgOffX:0, rgOffY:0,
+  quizMoore:null, quizMealy:null
+};
+
+function $(id){ return document.getElementById(id); }
+
+/* ── PAGES ────────────────────────────────────────────────── */
+function showPage(n) {
+  document.querySelectorAll('.page-section').forEach(function(el,i){
+    el.style.display = i===n?'':'none';
+  });
+  document.querySelectorAll('.stepper-step').forEach(function(el,i){
+    el.classList.toggle('active',i===n);
+    el.classList.toggle('done',i<n);
+  });
+}
+
+document.querySelectorAll('.stepper-step').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var n = parseInt(btn.dataset.step);
+    if (n===0){showPage(0);return;}
+    if (n>=2&&!S.mealy){alert('Run the conversion first.');return;}
     showPage(n);
-    if (n === 3) renderResultPage();
-    if (n === 4) renderSimulatePage();
-    if (n === 5) renderPracticePage();
+    if (n===3) renderResultPage();
+    if (n===5) renderPracticePage();
   });
 });
 
-// ── Input method tabs ──────────────────────────────────────────
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const parent = btn.closest('.tabs');
-    if (!parent) return;
-    parent.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+/* ── TABS ─────────────────────────────────────────────────── */
+document.querySelectorAll('.tab-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var tablist = btn.closest('[role="tablist"]');
+    if (!tablist) return;
+    tablist.querySelectorAll('.tab-btn').forEach(function(b){
+      b.classList.remove('active'); b.setAttribute('aria-selected','false');
+    });
     btn.classList.add('active'); btn.setAttribute('aria-selected','true');
-    const pane = btn.dataset.tab;
-    if (!pane) return;
-    document.querySelectorAll(`#${pane}`).forEach(p => p.classList.add('active'));
-    document.querySelectorAll('.tab-pane').forEach(p => { if (p.id !== pane) p.classList.remove('active'); });
+    var tid = btn.dataset.tab; if (!tid) return;
+    var pane = $(tid); if (!pane) return;
+    pane.parentElement.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('active'); });
+    pane.classList.add('active');
   });
 });
 
-// ── Load presets ───────────────────────────────────────────────
-MOORE_EXAMPLES.forEach(ex => {
-  const opt = document.createElement('option');
-  opt.value = ex.id; opt.textContent = ex.title;
-  $('example-select').appendChild(opt);
+/* ── PRESETS ──────────────────────────────────────────────── */
+MOORE_EXAMPLES.forEach(function(ex){
+  var o=document.createElement('option'); o.value=ex.id; o.textContent=ex.title;
+  $('example-select').appendChild(o);
 });
-$('example-select').addEventListener('change', function () {
-  const ex = MOORE_EXAMPLES.find(e => e.id === this.value);
-  if (ex) loadMachine(ex);
+$('example-select').addEventListener('change',function(){
+  var ex=MOORE_EXAMPLES.find(function(e){return e.id===this.value;},this);
+  if(ex) loadMachine(ex);
 });
 
-function loadMachine(m) {
+function loadMachine(m){
   clearAll(true);
-  m.states.forEach(s => { S.states.push(s); S.transitions[s] = S.transitions[s]||{}; });
-  m.inputAlphabet.forEach(s => {
-    S.inputAlphabet.push(s);
-    S.states.forEach(st => { S.transitions[st][s] = S.transitions[st][s]||''; });
+  m.states.forEach(function(s){S.states.push(s);S.transitions[s]={};});
+  m.inputAlphabet.forEach(function(sym){
+    S.inputAlphabet.push(sym);
+    S.states.forEach(function(st){S.transitions[st][sym]='';});
   });
-  m.outputAlphabet.forEach(s => S.outputAlphabet.push(s));
-  S.initialState = m.initialState;
-  S.outputs      = {...m.outputs};
-  // Load transitions
-  m.states.forEach(st => {
-    m.inputAlphabet.forEach(sym => {
-      S.transitions[st][sym] = (m.transitions[st] && m.transitions[st][sym]) || '';
+  m.outputAlphabet.forEach(function(sym){S.outputAlphabet.push(sym);});
+  S.initialState=m.initialState||'';
+  S.outputs=Object.assign({},m.outputs);
+  m.states.forEach(function(st){
+    m.inputAlphabet.forEach(function(sym){
+      S.transitions[st][sym]=(m.transitions[st]&&m.transitions[st][sym])||'';
     });
   });
   refreshAll(); runValidation();
 }
-
-// Load canonical example on first open
 loadMachine(MOORE_EXAMPLES[0]);
 
-// ── State management ───────────────────────────────────────────
-$('state-input').addEventListener('keydown', e => { if (e.key==='Enter') $('add-state-btn').click(); });
-$('add-state-btn').addEventListener('click', () => {
-  const v = $('state-input').value.trim();
-  if (!v || S.states.includes(v)) return;
+/* ── STATES ───────────────────────────────────────────────── */
+$('state-input').addEventListener('keydown',function(e){if(e.key==='Enter')$('add-state-btn').click();});
+$('add-state-btn').addEventListener('click',function(){
+  var v=$('state-input').value.trim();
+  if(!v||S.states.includes(v))return;
   S.states.push(v); S.transitions[v]={};
-  S.inputAlphabet.forEach(s => { S.transitions[v][s]=''; });
+  S.inputAlphabet.forEach(function(sym){S.transitions[v][sym]='';});
   $('state-input').value=''; $('state-input').focus();
   refreshAll(); runValidation();
 });
-
-function removeState(name) {
-  S.states = S.states.filter(s=>s!==name);
+function removeState(name){
+  S.states=S.states.filter(function(s){return s!==name;});
   delete S.transitions[name]; delete S.outputs[name];
-  if (S.initialState===name) S.initialState='';
+  if(S.initialState===name) S.initialState='';
   refreshAll(); runValidation();
 }
 
-// ── Alphabet management ────────────────────────────────────────
-$('symbol-input').addEventListener('keydown', e => { if (e.key==='Enter') $('add-symbol-btn').click(); });
-$('add-symbol-btn').addEventListener('click', () => {
-  const v = $('symbol-input').value.trim();
-  if (!v || S.inputAlphabet.includes(v)) return;
+/* ── INPUT ALPHABET ───────────────────────────────────────── */
+$('symbol-input').addEventListener('keydown',function(e){if(e.key==='Enter')$('add-symbol-btn').click();});
+$('add-symbol-btn').addEventListener('click',function(){
+  var v=$('symbol-input').value.trim();
+  if(!v||S.inputAlphabet.includes(v))return;
   S.inputAlphabet.push(v);
-  S.states.forEach(s => { S.transitions[s][v]=''; });
+  S.states.forEach(function(st){if(!S.transitions[st])S.transitions[st]={};S.transitions[st][v]='';});
   $('symbol-input').value=''; $('symbol-input').focus();
   refreshAll(); runValidation();
 });
-function removeSymbol(sym) {
-  S.inputAlphabet = S.inputAlphabet.filter(s=>s!==sym);
-  S.states.forEach(s => { if(S.transitions[s]) delete S.transitions[s][sym]; });
+function removeSymbol(sym){
+  S.inputAlphabet=S.inputAlphabet.filter(function(s){return s!==sym;});
+  S.states.forEach(function(st){if(S.transitions[st])delete S.transitions[st][sym];});
   refreshAll(); runValidation();
 }
 
-// ── Output alphabet ────────────────────────────────────────────
-$('output-symbol-input').addEventListener('keydown', e => { if (e.key==='Enter') $('add-output-symbol-btn').click(); });
-$('add-output-symbol-btn').addEventListener('click', () => {
-  const v = $('output-symbol-input').value.trim();
-  if (!v || S.outputAlphabet.includes(v)) return;
+/* ── OUTPUT ALPHABET ──────────────────────────────────────── */
+$('out-sym-input').addEventListener('keydown',function(e){if(e.key==='Enter')$('add-out-sym-btn').click();});
+$('add-out-sym-btn').addEventListener('click',function(){
+  var v=$('out-sym-input').value.trim();
+  if(!v||S.outputAlphabet.includes(v))return;
   S.outputAlphabet.push(v);
-  $('output-symbol-input').value=''; $('output-symbol-input').focus();
+  $('out-sym-input').value=''; $('out-sym-input').focus();
   refreshAll(); runValidation();
 });
-function removeOutputSymbol(sym) {
-  S.outputAlphabet = S.outputAlphabet.filter(s=>s!==sym);
-  Object.keys(S.outputs).forEach(k => { if(S.outputs[k]===sym) S.outputs[k]=''; });
+function removeOutSym(sym){
+  S.outputAlphabet=S.outputAlphabet.filter(function(s){return s!==sym;});
+  Object.keys(S.outputs).forEach(function(k){if(S.outputs[k]===sym)S.outputs[k]='';});
   refreshAll(); runValidation();
 }
 
-// ── Refresh all UI from state ──────────────────────────────────
-function refreshAll() {
-  refreshChips('state-chips', S.states, s => removeState(s),
-    s => (s===S.initialState?'chip-initial':'')+' chip',
-    s => (s===S.initialState?'→ ':'')+s);
-  refreshChips('alphabet-chips', S.inputAlphabet, s => removeSymbol(s));
-  refreshChips('output-alphabet-chips', S.outputAlphabet, s => removeOutputSymbol(s));
+/* ── REFRESH ALL ──────────────────────────────────────────── */
+function refreshAll(){
+  renderChips('state-chips',S.states,removeState,
+    function(s){return 'chip'+(s===S.initialState?' chip-initial':'');},
+    function(s){return (s===S.initialState?'→ ':'')+s;});
+  renderChips('alphabet-chips',S.inputAlphabet,removeSymbol);
+  renderChips('out-alphabet-chips',S.outputAlphabet,removeOutSym);
   refreshInitialSelect();
   refreshOutputAssignments();
   refreshTransitionTable();
@@ -741,1056 +699,514 @@ function refreshAll() {
   renderFormalTuple();
 }
 
-function refreshChips(containerId, items, onRemove, classGetter, labelGetter) {
-  const el = $(containerId); el.innerHTML='';
-  if(!items.length){el.innerHTML='<span class="text-muted text-sm">None yet.</span>';return;}
-  items.forEach(item=>{
-    const chip=document.createElement('span');
-    chip.className=(classGetter?classGetter(item):'chip');
-    if(!chip.className.includes('chip'))chip.className='chip '+chip.className;
-    chip.innerHTML=(labelGetter?labelGetter(item):item)+
-      `<button class="chip-remove" aria-label="Remove ${item}" data-v="${item}">✕</button>`;
-    el.appendChild(chip);
+function renderChips(cid,items,onRemove,classFn,labelFn){
+  var c=$(cid); c.innerHTML='';
+  if(!items.length){c.innerHTML='<span class="text-muted text-sm">None yet.</span>';return;}
+  items.forEach(function(item){
+    var chip=document.createElement('span');
+    chip.className=classFn?classFn(item):'chip';
+    chip.innerHTML=(labelFn?labelFn(item):item)+
+      '<button class="chip-remove" aria-label="Remove '+item+'" data-v="'+item+'">✕</button>';
+    c.appendChild(chip);
   });
-  el.querySelectorAll('.chip-remove').forEach(b=>b.addEventListener('click',()=>onRemove(b.dataset.v)));
+  c.querySelectorAll('.chip-remove').forEach(function(b){b.addEventListener('click',function(){onRemove(b.dataset.v);});});
 }
 
 function refreshInitialSelect(){
-  const sel=$('initial-select');
+  var sel=$('initial-select');
   sel.innerHTML='<option value="">— select —</option>';
-  S.states.forEach(s=>{
-    const o=document.createElement('option');
-    o.value=s;o.textContent=s;
-    if(s===S.initialState)o.selected=true;
-    sel.appendChild(o);
+  S.states.forEach(function(s){
+    var o=document.createElement('option');o.value=s;o.textContent=s;
+    if(s===S.initialState)o.selected=true;sel.appendChild(o);
   });
 }
 $('initial-select').addEventListener('change',function(){S.initialState=this.value;refreshAll();runValidation();});
 
 function refreshOutputAssignments(){
-  const el=$('output-assignments'); el.innerHTML='';
+  var el=$('output-assignments');el.innerHTML='';
   if(!S.states.length||!S.outputAlphabet.length){
     el.innerHTML='<span class="text-muted text-sm">Add states and output alphabet first.</span>';return;
   }
-  S.states.forEach(s=>{
-    const row=document.createElement('div');
-    row.style.cssText='display:flex;align-items:center;gap:.5rem;margin-bottom:.375rem';
-    const lbl=document.createElement('span');
-    lbl.style.cssText='font-family:var(--font-mono);font-size:.8rem;min-width:70px;font-weight:600;color:var(--accent)';
-    lbl.textContent=`λ(${s}) =`;
-    const sel=document.createElement('select');
-    sel.className='form-select'; sel.style.flex='1';
-    sel.setAttribute('aria-label',`Output for ${s}`);
-    const blank=document.createElement('option'); blank.value=''; blank.textContent='—';
-    sel.appendChild(blank);
-    S.outputAlphabet.forEach(sym=>{
-      const o=document.createElement('option'); o.value=sym; o.textContent=sym;
-      if(S.outputs[s]===sym) o.selected=true;
-      sel.appendChild(o);
-    });
+  S.states.forEach(function(s){
+    var row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:.5rem;margin-bottom:.375rem';
+    var lbl=document.createElement('span');lbl.style.cssText='font-family:var(--font-mono);font-size:.8rem;min-width:70px;font-weight:600;color:var(--accent)';lbl.textContent='λ('+s+') =';
+    var sel=document.createElement('select');sel.className='form-select';sel.style.flex='1';sel.setAttribute('aria-label','Output for '+s);
+    var blank=document.createElement('option');blank.value='';blank.textContent='—';sel.appendChild(blank);
+    S.outputAlphabet.forEach(function(sym){var o=document.createElement('option');o.value=sym;o.textContent=sym;if(S.outputs[s]===sym)o.selected=true;sel.appendChild(o);});
     sel.addEventListener('change',function(){S.outputs[s]=this.value;renderMoorePreview();runValidation();});
-    row.appendChild(lbl); row.appendChild(sel); el.appendChild(row);
+    row.appendChild(lbl);row.appendChild(sel);el.appendChild(row);
   });
 }
 
 function refreshTransitionTable(){
-  const table=$('transition-table'); table.innerHTML='';
+  var t=$('transition-table');t.innerHTML='';
   if(!S.states.length||!S.inputAlphabet.length){
-    table.innerHTML='<tr><td style="color:var(--text-muted);font-size:.8rem;padding:.75rem">Add states and alphabet.</td></tr>';return;
+    t.innerHTML='<tr><td style="color:var(--text-muted);font-size:.8rem;padding:.75rem">Add states and input alphabet first.</td></tr>';return;
   }
-  // Header
-  let hrow='<thead><tr><th style="text-align:center">δ(q,a)</th>';
-  S.inputAlphabet.forEach(sym=>hrow+=`<th>${sym}</th>`);
-  hrow+='</tr></thead>';
-  table.innerHTML=hrow+'<tbody></tbody>';
-  const tbody=table.querySelector('tbody');
-  S.states.forEach(s=>{
-    const tr=document.createElement('tr');
-    const tdS=document.createElement('td'); tdS.className='row-state';
-    tdS.textContent=(s===S.initialState?'→ ':'')+s+(S.outputs[s]?` / ${S.outputs[s]}`:'');
+  var h='<thead><tr><th style="text-align:center">δ</th>';
+  S.inputAlphabet.forEach(function(sym){h+='<th>'+sym+'</th>';});
+  h+='</tr></thead><tbody></tbody>';
+  t.innerHTML=h;
+  var tbody=t.querySelector('tbody');
+  S.states.forEach(function(s){
+    var tr=document.createElement('tr');
+    var tdS=document.createElement('td');tdS.className='row-state';
+    tdS.textContent=(s===S.initialState?'→ ':'')+s+(S.outputs[s]?' / '+S.outputs[s]:'');
     tr.appendChild(tdS);
-    S.inputAlphabet.forEach(sym=>{
-      const td=document.createElement('td');
-      const inp=document.createElement('input'); inp.type='text';
-      inp.placeholder='—'; inp.setAttribute('aria-label',`δ(${s},${sym})`);
-      inp.style.cssText='width:100%;min-width:55px;background:none;border:none;outline:none;font-family:var(--font-mono);font-size:.75rem;color:var(--text);text-align:center;padding:.2rem';
+    S.inputAlphabet.forEach(function(sym){
+      var td=document.createElement('td');
+      var inp=document.createElement('input');inp.type='text';inp.placeholder='—';
+      inp.setAttribute('aria-label','δ('+s+','+sym+')');
+      inp.style.cssText='width:100%;min-width:50px;background:none;border:none;outline:none;font-family:var(--font-mono);font-size:.75rem;color:var(--text);text-align:center;padding:.2rem';
       inp.value=(S.transitions[s]&&S.transitions[s][sym])||'';
-      inp.addEventListener('input',function(){
-        if(!S.transitions[s])S.transitions[s]={};
-        S.transitions[s][sym]=this.value.trim();
-        runValidation();
-      });
-      inp.addEventListener('focus',e=>e.target.style.background='var(--accent-light)');
-      inp.addEventListener('blur', e=>e.target.style.background='');
-      td.appendChild(inp); tr.appendChild(td);
+      inp.addEventListener('input',function(){if(!S.transitions[s])S.transitions[s]={};S.transitions[s][sym]=this.value.trim();runValidation();});
+      inp.addEventListener('focus',function(e){e.target.style.background='var(--accent-light)';});
+      inp.addEventListener('blur',function(e){e.target.style.background='';});
+      td.appendChild(inp);tr.appendChild(td);
     });
     tbody.appendChild(tr);
   });
 }
 
-// ── Moore preview table ────────────────────────────────────────
 function renderMoorePreview(){
-  const wrap=$('moore-table-wrap');
-  if(!S.states.length){
-    wrap.innerHTML='<div class="empty-state"><div class="empty-icon">⊞</div><p>Define the machine above.</p></div>';
-    return;
-  }
-  let html='<div class="table-wrap"><table class="trans-table" aria-label="Moore machine">';
-  html+='<caption style="text-align:left;padding:.375rem;font-size:.72rem;color:var(--text-muted)">→ = initial &nbsp; λ(q) = state output</caption>';
-  html+='<thead><tr><th>State</th><th>λ(q)</th>';
-  S.inputAlphabet.forEach(s=>html+=`<th class="font-mono">${s}</th>`);
-  html+='</tr></thead><tbody>';
-  S.states.forEach(s=>{
-    const isInit=s===S.initialState;
-    html+=`<tr ${isInit?'style="font-weight:600"':''}><td class="state-cell font-mono">${isInit?'→ ':''}${s}</td>`;
-    html+=`<td class="font-mono" style="color:var(--accent)">${S.outputs[s]||'—'}</td>`;
-    S.inputAlphabet.forEach(sym=>{
-      const v=S.transitions[s]&&S.transitions[s][sym];
-      const missing=!v;
-      html+=`<td class="font-mono" ${missing?'style="color:var(--warning)"':''}>${v||'∅'}</td>`;
+  var w=$('moore-preview');
+  if(!S.states.length){w.innerHTML='<div class="empty-state"><div class="empty-icon">⊞</div><p>Define states, alphabet and transitions.</p></div>';return;}
+  var h='<div class="table-wrap"><table class="trans-table"><caption style="text-align:left;padding:.375rem;font-size:.72rem;color:var(--text-muted)">→ initial &nbsp; λ(q) = state output</caption><thead><tr><th>State</th><th>λ(q)</th>';
+  S.inputAlphabet.forEach(function(sym){h+='<th class="font-mono">'+sym+'</th>';});
+  h+='</tr></thead><tbody>';
+  S.states.forEach(function(s){
+    var isI=s===S.initialState;
+    h+='<tr'+(isI?' style="font-weight:600"':'')+'><td class="state-cell font-mono">'+(isI?'→ ':'')+s+'</td>';
+    h+='<td class="font-mono" style="color:var(--accent)">'+(S.outputs[s]||'—')+'</td>';
+    S.inputAlphabet.forEach(function(sym){
+      var v=S.transitions[s]&&S.transitions[s][sym];
+      h+='<td class="font-mono"'+(v?'':' style="color:var(--warning)"')+'>'+(v||'∅')+'</td>';
     });
-    html+='</tr>';
+    h+='</tr>';
   });
-  html+='</tbody></table></div>';
-  wrap.innerHTML=html;
+  h+='</tbody></table></div>';
+  w.innerHTML=h;
 }
 
 function renderFormalTuple(){
-  const el=$('formal-tuple');
-  const txt=$('formal-tuple-text');
+  var el=$('formal-tuple'),txt=$('formal-tuple-text');
   if(!S.states.length){el.style.display='none';return;}
   el.style.display='block';
-  txt.innerHTML=
-    `M = (Q, Σ, Δ, δ, λ, q₀)<br/>` +
-    `Q = {${S.states.join(', ')}}<br/>` +
-    `Σ = {${S.inputAlphabet.join(', ')}}<br/>` +
-    `Δ = {${S.outputAlphabet.join(', ')}}<br/>` +
-    `q₀ = ${S.initialState||'(not set)'}<br/>` +
-    `λ: ${S.states.map(s=>`${s}→${S.outputs[s]||'?'}`).join(', ')}`;
+  txt.innerHTML='M = (Q, Σ, Δ, δ, λ, q₀)<br/>Q = {'+S.states.join(', ')+'}<br/>Σ = {'+S.inputAlphabet.join(', ')+'}<br/>Δ = {'+S.outputAlphabet.join(', ')+'}<br/>q₀ = '+(S.initialState||'(not set)')+'<br/>λ: '+S.states.map(function(s){return s+'→'+(S.outputs[s]||'?');}).join(', ');
 }
 
-// ── Validation ─────────────────────────────────────────────────
-$('validate-btn').addEventListener('click', () => { runValidation(); });
-
+/* ── VALIDATION ───────────────────────────────────────────── */
+$('validate-btn').addEventListener('click',runValidation);
 function runValidation(){
-  const moore=buildMooreObject();
-  const {errors, warnings}=validateMoore(moore);
-  renderValidationPanel(errors, warnings);
-  const canRun=errors.length===0;
-  $('run-btn').disabled=!canRun;
-  return canRun;
-}
-
-function renderValidationPanel(errors, warnings){
-  const panel=$('validation-panel'); panel.innerHTML='';
-  if(!errors.length&&!warnings.length){
+  var moore=buildMooreObj();
+  var res=validateMoore(moore);
+  var panel=$('validation-panel');panel.innerHTML='';
+  if(!res.errors.length&&!res.warnings.length){
     panel.innerHTML='<div class="val-item val-ok">✓ Machine is valid. Ready to convert.</div>';
-    return;
+  } else {
+    res.errors.forEach(function(e){var d=document.createElement('div');d.className='val-item val-error';d.innerHTML='<span>✕</span><span>'+e.msg+'</span>';panel.appendChild(d);});
+    res.warnings.forEach(function(w){var d=document.createElement('div');d.className='val-item val-warning';d.innerHTML='<span>⚠</span><span>'+w.msg+'</span>';panel.appendChild(d);});
   }
-  errors.forEach(e=>{
-    const d=document.createElement('div');
-    d.className='val-item val-error';
-    d.innerHTML=`<span style="font-weight:700">✕</span><span>${e.msg}</span>`;
-    panel.appendChild(d);
-  });
-  warnings.forEach(w=>{
-    const d=document.createElement('div');
-    d.className='val-item val-warning';
-    d.innerHTML=`<span>⚠</span><span>${w.msg}</span>`;
-    panel.appendChild(d);
-  });
+  $('run-btn').disabled=res.errors.length>0;
+  return res.errors.length===0;
+}
+function buildMooreObj(){
+  return {states:[].concat(S.states),inputAlphabet:[].concat(S.inputAlphabet),outputAlphabet:[].concat(S.outputAlphabet),
+    initialState:S.initialState,outputs:Object.assign({},S.outputs),transitions:JSON.parse(JSON.stringify(S.transitions))};
 }
 
-function buildMooreObject(){
-  return {
-    states:[...S.states],
-    inputAlphabet:[...S.inputAlphabet],
-    outputAlphabet:[...S.outputAlphabet],
-    initialState:S.initialState,
-    outputs:{...S.outputs},
-    transitions:JSON.parse(JSON.stringify(S.transitions))
-  };
-}
-
-// ── Run conversion ─────────────────────────────────────────────
-$('run-btn').addEventListener('click', runConversion);
-
-function runConversion(){
-  if(!runValidation()) return;
-  const moore=buildMooreObject();
-  let result;
-  try { result=mooreToMealy(moore); }
-  catch(e){ alert('Conversion error: '+e.message); return; }
-
+/* ── CONVERT ──────────────────────────────────────────────── */
+$('run-btn').addEventListener('click',function(){
+  if(!runValidation())return;
+  var moore=buildMooreObj();
+  var result;
+  try{result=mooreToMealy(moore);}catch(e){alert('Error: '+e.message);return;}
   S.mealy=result.mealy; S.steps=result.steps; S.mooreSrc=moore;
   S.currentStep=-1; clearInterval(S.playTimer); S.isPlaying=false;
-
-  // Build the Moore graph positions (used in step view)
-  computeNodePositions(moore.states, '_moore');
-  computeNodePositions(moore.states, '_mealy');
-
-  renderStepView();
   showPage(2);
-}
-
-// ── Compute circular node layout ───────────────────────────────
-const nodePositions = {};
-function computeNodePositions(states, suffix){
-  const n=states.length, cx=200, cy=150, R=Math.min(120,40*n/2+50);
-  states.forEach((s,i)=>{
-    let x,y;
-    if(n===1){x=cx;y=cy;}
-    else{const a=(2*Math.PI*i/n)-Math.PI/2; x=cx+R*Math.cos(a); y=cy+R*Math.sin(a);}
-    nodePositions[s+suffix]={x,y};
-  });
-}
-
-// ─────────────────────────────────────────────────────────────
-// STEP VIEW
-// ─────────────────────────────────────────────────────────────
-function renderStepView(){
-  updateStepCounter();
-  highlightPseudocode(-1);
-  drawGraph('moore-graph-canvas','moore-graph-root','arr-moore', S.mooreSrc, {
-    emptyId:'moore-graph-empty', suffix:'_moore', showOutputInNode:true
-  });
-  drawMooreGraphFull();
-  renderProgressiveTable(-1);
-  updateStepBox(-1);
-}
-
-$('step-prev').addEventListener('click', stepBack);
-$('step-next').addEventListener('click', stepForward);
-$('step-reset').addEventListener('click', stepReset);
-$('step-play').addEventListener('click', togglePlay);
-$('skip-result-btn').addEventListener('click', ()=>{ stopPlay(); showPage(3); renderResultPage(); });
-$('speed-select').addEventListener('change', function(){
-  S.speed=parseInt(this.value);
-  if(S.isPlaying){clearInterval(S.playTimer);startPlay();}
+  requestAnimationFrame(function(){ updateStepView(); });
 });
 
-function stepForward(){
-  if(S.currentStep<S.steps.length-1){S.currentStep++;updateStepView();}
-  else stopPlay();
+/* ── STEP VIEW ────────────────────────────────────────────── */
+function updateStepView(){
+  var idx=S.currentStep;
+  var counter=$('step-counter');
+  if(counter) counter.textContent='Step '+(idx<0?0:idx+1)+' / '+S.steps.length;
+  updateStepBox();
+  updatePseudocode();
+  updateProgressiveTable();
+  drawBothGraphs();
 }
-function stepBack(){
-  if(S.currentStep>0){S.currentStep--;updateStepView();}
-  else if(S.currentStep===0){S.currentStep=-1;updateStepView();}
+
+function drawBothGraphs(){
+  if(!S.mooreSrc) return;
+  var step = S.currentStep>=0 ? S.steps[S.currentStep] : null;
+
+  // Moore graph — show active state and active edge
+  var mooreSVG=$('moore-svg');
+  drawGraph(mooreSVG, S.mooreSrc, {
+    nodeLabel: function(s){ return s+'/'+(S.mooreSrc.outputs[s]||'?'); },
+    edgeLabel: function(from,sym){ return sym; },
+    activeState: step ? step.fromState : null,
+    activeEdge:  step&&step.nextState ? {from:step.fromState,to:step.nextState} : null
+  });
+
+  // Mealy graph — only built edges so far
+  var built=new Set();
+  var newEdge=null;
+  if(S.currentStep>=0){
+    for(var i=0;i<=S.currentStep;i++){
+      var st=S.steps[i];
+      if(st.nextState) built.add(st.fromState+'→'+st.nextState+'→'+st.symbol+'/'+st.mooreOutput);
+    }
+    if(step&&step.nextState) newEdge={from:step.fromState,to:step.nextState};
+  }
+  var mealySVG=$('mealy-svg');
+  drawGraph(mealySVG, S.mealy, {
+    edgeLabel: function(from,sym,t){ return t?(sym+'/'+t.output):sym; },
+    drawnEdges: S.currentStep>=0 ? built : new Set(),
+    newEdge: newEdge
+  });
 }
-function stepReset(){ stopPlay(); S.currentStep=-1; updateStepView(); }
+
+function updateStepBox(){
+  var el=$('step-box');if(!el)return;
+  var idx=S.currentStep;
+  if(idx<0){el.innerHTML='<div class="text-muted text-sm">Click ▶ Play or Next ▶ to start stepping.</div>';return;}
+  var step=S.steps[idx];
+  var skipped=!step.nextState;
+  el.innerHTML='<div class="step-label">Step '+(idx+1)+' of '+S.steps.length+'</div>'+
+    '<div class="step-detail"><span class="step-detail-key">State q:</span><span class="step-detail-val font-mono">'+step.fromState+'</span></div>'+
+    '<div class="step-detail"><span class="step-detail-key">Symbol a:</span><span class="step-detail-val font-mono">"'+step.symbol+'"</span></div>'+
+    (skipped
+      ? '<div class="step-detail"><span style="color:var(--warning)">No transition — skipped.</span></div>'
+      : '<div class="step-detail"><span class="step-detail-key">p = δ(q,a):</span><span class="step-detail-val font-mono">'+step.nextState+'</span></div>'+
+        '<div class="step-detail"><span class="step-detail-key">λ(p) =</span><span class="step-detail-val font-mono" style="color:var(--accent)">"'+step.mooreOutput+'"</span></div>'+
+        '<div class="step-detail"><span class="step-detail-key">Mealy edge:</span><span class="step-detail-val font-mono">'+step.fromState+' —'+step.symbol+'/'+step.mooreOutput+'→ '+step.nextState+'</span></div>')+
+    '<div style="margin-top:.5rem;font-size:.8rem;color:var(--text-secondary);line-height:1.6">'+step.explanation+'</div>';
+}
+
+function updatePseudocode(){
+  var idx=S.currentStep;
+  var line=idx>=0?S.steps[idx].pseudocodeLine:-1;
+  document.querySelectorAll('.pc-line').forEach(function(el){
+    el.classList.toggle('highlighted',parseInt(el.dataset.line)===line);
+  });
+}
+
+function updateProgressiveTable(){
+  var w=$('progressive-table');if(!w||!S.mooreSrc)return;
+  var moore=S.mooreSrc, idx=S.currentStep;
+  var done=new Set(), curStep=null;
+  if(idx>=0){for(var i=0;i<=idx;i++){var st=S.steps[i];if(st.nextState)done.add(st.fromState+'__'+st.symbol);}curStep=S.steps[idx];}
+  var h='<div class="table-wrap"><table class="trans-table" style="font-size:.8rem"><thead><tr><th>State</th>';
+  moore.inputAlphabet.forEach(function(sym){h+='<th>'+sym+'</th>';});
+  h+='</tr></thead><tbody>';
+  moore.states.forEach(function(s){
+    h+='<tr><td class="state-cell font-mono">'+(s===moore.initialState?'→ ':'')+s+'</td>';
+    moore.inputAlphabet.forEach(function(sym){
+      var key=s+'__'+sym;
+      var isCur=curStep&&curStep.fromState===s&&curStep.symbol===sym&&curStep.nextState;
+      var isDone=done.has(key);
+      if(isCur){
+        h+='<td class="font-mono" style="background:var(--node-active);font-weight:700">'+curStep.nextState+' / <span style="color:var(--accent)">'+curStep.mooreOutput+'</span></td>';
+      } else if(isDone){
+        var t=S.mealy&&S.mealy.transitions[s]&&S.mealy.transitions[s][sym];
+        h+='<td class="font-mono">'+(t?t.nextState+' / <span style="color:var(--accent)">'+t.output+'</span>':'—')+'</td>';
+      } else {
+        h+='<td style="color:var(--text-muted);font-size:.75rem">?</td>';
+      }
+    });
+    h+='</tr>';
+  });
+  h+='</tbody></table></div>';
+  w.innerHTML=h;
+}
+
+// Step controls
+$('step-prev').addEventListener('click',function(){if(S.currentStep>0){S.currentStep--;updateStepView();}else if(S.currentStep===0){S.currentStep=-1;updateStepView();}});
+$('step-next').addEventListener('click',function(){if(S.currentStep<S.steps.length-1){S.currentStep++;updateStepView();}else stopPlay();});
+$('step-reset').addEventListener('click',function(){stopPlay();S.currentStep=-1;updateStepView();});
+$('step-play').addEventListener('click',function(){S.isPlaying?stopPlay():startPlay();});
+$('skip-btn').addEventListener('click',function(){stopPlay();showPage(3);renderResultPage();});
+$('speed-select').addEventListener('change',function(){S.speed=parseInt(this.value);if(S.isPlaying){clearInterval(S.playTimer);startPlay();}});
+
 function startPlay(){
-  S.isPlaying=true; $('step-play').textContent='⏸ Pause';
-  S.playTimer=setInterval(()=>{
+  S.isPlaying=true;$('step-play').textContent='⏸ Pause';
+  S.playTimer=setInterval(function(){
     if(S.currentStep>=S.steps.length-1){stopPlay();return;}
-    stepForward();
+    S.currentStep++;updateStepView();
   },S.speed);
 }
 function stopPlay(){
-  S.isPlaying=false; clearInterval(S.playTimer);
-  const pb=$('step-play'); if(pb) pb.textContent='▶ Play';
-}
-function togglePlay(){ S.isPlaying?stopPlay():startPlay(); }
-
-function updateStepView(){
-  updateStepCounter();
-  updateStepBox(S.currentStep);
-  highlightPseudocode(S.currentStep>=0?S.steps[S.currentStep].pseudocodeLine:-1);
-  renderProgressiveTable(S.currentStep);
-  // Re-draw moore graph with active edge, mealy graph with built edges
-  drawMooreGraphFull(S.currentStep);
-  drawMealyGraphProgressive(S.currentStep);
+  S.isPlaying=false;clearInterval(S.playTimer);
+  var pb=$('step-play');if(pb)pb.textContent='▶ Play';
 }
 
-function updateStepCounter(){
-  const el=$('step-counter');
-  if(el) el.textContent=`Step ${S.currentStep<0?0:S.currentStep+1} / ${S.steps.length}`;
-}
-
-function updateStepBox(idx){
-  const el=$('step-box'); if(!el) return;
-  if(idx<0){
-    el.innerHTML='<div class="text-muted text-sm">Click ▶ Play or Next ▶ to start stepping through the algorithm.</div>';
-    return;
-  }
-  const step=S.steps[idx];
-  const skipped=step.nextState===null;
-  el.innerHTML=`
-    <div class="step-label">Step ${idx+1} of ${S.steps.length}</div>
-    <div class="step-detail"><span class="step-detail-key">Processing state:</span><span class="step-detail-val font-mono">${step.fromState}</span></div>
-    <div class="step-detail"><span class="step-detail-key">Input symbol:</span><span class="step-detail-val font-mono">"${step.symbol}"</span></div>
-    ${skipped
-      ? `<div class="step-detail"><span class="step-detail-val" style="color:var(--warning)">No transition defined — skipped.</span></div>`
-      : `<div class="step-detail"><span class="step-detail-key">Next state δ(q,a):</span><span class="step-detail-val font-mono">${step.nextState}</span></div>
-         <div class="step-detail"><span class="step-detail-key">Moore λ(${step.nextState}):</span><span class="step-detail-val font-mono" style="color:var(--accent)">"${step.mooreOutput}"</span></div>
-         <div class="step-detail"><span class="step-detail-key">Mealy edge created:</span><span class="step-detail-val font-mono">(${step.fromState}) —${step.symbol}/${step.mooreOutput}→ (${step.nextState})</span></div>`
-    }
-    <div style="margin-top:.625rem;font-size:.8rem;color:var(--text-secondary);line-height:1.6">${step.explanation}</div>
-  `;
-}
-
-function highlightPseudocode(lineNum){
-  document.querySelectorAll('.pc-line').forEach(el=>{
-    el.classList.toggle('highlighted', parseInt(el.dataset.line)===lineNum);
-  });
-}
-
-function renderProgressiveTable(upToIdx){
-  const wrap=$('progressive-mealy-wrap'); if(!wrap||!S.mooreSrc) return;
-  const moore=S.mooreSrc;
-  let html='<div class="table-wrap"><table class="trans-table" style="font-size:.8rem">';
-  html+='<thead><tr><th>State</th>';
-  moore.inputAlphabet.forEach(s=>html+=`<th>${s}</th>`);
-  html+='</tr></thead><tbody>';
-
-  // Collect which (state,sym) pairs have been processed so far
-  const done=new Set();
-  if(upToIdx>=0){
-    for(let i=0;i<=upToIdx;i++){
-      const st=S.steps[i];
-      if(st.nextState) done.add(st.fromState+'__'+st.symbol);
-    }
-  }
-  const curStep=upToIdx>=0?S.steps[upToIdx]:null;
-
-  moore.states.forEach(s=>{
-    html+=`<tr><td class="state-cell font-mono">${s===moore.initialState?'→ ':''} ${s}</td>`;
-    moore.inputAlphabet.forEach(sym=>{
-      const key=s+'__'+sym;
-      const isDone=done.has(key);
-      const isCurrent=curStep&&curStep.fromState===s&&curStep.symbol===sym&&curStep.nextState;
-      if(isCurrent){
-        html+=`<td class="font-mono" style="background:var(--node-active);font-weight:700;color:var(--text)">${curStep.nextState} / <span style="color:var(--accent)">${curStep.mooreOutput}</span></td>`;
-      } else if(isDone){
-        const t=S.mealy&&S.mealy.transitions[s]&&S.mealy.transitions[s][sym];
-        html+=`<td class="font-mono">${t?`${t.nextState} / <span style="color:var(--accent)">${t.output}</span>`:'—'}</td>`;
-      } else {
-        html+=`<td style="color:var(--text-muted);font-size:.75rem">?</td>`;
-      }
-    });
-    html+='</tr>';
-  });
-  html+='</tbody></table></div>';
-  wrap.innerHTML=html;
-}
-
-// ─────────────────────────────────────────────────────────────
-// SVG GRAPH RENDERING
-// ─────────────────────────────────────────────────────────────
-function drawGraph(canvasId, rootId, markerId, machine, opts){
-  const canvas=$(canvasId), root=$(rootId);
-  if(!canvas||!root) return;
-  root.innerHTML='';
-  if(opts.emptyId){
-    const e=$(opts.emptyId);
-    if(e) e.style.display='none';
-  }
-
-  const suf=opts.suffix||'';
-  const r=26;
-  const n=machine.states.length;
-
-  // Compute layout if not done
-  machine.states.forEach((s,i)=>{
-    if(!nodePositions[s+suf]){
-      const cx=200,cy=150,R=Math.min(120,40*n/2+50);
-      const a=(2*Math.PI*i/n)-Math.PI/2;
-      nodePositions[s+suf]={x:cx+R*Math.cos(a),y:cy+R*Math.sin(a)};
-    }
-  });
-
-  // Build edge map
-  const edgeMap={};
-  machine.states.forEach(s=>{
-    machine.inputAlphabet.forEach(sym=>{
-      const next=machine.transitions[s]&&machine.transitions[s][sym];
-      if(!next) return;
-      const key=s+'→'+next;
-      if(!edgeMap[key]) edgeMap[key]={from:s,to:next,labels:[],selfLoop:s===next};
-      // For Moore: label is sym only; for Mealy result: sym/out
-      if(opts.mealyTrans){
-        const t=opts.mealyTrans[s]&&opts.mealyTrans[s][sym];
-        if(t) edgeMap[key].labels.push(`${sym}/${t.output}`);
-      } else {
-        edgeMap[key].labels.push(sym);
-      }
-    });
-  });
-
-  const g=document.createElementNS('http://www.w3.org/2000/svg','g');
-  if(opts.transform) g.setAttribute('transform',opts.transform);
-  root.appendChild(g);
-
-  // Draw edges
-  Object.values(edgeMap).forEach(edge=>{
-    const fn=nodePositions[edge.from+suf], tn=nodePositions[edge.to+suf];
-    if(!fn||!tn) return;
-    drawEdgeSVG(g, edge, fn, tn, r, markerId, opts.activeEdge, opts.newEdge);
-  });
-
-  // Draw nodes
-  machine.states.forEach(s=>{
-    const pos=nodePositions[s+suf];
-    if(!pos) return;
-    const isInit=s===machine.initialState;
-    const isActive=opts.activeNode===s;
-    const label = opts.showOutputInNode&&machine.outputs ? `${s}/${machine.outputs[s]||'?'}` : s;
-    drawNodeSVG(g, pos, label, r, isInit, false, isActive, false);
-  });
-}
-
-function drawEdgeSVG(g, edge, fn, tn, r, markerId, activeEdge, newEdge){
-  const grp=document.createElementNS('http://www.w3.org/2000/svg','g');
-  const label=edge.labels.join(', ');
-  const isActive=activeEdge&&activeEdge.from===edge.from&&activeEdge.to===edge.to;
-  const isNew=newEdge&&newEdge.from===edge.from&&newEdge.to===edge.to;
-  const edgeColor=isActive?'var(--warning)':isNew?'var(--success)':'var(--text-secondary)';
-  const edgeWidth=isActive||isNew?'2.5':'1.8';
-
-  if(edge.selfLoop){
-    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
-    const lx=fn.x, ly=fn.y-r, dx=22, dy=30;
-    path.setAttribute('d',`M${lx-dx/2} ${ly} C${lx-dx*1.5} ${ly-dy*2} ${lx+dx*1.5} ${ly-dy*2} ${lx+dx/2} ${ly}`);
-    path.setAttribute('fill','none'); path.setAttribute('stroke',edgeColor);
-    path.setAttribute('stroke-width',edgeWidth);
-    path.setAttribute('marker-end',`url(#${markerId})`);
-    const txt=makeSVGText(lx,ly-dy*1.4,label,'10');
-    txt.setAttribute('fill','var(--text)');
-    grp.appendChild(path); grp.appendChild(txt);
-  } else {
-    const hasRev=fn!==tn; // simplified: check if edge from tn to fn also exists (done via offset)
-    const dx=tn.x-fn.x, dy=tn.y-fn.y, len=Math.sqrt(dx*dx+dy*dy)||1;
-    const sx=fn.x+(dx/len)*(r+1), sy=fn.y+(dy/len)*(r+1);
-    const ex=tn.x-(dx/len)*(r+4), ey=tn.y-(dy/len)*(r+4);
-    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
-    // Small perpendicular offset to separate bidirectional edges
-    const offX=-dy*0.2, offY=dx*0.2;
-    const mx=(sx+ex)/2+offX, my=(sy+ey)/2+offY;
-    path.setAttribute('d',`M${sx} ${sy} Q${mx} ${my} ${ex} ${ey}`);
-    path.setAttribute('fill','none'); path.setAttribute('stroke',edgeColor);
-    path.setAttribute('stroke-width',edgeWidth);
-    path.setAttribute('marker-end',`url(#${markerId})`);
-    grp.appendChild(path);
-    const bg=document.createElementNS('http://www.w3.org/2000/svg','rect');
-    const tw=label.length*6+6;
-    bg.setAttribute('x',mx-tw/2); bg.setAttribute('y',my-8);
-    bg.setAttribute('width',tw); bg.setAttribute('height',13);
-    bg.setAttribute('rx',3); bg.setAttribute('fill','var(--bg)');
-    const txt=makeSVGText(mx,my+1,label,'10');
-    txt.setAttribute('fill','var(--text)');
-    grp.appendChild(bg); grp.appendChild(txt);
-  }
-  g.appendChild(grp);
-}
-
-function drawNodeSVG(g, pos, label, r, isInit, isFinal, isActive, isNew){
-  const grp=document.createElementNS('http://www.w3.org/2000/svg','g');
-  grp.setAttribute('transform',`translate(${pos.x},${pos.y})`);
-  const fill=isActive?'var(--node-active)':isNew?'var(--node-new)':isInit?'var(--node-initial)':'var(--node-normal)';
-  const stroke=isActive?'var(--warning)':isNew?'var(--info)':isInit?'var(--accent)':'var(--border-strong)';
-  const sw=isActive||isNew?'3':'2';
-  const circ=document.createElementNS('http://www.w3.org/2000/svg','circle');
-  circ.setAttribute('r',r); circ.setAttribute('fill',fill);
-  circ.setAttribute('stroke',stroke); circ.setAttribute('stroke-width',sw);
-  grp.appendChild(circ);
-  if(isFinal){
-    const inner=document.createElementNS('http://www.w3.org/2000/svg','circle');
-    inner.setAttribute('r',r-4); inner.setAttribute('fill','none');
-    inner.setAttribute('stroke',stroke); inner.setAttribute('stroke-width','1.5');
-    grp.appendChild(inner);
-  }
-  if(isInit){
-    const arr=document.createElementNS('http://www.w3.org/2000/svg','line');
-    arr.setAttribute('x1',-(r+22)); arr.setAttribute('y1','0');
-    arr.setAttribute('x2',-(r+2));  arr.setAttribute('y2','0');
-    arr.setAttribute('stroke','var(--accent)'); arr.setAttribute('stroke-width','2');
-    arr.setAttribute('marker-end','url(#arr-moore)');
-    grp.appendChild(arr);
-  }
-  // Label — shorten if long
-  const displayLabel = label.length > 10 ? label.slice(0,8)+'…' : label;
-  const txt=makeSVGText(0,0,displayLabel,'10');
-  txt.setAttribute('fill','var(--text)'); txt.setAttribute('dominant-baseline','middle');
-  grp.appendChild(txt);
-  g.appendChild(grp);
-}
-
-function makeSVGText(x,y,text,size){
-  const t=document.createElementNS('http://www.w3.org/2000/svg','text');
-  t.setAttribute('x',x); t.setAttribute('y',y);
-  t.setAttribute('text-anchor','middle'); t.setAttribute('font-family','var(--font-mono)');
-  t.setAttribute('font-size',size); t.textContent=text;
-  return t;
-}
-
-function drawMooreGraphFull(activeStepIdx){
-  if(!S.mooreSrc) return;
-  const step=activeStepIdx>=0?S.steps[activeStepIdx]:null;
-  const activeEdge=step&&step.nextState?{from:step.fromState,to:step.nextState}:null;
-  const activeNode=step?step.fromState:null;
-  const canvas=$('moore-graph-canvas'), root=$('moore-graph-root'), empty=$('moore-graph-empty');
-  if(empty) empty.style.display='none';
-  root.innerHTML='';
-  const r=26, moore=S.mooreSrc;
-  const edgeMap={};
-  moore.states.forEach(s=>{
-    moore.inputAlphabet.forEach(sym=>{
-      const next=moore.transitions[s]&&moore.transitions[s][sym];
-      if(!next) return;
-      const key=s+'→'+next;
-      if(!edgeMap[key]) edgeMap[key]={from:s,to:next,labels:[],selfLoop:s===next};
-      edgeMap[key].labels.push(sym);
-    });
-  });
-  const g=document.createElementNS('http://www.w3.org/2000/svg','g');
-  root.appendChild(g);
-  Object.values(edgeMap).forEach(edge=>{
-    const fn=nodePositions[edge.from+'_moore'], tn=nodePositions[edge.to+'_moore'];
-    if(!fn||!tn) return;
-    const isActive=activeEdge&&activeEdge.from===edge.from&&activeEdge.to===edge.to;
-    drawEdgeSVG(g,edge,fn,tn,r,'arr-moore',isActive?activeEdge:null,null);
-  });
-  moore.states.forEach(s=>{
-    const pos=nodePositions[s+'_moore'];if(!pos)return;
-    const isInit=s===moore.initialState;
-    const isA=activeNode===s;
-    const label=`${s}/${moore.outputs[s]||'?'}`;
-    drawNodeSVG(g,pos,label,r,isInit,false,isA,false);
-  });
-}
-
-function drawMealyGraphProgressive(upToIdx){
-  if(!S.mooreSrc||!S.mealy) return;
-  const root=$('mealy-graph-root'), empty=$('mealy-graph-empty');
-  if(empty) empty.style.display='none';
-  root.innerHTML='';
-  const r=26, moore=S.mooreSrc;
-
-  // Collect built edges so far
-  const builtEdges=new Set();
-  let newEdge=null;
-  if(upToIdx>=0){
-    for(let i=0;i<=upToIdx;i++){
-      const st=S.steps[i];
-      if(st.nextState) builtEdges.add(st.fromState+'→'+st.nextState+'→'+st.symbol+'/'+st.mooreOutput);
-    }
-    const cur=S.steps[upToIdx];
-    if(cur&&cur.nextState) newEdge={from:cur.fromState,to:cur.nextState};
-  }
-
-  // Build edge map for built edges only (with mealy labels)
-  const edgeMap={};
-  builtEdges.forEach(key=>{
-    const parts=key.split('→');
-    const from=parts[0], rest=parts[1];
-    const [to,labelPart]=rest.split('→');
-    const pairKey=from+'→'+to;
-    if(!edgeMap[pairKey]) edgeMap[pairKey]={from,to,labels:[],selfLoop:from===to};
-    edgeMap[pairKey].labels.push(labelPart);
-  });
-
-  const g=document.createElementNS('http://www.w3.org/2000/svg','g');
-  root.appendChild(g);
-  Object.values(edgeMap).forEach(edge=>{
-    const fn=nodePositions[edge.from+'_mealy'],tn=nodePositions[edge.to+'_mealy'];
-    if(!fn||!tn)return;
-    const isNew=newEdge&&newEdge.from===edge.from&&newEdge.to===edge.to;
-    drawEdgeSVG(g,edge,fn,tn,r,'arr-mealy',null,isNew?newEdge:null);
-  });
-  moore.states.forEach(s=>{
-    const pos=nodePositions[s+'_mealy'];if(!pos)return;
-    const isInit=s===moore.initialState;
-    drawNodeSVG(g,pos,s,r,isInit,false,false,false);
-  });
-}
-
-// ─────────────────────────────────────────────────────────────
-// RESULT PAGE
-// ─────────────────────────────────────────────────────────────
+/* ── RESULT PAGE ──────────────────────────────────────────── */
 function renderResultPage(){
-  if(!S.mealy||!S.mooreSrc) return;
-  const moore=S.mooreSrc, mealy=S.mealy;
+  if(!S.mealy||!S.mooreSrc)return;
+  var moore=S.mooreSrc, mealy=S.mealy;
 
-  // Full Mealy graph
-  const resRoot=$('result-graph-root'), resEmpty=$('result-mealy-canvas');
-  if(resRoot){
-    resRoot.innerHTML='';
-    const r=30, states=mealy.states;
-    const n=states.length, cx=260, cy=160, R=Math.min(160,50*n/2+60);
-    const pos={};
-    states.forEach((s,i)=>{
-      const a=(2*Math.PI*i/n)-Math.PI/2;
-      pos[s]={x:n===1?cx:cx+R*Math.cos(a), y:n===1?cy:cy+R*Math.sin(a)};
-    });
-    const edgeMap={};
-    states.forEach(s=>{
-      mealy.inputAlphabet.forEach(sym=>{
-        const t=mealy.transitions[s]&&mealy.transitions[s][sym];
-        if(!t) return;
-        const key=s+'→'+t.nextState;
-        if(!edgeMap[key]) edgeMap[key]={from:s,to:t.nextState,labels:[],selfLoop:s===t.nextState};
-        edgeMap[key].labels.push(`${sym}/${t.output}`);
-      });
-    });
-    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
-    const gscale=S.resultGraphScale;
-    g.setAttribute('transform',`translate(${S.resultGraphOffX},${S.resultGraphOffY}) scale(${gscale})`);
-    resRoot.appendChild(g);
-    Object.values(edgeMap).forEach(edge=>{
-      const fn=pos[edge.from],tn=pos[edge.to];if(!fn||!tn)return;
-      drawEdgeSVG(g,edge,fn,tn,r,'arr-result',null,null);
-    });
-    states.forEach(s=>{
-      const p=pos[s];if(!p)return;
-      drawNodeSVG(g,p,s,r,s===mealy.initialState,false,false,false);
-    });
-  }
+  // Full Mealy graph with pan/zoom
+  var svg=$('result-svg');
+  drawGraph(svg, mealy, {
+    edgeLabel:function(from,sym,t){return t?(sym+'/'+t.output):sym;},
+    offsetX:S.rgOffX, offsetY:S.rgOffY, scale:S.rgScale
+  });
 
-  // Formal comparison
-  const tc=$('tuple-compare');
+  // Formal tuple comparison
+  var tc=$('tuple-compare');
   if(tc) tc.innerHTML=
-    `<span style="color:var(--success);font-weight:700">Moore M:</span><br/>` +
-    `Q = {${moore.states.join(', ')}}<br/>` +
-    `Σ = {${moore.inputAlphabet.join(', ')}}<br/>` +
-    `Δ = {${moore.outputAlphabet.join(', ')}}<br/>` +
-    `q₀ = ${moore.initialState}<br/>` +
-    `λ: Q→Δ (outputs per state)<br/><br/>` +
-    `<span style="color:var(--accent);font-weight:700">Mealy M':</span><br/>` +
-    `Q' = Q ✓<br/>Σ' = Σ ✓<br/>Δ' = Δ ✓<br/>q₀' = q₀ ✓<br/>` +
-    `λ': Q×Σ→Δ (outputs per transition)`;
+    '<span style="color:var(--success);font-weight:700">Moore M:</span><br/>'+
+    'Q={'+moore.states.join(', ')+'}<br/>Σ={'+moore.inputAlphabet.join(', ')+'}<br/>Δ={'+moore.outputAlphabet.join(', ')+'}<br/>q₀='+moore.initialState+'<br/>'+
+    'λ: '+moore.states.map(function(s){return s+'→'+(moore.outputs[s]||'?');}).join(', ')+'<br/><br/>'+
+    '<span style="color:var(--accent);font-weight:700">Mealy M\':</span><br/>'+
+    'Q\'=Q ✓ &nbsp; Σ\'=Σ ✓ &nbsp; Δ\'=Δ ✓ &nbsp; q₀\'=q₀ ✓<br/>λ\': Q×Σ→Δ (output on transitions, not states)';
 
-  // Tables
-  const mooreTbl=$('moore-result-table');
-  if(mooreTbl) mooreTbl.innerHTML=buildMooreTableHTML(moore);
-  const mealyTbl=$('mealy-result-table');
-  if(mealyTbl) mealyTbl.innerHTML=buildMealyTableHTML(mealy);
+  var mtbl=$('moore-result-table');if(mtbl)mtbl.innerHTML=mooreTblHTML(moore);
+  var mtbl2=$('mealy-result-table');if(mtbl2)mtbl2.innerHTML=mealyTblHTML(mealy);
 
   // Graph controls
-  $('rg-zoom-in').onclick=()=>{S.resultGraphScale=Math.min(S.resultGraphScale+0.2,3);renderResultPage();};
-  $('rg-zoom-out').onclick=()=>{S.resultGraphScale=Math.max(S.resultGraphScale-0.2,0.3);renderResultPage();};
-  $('rg-fit').onclick=()=>{S.resultGraphScale=1;S.resultGraphOffX=0;S.resultGraphOffY=0;renderResultPage();};
-  setupResultGraphDrag();
+  $('rg-in').onclick=function(){S.rgScale=Math.min(S.rgScale+0.2,3);renderResultPage();};
+  $('rg-out').onclick=function(){S.rgScale=Math.max(S.rgScale-0.2,0.3);renderResultPage();};
+  $('rg-fit').onclick=function(){S.rgScale=1;S.rgOffX=0;S.rgOffY=0;renderResultPage();};
+  var drag=false,lx2=0,ly2=0;
+  svg.onmousedown=function(e){drag=true;lx2=e.clientX;ly2=e.clientY;};
+  svg.onmousemove=function(e){if(!drag)return;S.rgOffX+=e.clientX-lx2;S.rgOffY+=e.clientY-ly2;lx2=e.clientX;ly2=e.clientY;renderResultPage();};
+  svg.onmouseup=svg.onmouseleave=function(){drag=false;};
 }
 
-function buildMooreTableHTML(moore){
-  let h='<div class="table-wrap"><table class="trans-table" aria-label="Moore table">';
-  h+='<caption style="text-align:left;padding:.4rem;font-size:.72rem;color:var(--text-muted)">Moore: λ(q) on state</caption>';
-  h+='<thead><tr><th>State</th><th>λ(q)</th>';
-  moore.inputAlphabet.forEach(s=>h+=`<th>${s}</th>`);
+function mooreTblHTML(moore){
+  var h='<div class="table-wrap"><table class="trans-table"><caption style="text-align:left;padding:.4rem;font-size:.72rem;color:var(--text-muted)">Moore: λ(q) on state</caption><thead><tr><th>State</th><th>λ(q)</th>';
+  moore.inputAlphabet.forEach(function(sym){h+='<th>'+sym+'</th>';});
   h+='</tr></thead><tbody>';
-  moore.states.forEach(s=>{
-    const isInit=s===moore.initialState;
-    h+=`<tr><td class="state-cell font-mono">${isInit?'→ ':''}${s}</td>`;
-    h+=`<td class="font-mono" style="color:var(--accent)">${moore.outputs[s]||'—'}</td>`;
-    moore.inputAlphabet.forEach(sym=>{
-      const n=moore.transitions[s]&&moore.transitions[s][sym];
-      h+=`<td class="font-mono">${n||'∅'}</td>`;
+  moore.states.forEach(function(s){
+    h+='<tr><td class="state-cell font-mono">'+(s===moore.initialState?'→ ':'')+s+'</td><td class="font-mono" style="color:var(--accent)">'+(moore.outputs[s]||'—')+'</td>';
+    moore.inputAlphabet.forEach(function(sym){h+='<td class="font-mono">'+(moore.transitions[s]&&moore.transitions[s][sym]||'∅')+'</td>';});
+    h+='</tr>';
+  });
+  return h+'</tbody></table></div>';
+}
+
+function mealyTblHTML(mealy){
+  var h='<div class="table-wrap"><table class="trans-table"><caption style="text-align:left;padding:.4rem;font-size:.72rem;color:var(--text-muted)">Mealy: λ\'(q,a) on transition</caption><thead><tr><th>State</th>';
+  mealy.inputAlphabet.forEach(function(sym){h+='<th>'+sym+'</th>';});
+  h+='</tr></thead><tbody>';
+  mealy.states.forEach(function(s){
+    h+='<tr><td class="state-cell font-mono">'+(s===mealy.initialState?'→ ':'')+s+'</td>';
+    mealy.inputAlphabet.forEach(function(sym){
+      var t=mealy.transitions[s]&&mealy.transitions[s][sym];
+      h+=t?'<td class="font-mono"><strong>'+t.nextState+'</strong> <span style="color:var(--accent)">/ '+t.output+'</span></td>':'<td class="font-mono cell-dead">—</td>';
     });
     h+='</tr>';
   });
-  h+='</tbody></table></div>';
-  return h;
+  return h+'</tbody></table></div>';
 }
 
-function buildMealyTableHTML(mealy){
-  let h='<div class="table-wrap"><table class="trans-table" aria-label="Mealy table">';
-  h+='<caption style="text-align:left;padding:.4rem;font-size:.72rem;color:var(--text-muted)">Mealy: λ\'(q,a) on transition</caption>';
-  h+='<thead><tr><th>State</th>';
-  mealy.inputAlphabet.forEach(s=>h+=`<th>${s}</th>`);
-  h+='</tr></thead><tbody>';
-  mealy.states.forEach(s=>{
-    const isInit=s===mealy.initialState;
-    h+=`<tr><td class="state-cell font-mono">${isInit?'→ ':''}${s}</td>`;
-    mealy.inputAlphabet.forEach(sym=>{
-      const t=mealy.transitions[s]&&mealy.transitions[s][sym];
-      if(t) h+=`<td class="font-mono"><strong>${t.nextState}</strong> <span style="color:var(--accent)">/ ${t.output}</span></td>`;
-      else h+=`<td class="font-mono cell-dead">—</td>`;
-    });
-    h+='</tr>';
-  });
-  h+='</tbody></table></div>';
-  return h;
-}
-
-function setupResultGraphDrag(){
-  const canvas=$('result-mealy-canvas');if(!canvas)return;
-  let drag=false,lx=0,ly=0;
-  canvas.onmousedown=e=>{drag=true;lx=e.clientX;ly=e.clientY;};
-  canvas.onmousemove=e=>{if(!drag)return;S.resultGraphOffX+=e.clientX-lx;S.resultGraphOffY+=e.clientY-ly;lx=e.clientX;ly=e.clientY;renderResultPage();};
-  canvas.onmouseup=canvas.onmouseleave=()=>drag=false;
-}
-
-$('goto-simulate-btn').addEventListener('click',()=>{showPage(4);renderSimulatePage();});
-
-// Export
-$('export-json-result').addEventListener('click',()=>exportJSON());
-$('copy-text-btn').addEventListener('click',()=>{
-  if(!S.mooreSrc) return;
-  navigator.clipboard.writeText(serializeMoore(S.mooreSrc)).then(()=>alert('Copied to clipboard.'));
+$('goto-sim-btn').addEventListener('click',function(){showPage(4);});
+$('export-result-btn').addEventListener('click',exportJSON);
+$('copy-text-btn').addEventListener('click',function(){
+  if(!S.mooreSrc)return;
+  navigator.clipboard.writeText(serializeMoore(S.mooreSrc)).then(function(){alert('Copied!');});
 });
-
 function exportJSON(){
-  if(!S.mooreSrc||!S.mealy) return;
-  const data=JSON.stringify({moore:S.mooreSrc,mealy:S.mealy},null,2);
-  const blob=new Blob([data],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download='automata-lab-moore-mealy.json';
-  a.click(); URL.revokeObjectURL(url);
+  if(!S.mooreSrc||!S.mealy)return;
+  var data=JSON.stringify({moore:S.mooreSrc,mealy:S.mealy},null,2);
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));a.download='moore-mealy.json';a.click();
 }
 
-// ─────────────────────────────────────────────────────────────
-// SIMULATE PAGE
-// ─────────────────────────────────────────────────────────────
-function renderSimulatePage(){
-  if(!S.mealy||!S.mooreSrc){
-    alert('Run the conversion first.'); showPage(0); return;
-  }
-}
-
-$('sim-btn').addEventListener('click',()=>{
-  const input=$('sim-input').value;
-  runSimulation(input);
-});
-$('sim-input').addEventListener('keydown',e=>{if(e.key==='Enter') $('sim-btn').click();});
-
-$('random-string-btn').addEventListener('click',()=>{
-  if(!S.mooreSrc) return;
-  const alpha=S.mooreSrc.inputAlphabet;
-  const len=Math.floor(Math.random()*5)+2;
-  let s=''; for(let i=0;i<len;i++) s+=alpha[Math.floor(Math.random()*alpha.length)];
-  $('sim-input').value=s; runSimulation(s);
+/* ── SIMULATE PAGE ────────────────────────────────────────── */
+$('sim-btn').addEventListener('click',function(){runSim($('sim-input').value);});
+$('sim-input').addEventListener('keydown',function(e){if(e.key==='Enter')$('sim-btn').click();});
+$('rand-str-btn').addEventListener('click',function(){
+  if(!S.mooreSrc)return;
+  var a=S.mooreSrc.inputAlphabet,len=Math.floor(Math.random()*5)+2,s='';
+  for(var i=0;i<len;i++)s+=a[Math.floor(Math.random()*a.length)];
+  $('sim-input').value=s;runSim(s);
 });
 
-function runSimulation(input){
+function runSim(input){
   if(!S.mooreSrc||!S.mealy){alert('Convert first.');return;}
-  const mooreRes=simulateMoore(S.mooreSrc, input);
-  const mealyRes=simulateMealy(S.mealy, input);
-  const equiv=checkEquivalence(S.mooreSrc, S.mealy, input);
-  renderSimResult(mooreRes, mealyRes, equiv, input);
+  var mr=simulateMoore(S.mooreSrc,input), ler=simulateMealy(S.mealy,input), eq=checkEquivalence(S.mooreSrc,S.mealy,input);
+  var el=$('sim-result');if(!el)return;
+  var h='<div class="output-compare"><div class="output-box"><div class="panel-title">Moore (n+1='+mr.outputString.length+' symbols)</div><div class="output-string">';
+  if(mr.outputString){h+='<span class="output-highlight-first" title="λ(q₀), dropped by Mealy">'+mr.outputString[0]+'</span>'+mr.outputString.slice(1);}else h+='ε';
+  h+='</div><div class="text-muted text-sm">Underlined = λ(q₀)</div></div>';
+  h+='<div class="output-box"><div class="panel-title">Mealy (n='+ler.outputString.length+' symbols)</div><div class="output-string" style="color:var(--accent)">'+(ler.outputString||'ε')+'</div></div></div>';
+  if(!mr.error&&!ler.error){
+    var ok=eq.equivalent;
+    h+='<div class="alert '+(ok?'alert-success':'alert-error')+'" style="margin-top:.75rem">'+(ok?'✓':'✗')+' Moore[1:]="'+eq.mooreDropped+'" '+(ok?'=':'≠')+' Mealy="'+eq.mealyOut+'"'+(ok?' ✓':' — mismatch')+'</div>';
+  }
+  if(mr.error)h+='<div class="alert alert-error" style="margin-top:.5rem">Moore: '+mr.error+'</div>';
+  if(ler.error)h+='<div class="alert alert-error" style="margin-top:.5rem">Mealy: '+ler.error+'</div>';
+  if(!mr.error&&!ler.error&&input){
+    h+='<div class="grid-2" style="gap:1rem;margin-top:1rem">';
+    h+='<div><div class="panel-title" style="margin-bottom:.5rem">Moore Trace</div><div class="table-wrap"><table class="trans-table" style="font-size:.8rem"><thead><tr><th>#</th><th>In</th><th>State</th><th>Out</th></tr></thead><tbody>';
+    h+='<tr><td>0</td><td>—</td><td class="font-mono">'+S.mooreSrc.initialState+'</td><td class="font-mono" style="color:var(--accent)">'+(S.mooreSrc.outputs[S.mooreSrc.initialState]||'?')+'</td></tr>';
+    mr.trace.forEach(function(t){h+='<tr><td>'+t.step+'</td><td class="font-mono">'+t.char+'</td><td class="font-mono">'+t.toState+'</td><td class="font-mono" style="color:var(--accent)">'+t.output+'</td></tr>';});
+    h+='</tbody></table></div></div>';
+    h+='<div><div class="panel-title" style="margin-bottom:.5rem">Mealy Trace</div><div class="table-wrap"><table class="trans-table" style="font-size:.8rem"><thead><tr><th>#</th><th>In</th><th>From→To</th><th>Out</th></tr></thead><tbody>';
+    ler.trace.forEach(function(t){h+='<tr><td>'+t.step+'</td><td class="font-mono">'+t.char+'</td><td class="font-mono">'+t.fromState+'→'+t.toState+'</td><td class="font-mono" style="color:var(--accent)">'+t.output+'</td></tr>';});
+    h+='</tbody></table></div></div></div>';
+  }
+  el.innerHTML=h;
 }
 
-function renderSimResult(mooreRes, mealyRes, equiv, input){
-  const el=$('sim-result'); if(!el) return;
-  const ε=!input||input==='';
-  let html='';
-
-  // Output comparison boxes
-  html+=`<div class="output-compare">`;
-  html+=`<div class="output-box">
-    <div class="panel-title">Moore Output</div>
-    <div class="output-string">`;
-  if(mooreRes.outputString){
-    // First symbol highlighted (initial state output)
-    const first=mooreRes.outputString[0];
-    const rest=mooreRes.outputString.slice(1);
-    html+=`<span class="output-highlight-first" title="λ(q₀) — dropped by Mealy">${first}</span>${rest}`;
-  } else html+='ε';
-  html+=`</div>
-    <div class="text-muted text-sm">n+1 = ${mooreRes.outputString.length} symbols</div>
-    <div class="text-muted text-sm" style="margin-top:.25rem">Underlined = λ(q₀), not in Mealy output</div>
-  </div>`;
-
-  html+=`<div class="output-box">
-    <div class="panel-title">Mealy Output</div>
-    <div class="output-string" style="color:var(--accent)">${mealyRes.outputString||'ε'}</div>
-    <div class="text-muted text-sm">n = ${mealyRes.outputString.length} symbols</div>
-  </div></div>`;
-
-  // Equivalence check
-  if(!mooreRes.error&&!mealyRes.error){
-    const ok=equiv.equivalent;
-    html+=`<div class="alert ${ok?'alert-success':'alert-error'}" style="margin-top:.75rem">
-      ${ok?'✓':'✗'} Equivalence check:
-      Moore[1:] = "${equiv.mooreDropped}"  ${ok?'=':'≠'}  Mealy = "${equiv.mealyOut}"
-      ${ok?' — ✓ Correct!':` — MISMATCH: ${equiv.diff}`}
-    </div>`;
-  }
-
-  if(mooreRes.error) html+=`<div class="alert alert-error" style="margin-top:.5rem">Moore error: ${mooreRes.error}</div>`;
-  if(mealyRes.error) html+=`<div class="alert alert-error" style="margin-top:.5rem">Mealy error: ${mealyRes.error}</div>`;
-
-  // Trace tables
-  if(!mooreRes.error&&!mealyRes.error&&!ε){
-    html+=`<div class="grid-2" style="gap:1rem;margin-top:1rem">`;
-    // Moore trace
-    html+=`<div><div class="panel-title" style="margin-bottom:.5rem">Moore Trace</div>
-      <div class="table-wrap"><table class="trans-table" style="font-size:.8rem">
-      <thead><tr><th>#</th><th>Input</th><th>State</th><th>Output</th></tr></thead><tbody>`;
-    html+=`<tr><td>0</td><td>—</td><td class="font-mono">${S.mooreSrc.initialState}</td><td class="font-mono" style="color:var(--accent)">${S.mooreSrc.outputs[S.mooreSrc.initialState]||'?'}</td></tr>`;
-    mooreRes.trace.forEach(t=>{
-      html+=`<tr><td>${t.step}</td><td class="font-mono">${t.char}</td><td class="font-mono">${t.toState}</td><td class="font-mono" style="color:var(--accent)">${t.output}</td></tr>`;
-    });
-    html+=`</tbody></table></div></div>`;
-    // Mealy trace
-    html+=`<div><div class="panel-title" style="margin-bottom:.5rem">Mealy Trace</div>
-      <div class="table-wrap"><table class="trans-table" style="font-size:.8rem">
-      <thead><tr><th>#</th><th>Input</th><th>From→To</th><th>Output</th></tr></thead><tbody>`;
-    mealyRes.trace.forEach(t=>{
-      html+=`<tr><td>${t.step}</td><td class="font-mono">${t.char}</td><td class="font-mono">${t.fromState}→${t.toState}</td><td class="font-mono" style="color:var(--accent)">${t.output}</td></tr>`;
-    });
-    html+=`</tbody></table></div></div></div>`;
-  }
-
-  el.innerHTML=html;
-}
-
-// Batch tester
-$('batch-run-btn').addEventListener('click',()=>{
+$('batch-btn').addEventListener('click',function(){
   if(!S.mooreSrc||!S.mealy){alert('Convert first.');return;}
-  const lines=$('batch-input').value.split('\n').map(l=>l.trim()).filter(Boolean);
-  renderBatchResults(lines);
+  var lines=$('batch-input').value.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+  runBatch(lines);
 });
-
-$('batch-gen-btn').addEventListener('click',()=>{
+$('batch-gen-btn').addEventListener('click',function(){
   if(!S.mooreSrc){alert('Define a machine first.');return;}
-  const alpha=S.mooreSrc.inputAlphabet;
-  const strings=[''];
-  for(let len=1;len<=4;len++){
-    const generateAll=(prefix,remaining)=>{
-      if(remaining===0){strings.push(prefix);return;}
-      alpha.forEach(a=>generateAll(prefix+a,remaining-1));
-    };
-    generateAll('',len);
+  var alpha=S.mooreSrc.inputAlphabet,strings=[''];
+  for(var len=1;len<=4;len++){
+    (function gen(prefix,rem){
+      if(!rem){strings.push(prefix);return;}
+      alpha.forEach(function(a){gen(prefix+a,rem-1);});
+    })('',len);
   }
   $('batch-input').value=strings.join('\n');
 });
-
-function renderBatchResults(lines){
-  const el=$('batch-result'); if(!el) return;
-  let passed=0,failed=0,errors=0;
-  let html=`<div class="table-wrap"><table class="trans-table" style="font-size:.8rem">
-    <thead><tr><th>Input</th><th>Moore out</th><th>Mealy out</th><th>Moore[1:]</th><th>Equiv?</th></tr></thead><tbody>`;
-  lines.forEach(input=>{
-    const equiv=checkEquivalence(S.mooreSrc,S.mealy,input);
-    if(equiv.error){errors++;
-      html+=`<tr><td class="font-mono">${input||'ε'}</td><td colspan="4" style="color:var(--danger)">${equiv.error}</td></tr>`;
-      return;
-    }
-    if(equiv.equivalent) passed++;else failed++;
-    const ok=equiv.equivalent;
-    html+=`<tr ${!ok?'style="background:var(--danger-bg)"':''}>
-      <td class="font-mono">${input||'ε'}</td>
-      <td class="font-mono">${equiv.mooreOut}</td>
-      <td class="font-mono">${equiv.mealyOut}</td>
-      <td class="font-mono">${equiv.mooreDropped}</td>
-      <td style="color:${ok?'var(--success)':'var(--danger)'};font-weight:600">${ok?'✓ Yes':'✗ No'}</td>
-    </tr>`;
+function runBatch(lines){
+  var el=$('batch-result');if(!el)return;
+  var p=0,f=0,er=0;
+  var h='<div class="table-wrap"><table class="trans-table" style="font-size:.8rem"><thead><tr><th>Input</th><th>Moore</th><th>Mealy</th><th>Moore[1:]</th><th>Equiv?</th></tr></thead><tbody>';
+  lines.forEach(function(input){
+    var eq=checkEquivalence(S.mooreSrc,S.mealy,input);
+    if(eq.error){er++;h+='<tr><td class="font-mono">'+(input||'ε')+'</td><td colspan="4" style="color:var(--danger)">'+eq.error+'</td></tr>';return;}
+    if(eq.equivalent)p++;else f++;
+    var ok=eq.equivalent;
+    h+='<tr'+(ok?'':' style="background:var(--danger-bg)"')+'><td class="font-mono">'+(input||'ε')+'</td><td class="font-mono">'+eq.mooreOut+'</td><td class="font-mono">'+eq.mealyOut+'</td><td class="font-mono">'+eq.mooreDropped+'</td><td style="color:'+(ok?'var(--success)':'var(--danger)')+';font-weight:600">'+(ok?'✓ Yes':'✗ No')+'</td></tr>';
   });
-  html+=`</tbody></table></div>`;
-  html+=`<div style="margin-top:.5rem;font-size:.8rem;display:flex;gap:1rem">
-    <span style="color:var(--success)">✓ ${passed} equivalent</span>
-    ${failed?`<span style="color:var(--danger)">✗ ${failed} mismatch</span>`:''}
-    ${errors?`<span style="color:var(--warning)">⚠ ${errors} error</span>`:''}
-  </div>`;
-  el.innerHTML=html;
+  h+='</tbody></table></div><div style="margin-top:.5rem;font-size:.8rem;display:flex;gap:1rem"><span style="color:var(--success)">✓ '+p+' equiv</span>'+(f?'<span style="color:var(--danger)">✗ '+f+' mismatch</span>':'')+(er?'<span style="color:var(--warning)">⚠ '+er+' error</span>':'')+'</div>';
+  el.innerHTML=h;
 }
 
-// ─────────────────────────────────────────────────────────────
-// PRACTICE MODE
-// ─────────────────────────────────────────────────────────────
-function renderPracticePage(){
-  generateQuiz();
-  setupRandGen();
-}
+/* ── PRACTICE ─────────────────────────────────────────────── */
+function renderPracticePage(){generateQuiz();setupRand();}
 
-function generateQuiz(machine){
-  const m=machine||MOORE_EXAMPLES[Math.floor(Math.random()*MOORE_EXAMPLES.length)];
+function generateQuiz(m){
+  m=m||MOORE_EXAMPLES[Math.floor(Math.random()*MOORE_EXAMPLES.length)];
   S.quizMoore=m;
-  const result=mooreToMealy({
-    states:m.states,inputAlphabet:m.inputAlphabet,outputAlphabet:m.outputAlphabet,
-    initialState:m.initialState,outputs:m.outputs,
-    transitions:JSON.parse(JSON.stringify(m.transitions))
+  var r=mooreToMealy({states:m.states,inputAlphabet:m.inputAlphabet,outputAlphabet:m.outputAlphabet,initialState:m.initialState,outputs:m.outputs,transitions:JSON.parse(JSON.stringify(m.transitions))});
+  S.quizMealy=r.mealy;
+  var d=$('quiz-moore');if(d)d.innerHTML=mooreTblHTML(m);
+  var w=$('quiz-table');if(!w)return;
+  var h='<div style="overflow-x:auto"><table class="trans-table" style="font-size:.8rem"><thead><tr><th>State</th>';
+  m.inputAlphabet.forEach(function(sym){h+='<th>on '+sym+'</th>';});
+  h+='</tr></thead><tbody>';
+  m.states.forEach(function(s){
+    h+='<tr><td class="state-cell font-mono">'+(s===m.initialState?'→ ':'')+s+'</td>';
+    m.inputAlphabet.forEach(function(sym){h+='<td><input class="answer-cell" data-state="'+s+'" data-sym="'+sym+'" placeholder="next/out" /></td>';});
+    h+='</tr>';
   });
-  S.quizMealy=result.mealy;
-
-  // Display Moore machine
-  const disp=$('quiz-moore-display'); if(disp) disp.innerHTML=buildMooreTableHTML(m);
-
-  // Build answer table
-  const wrap=$('quiz-answer-table'); if(!wrap) return;
-  let html='<div style="overflow-x:auto"><table class="trans-table" style="font-size:.8rem">';
-  html+='<thead><tr><th>State</th>';
-  m.inputAlphabet.forEach(s=>html+=`<th>on ${s}</th>`);
-  html+='</tr></thead><tbody>';
-  m.states.forEach(s=>{
-    html+=`<tr><td class="state-cell font-mono">${s===m.initialState?'→ ':''} ${s}</td>`;
-    m.inputAlphabet.forEach(sym=>{
-      html+=`<td><input class="answer-cell" data-state="${s}" data-sym="${sym}" placeholder="next/out" aria-label="Answer for δ(${s},${sym})" /></td>`;
-    });
-    html+='</tr>';
-  });
-  html+='</tbody></table></div>';
-  html+='<p class="form-hint" style="margin-top:.5rem">Format: <code>nextState/output</code> e.g. <code>B/1</code></p>';
-  wrap.innerHTML=html;
-  $('quiz-feedback').innerHTML='';
+  h+='</tbody></table></div><p class="form-hint" style="margin-top:.5rem">e.g. <code>B/1</code></p>';
+  w.innerHTML=h;$('quiz-feedback').innerHTML='';
 }
 
-$('quiz-check-btn').addEventListener('click',()=>{
-  if(!S.quizMoore||!S.quizMealy) return;
-  let correct=0, total=0, wrong=[];
-  document.querySelectorAll('.answer-cell').forEach(inp=>{
-    const s=inp.dataset.state, sym=inp.dataset.sym;
-    const expected=S.quizMealy.transitions[s]&&S.quizMealy.transitions[s][sym];
-    const val=inp.value.trim();
-    total++;
-    if(!expected){inp.classList.add('correct');correct++;return;}
-    const parts=val.split('/');
-    const ok=parts.length===2&&parts[0].trim()===expected.nextState&&parts[1].trim()===expected.output;
-    inp.classList.toggle('correct',ok); inp.classList.toggle('wrong',!ok);
-    if(!ok) wrong.push(`δ(${s},${sym}): expected ${expected.nextState}/${expected.output}`);
-    if(ok) correct++;
+$('quiz-check').addEventListener('click',function(){
+  if(!S.quizMealy)return;
+  var c=0,tot=0;
+  document.querySelectorAll('.answer-cell').forEach(function(inp){
+    var s=inp.dataset.state,sym=inp.dataset.sym,val=inp.value.trim();tot++;
+    var exp=S.quizMealy.transitions[s]&&S.quizMealy.transitions[s][sym];
+    if(!exp){inp.classList.add('correct');c++;return;}
+    var parts=val.split('/');
+    var ok=parts.length===2&&parts[0].trim()===exp.nextState&&parts[1].trim()===exp.output;
+    inp.classList.toggle('correct',ok);inp.classList.toggle('wrong',!ok);if(ok)c++;
   });
-  const fb=$('quiz-feedback');
-  if(correct===total){
-    fb.innerHTML='<div class="alert alert-success">🎉 All correct! Well done.</div>';
-  } else {
-    fb.innerHTML=`<div class="alert alert-error">✗ ${total-correct} wrong. Check highlighted cells.</div>`;
-  }
+  $('quiz-feedback').innerHTML=c===tot?'<div class="alert alert-success">🎉 All correct!</div>':'<div class="alert alert-error">✗ '+(tot-c)+' wrong.</div>';
 });
-
-$('quiz-hint-btn').addEventListener('click',()=>{
-  if(!S.quizMealy) return;
-  // Reveal the first unanswered cell
-  const cell=document.querySelector('.answer-cell:not(.correct):not(.wrong)');
-  if(!cell){$('quiz-feedback').innerHTML='<div class="alert alert-info">Fill in the cells first.</div>';return;}
-  const s=cell.dataset.state, sym=cell.dataset.sym;
-  const t=S.quizMealy.transitions[s]&&S.quizMealy.transitions[s][sym];
-  $('quiz-feedback').innerHTML=`<div class="alert alert-info">Hint for δ(${s},${sym}): the destination state's Moore output is λ(${t?t.nextState:'?'}) = ${t?t.output:'?'}</div>`;
+$('quiz-hint').addEventListener('click',function(){
+  if(!S.quizMealy)return;
+  var cell=document.querySelector('.answer-cell:not(.correct)');if(!cell)return;
+  var t=S.quizMealy.transitions[cell.dataset.state]&&S.quizMealy.transitions[cell.dataset.state][cell.dataset.sym];
+  $('quiz-feedback').innerHTML='<div class="alert alert-info">Hint: destination of δ('+cell.dataset.state+','+cell.dataset.sym+') is '+(t?t.nextState:'?')+', λ('+(t?t.nextState:'?')+')='+(t?t.output:'?')+'</div>';
 });
-
-$('quiz-reveal-btn').addEventListener('click',()=>{
-  if(!S.quizMealy) return;
-  document.querySelectorAll('.answer-cell').forEach(inp=>{
-    const s=inp.dataset.state,sym=inp.dataset.sym;
-    const t=S.quizMealy.transitions[s]&&S.quizMealy.transitions[s][sym];
-    if(t){inp.value=`${t.nextState}/${t.output}`;inp.classList.add('correct');inp.classList.remove('wrong');}
+$('quiz-reveal').addEventListener('click',function(){
+  document.querySelectorAll('.answer-cell').forEach(function(inp){
+    var t=S.quizMealy&&S.quizMealy.transitions[inp.dataset.state]&&S.quizMealy.transitions[inp.dataset.state][inp.dataset.sym];
+    if(t){inp.value=t.nextState+'/'+t.output;inp.classList.add('correct');inp.classList.remove('wrong');}
   });
-  $('quiz-feedback').innerHTML='<div class="alert alert-warning">Solution revealed. Try a new question next time!</div>';
+  $('quiz-feedback').innerHTML='<div class="alert alert-warning">Solution revealed.</div>';
 });
+$('quiz-new').addEventListener('click',function(){generateQuiz(MOORE_EXAMPLES[Math.floor(Math.random()*MOORE_EXAMPLES.length)]);});
 
-$('quiz-new-btn').addEventListener('click',()=>{
-  const m=MOORE_EXAMPLES[Math.floor(Math.random()*MOORE_EXAMPLES.length)];
-  generateQuiz(m);
-});
-
-function setupRandGen(){
-  const sEl=$('rand-states'), aEl=$('rand-alpha'), oEl=$('rand-out');
-  const sV=$('rand-states-val'), aV=$('rand-alpha-val'), oV=$('rand-out-val');
-  if(!sEl) return;
-  sEl.oninput=()=>{ sV.textContent=sEl.value+' states'; };
-  aEl.oninput=()=>{ aV.textContent=aEl.value+' symbols'; };
-  oEl.oninput=()=>{ oV.textContent=oEl.value+' output symbols'; };
-  $('rand-gen-btn').addEventListener('click',()=>{
-    const m=generateRandom({states:parseInt(sEl.value),alphabetSize:parseInt(aEl.value),outputSize:parseInt(oEl.value)});
-    loadMachine(m); showPage(0);
-    alert(`Generated a random ${m.states.length}-state machine. Edit it or click "Convert to Mealy Machine".`);
+function setupRand(){
+  var sEl=$('r-states'),aEl=$('r-alpha'),oEl=$('r-out');if(!sEl)return;
+  sEl.oninput=function(){$('rv-states').textContent=sEl.value;};
+  aEl.oninput=function(){$('rv-alpha').textContent=aEl.value;};
+  oEl.oninput=function(){$('rv-out').textContent=oEl.value;};
+  $('rand-gen-btn').addEventListener('click',function(){
+    var m=generateRandom({states:parseInt(sEl.value),alphabetSize:parseInt(aEl.value),outputSize:parseInt(oEl.value)});
+    loadMachine(m);showPage(0);alert('Random '+m.states.length+'-state machine loaded. Click Convert to Mealy Machine.');
   });
 }
 
-// ─────────────────────────────────────────────────────────────
-// TEXT EDITOR
-// ─────────────────────────────────────────────────────────────
-$('parse-text-btn').addEventListener('click',()=>{
-  const text=$('text-editor').value;
-  const {machine,errors}=parseMooreText(text);
-  const errEl=$('text-errors'); errEl.innerHTML='';
-  if(errors.length){
-    errEl.innerHTML=errors.map(e=>`<div class="alert alert-error" style="margin-bottom:.25rem">Line ${e.line}: ${e.msg}</div>`).join('');
-    return;
-  }
-  loadMachine(machine);
-  alert('Machine loaded from text. Switch to the Form tab to verify.');
+/* ── TEXT EDITOR ──────────────────────────────────────────── */
+$('parse-btn').addEventListener('click',function(){
+  var text=$('text-editor').value;
+  var res=parseMooreText(text);
+  var errEl=$('text-errors');errEl.innerHTML='';
+  if(res.errors.length){res.errors.forEach(function(e){errEl.innerHTML+='<div class="alert alert-error" style="margin-bottom:.25rem">Line '+e.line+': '+e.msg+'</div>';});return;}
+  loadMachine(res.machine);alert('Machine loaded. Switch to Form tab to verify.');
 });
+$('gen-text-btn').addEventListener('click',function(){$('text-editor').value=serializeMoore(buildMooreObj());});
 
-$('generate-text-btn').addEventListener('click',()=>{
-  const moore=buildMooreObject();
-  $('text-editor').value=serializeMoore(moore);
-});
+/* ── SAVE / LOAD ──────────────────────────────────────────── */
+var SKEY='automata-lab-saved';
+function getSaved(){try{return JSON.parse(localStorage.getItem(SKEY)||'[]');}catch{return[];}}
+function setSaved(a){localStorage.setItem(SKEY,JSON.stringify(a));}
 
-// ─────────────────────────────────────────────────────────────
-// SAVE / LOAD (localStorage)
-// ─────────────────────────────────────────────────────────────
-const STORAGE_KEY='automata-lab-saved-machines';
-
-function getSaved(){ try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}catch{return[];} }
-function setSaved(arr){ localStorage.setItem(STORAGE_KEY,JSON.stringify(arr)); }
-
-$('save-machine-btn').addEventListener('click',()=>{
-  const name=$('save-name-input').value.trim();
-  if(!name){alert('Enter a name first.');return;}
+$('save-btn').addEventListener('click',function(){
+  var name=$('save-name').value.trim();if(!name){alert('Enter a name.');return;}
   if(!S.states.length){alert('Define a machine first.');return;}
-  const saved=getSaved();
-  const existing=saved.findIndex(m=>m.name===name);
-  const entry={name,machine:buildMooreObject(),savedAt:Date.now()};
-  if(existing>=0) saved[existing]=entry; else saved.push(entry);
-  setSaved(saved); $('save-name-input').value=''; renderSavedList();
+  var saved=getSaved(),idx=saved.findIndex(function(m){return m.name===name;});
+  var entry={name:name,machine:buildMooreObj(),savedAt:Date.now()};
+  if(idx>=0)saved[idx]=entry;else saved.push(entry);
+  setSaved(saved);$('save-name').value='';renderSavedList();
 });
-
 function renderSavedList(){
-  const el=$('saved-list'); if(!el) return;
-  const saved=getSaved();
-  if(!saved.length){
-    el.innerHTML='<div class="empty-state" style="padding:1.5rem"><div class="empty-icon">💾</div><p>No saved machines yet.</p></div>';
-    return;
-  }
+  var el=$('saved-list');if(!el)return;
+  var saved=getSaved();
+  if(!saved.length){el.innerHTML='<div class="empty-state" style="padding:1.5rem"><div class="empty-icon">💾</div><p>No saved machines.</p></div>';return;}
   el.innerHTML='';
-  saved.forEach((entry,i)=>{
-    const row=document.createElement('div');
-    row.className='saved-item';
-    row.innerHTML=`
-      <span class="saved-name">${entry.name}</span>
-      <button class="btn btn-secondary btn-sm" data-i="${i}">Load</button>
-      <button class="btn btn-danger btn-sm" data-del="${i}">✕</button>
-    `;
-    row.querySelector('[data-i]').addEventListener('click',()=>{loadMachine(saved[i].machine);});
-    row.querySelector('[data-del]').addEventListener('click',()=>{
-      saved.splice(i,1); setSaved(saved); renderSavedList();
-    });
+  saved.forEach(function(entry,i){
+    var row=document.createElement('div');row.className='saved-item';
+    row.innerHTML='<span class="saved-name">'+entry.name+'</span><button class="btn btn-secondary btn-sm" data-i="'+i+'">Load</button><button class="btn btn-danger btn-sm" data-del="'+i+'">✕</button>';
+    row.querySelector('[data-i]').addEventListener('click',function(){loadMachine(getSaved()[i].machine);});
+    row.querySelector('[data-del]').addEventListener('click',function(){var s=getSaved();s.splice(i,1);setSaved(s);renderSavedList();});
     el.appendChild(row);
   });
 }
 renderSavedList();
 
-$('export-json-btn').addEventListener('click',()=>{
-  const data=JSON.stringify({moore:buildMooreObject()},null,2);
-  const blob=new Blob([data],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download='moore-machine.json'; a.click();
-  URL.revokeObjectURL(url);
+$('export-json-btn').addEventListener('click',function(){
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify({moore:buildMooreObj()},null,2)],{type:'application/json'}));
+  a.download='moore-machine.json';a.click();
+});
+$('import-json').addEventListener('change',function(){
+  var file=this.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){try{var d=JSON.parse(e.target.result);loadMachine(d.moore||d);}catch{alert('Invalid JSON.');}};
+  reader.readAsText(file);this.value='';
 });
 
-$('import-json-input').addEventListener('change',function(){
-  const file=this.files[0]; if(!file) return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    try{
-      const data=JSON.parse(e.target.result);
-      const m=data.moore||data;
-      if(m.states) loadMachine(m);
-      else alert('Invalid JSON: missing "states" field.');
-    }catch{ alert('Invalid JSON file.'); }
-  };
-  reader.readAsText(file);
-  this.value='';
-});
-
-// ─────────────────────────────────────────────────────────────
-// CLEAR
-// ─────────────────────────────────────────────────────────────
-$('clear-btn').addEventListener('click',()=>{ if(confirm('Clear all input?')) clearAll(); });
-
+/* ── CLEAR ────────────────────────────────────────────────── */
+$('clear-btn').addEventListener('click',function(){if(confirm('Clear all?'))clearAll();});
 function clearAll(silent){
-  Object.assign(S,{states:[],inputAlphabet:[],outputAlphabet:[],initialState:'',outputs:{},transitions:{},
-    mealy:null,mooreSrc:null,steps:[],currentStep:-1,isPlaying:false});
+  Object.assign(S,{states:[],inputAlphabet:[],outputAlphabet:[],initialState:'',outputs:{},transitions:{},mealy:null,mooreSrc:null,steps:[],currentStep:-1,isPlaying:false});
   clearInterval(S.playTimer);
-  $('example-select').value='';
-  $('validation-panel').innerHTML='<div class="val-item val-ok">Define a machine to see validation results.</div>';
-  $('run-btn').disabled=true;
+  if($('example-select'))$('example-select').value='';
+  if($('validation-panel'))$('validation-panel').innerHTML='<div class="val-item val-ok">Define a machine to validate.</div>';
+  if($('run-btn'))$('run-btn').disabled=true;
   refreshAll();
 }
 
-// ─────────────────────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────────────────────
+/* ── INIT ─────────────────────────────────────────────────── */
 runValidation();
 showPage(0);
 
