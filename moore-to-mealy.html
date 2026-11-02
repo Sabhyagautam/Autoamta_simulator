@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Moore → Mealy Simulator — Automata Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/components/layout.js" defer></script>
+  <script src="js/data/mooreExamples.js"></script>
+  <script src="js/algorithms/mooreToMealy.js"></script>
+</head>
+<body>
+<main>
+<div class="section-sm">
+<div class="container">
+
+  <!-- Header -->
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem">
+    <div>
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.25rem">
+        <span class="badge badge-active">● Active</span>
+        <span class="badge badge-info">Finite Automata</span>
+      </div>
+      <h1 style="font-size:1.5rem;margin-bottom:.25rem">Moore → Mealy Conversion</h1>
+      <p style="font-size:.875rem">Enter a Moore machine and convert it to an equivalent Mealy machine — step by step.</p>
+    </div>
+    <a href="dashboard.html" class="btn btn-secondary btn-sm">← Dashboard</a>
+  </div>
+
+  <!-- Theory banner -->
+  <div class="alert alert-info" style="margin-bottom:1.5rem;font-size:.875rem">
+    <strong>Rule:</strong> For every transition δ(q, a) = p in the Moore machine, the Mealy output on that edge is <strong>λ(p)</strong> — the Moore output of the <em>destination</em> state. States stay the same; only outputs move from states to edges.
+  </div>
+
+  <div class="workspace">
+
+    <!-- ── LEFT: Input Panel ───────────────────────────── -->
+    <div class="workspace-panel" id="input-panel">
+
+      <!-- Example selector -->
+      <div class="card-elevated">
+        <div class="panel-header"><span class="panel-title">Load Example</span></div>
+        <select class="form-select" id="example-select" aria-label="Select example Moore machine">
+          <option value="">— choose an example —</option>
+        </select>
+      </div>
+
+      <!-- States -->
+      <div class="card-elevated">
+        <div class="panel-header"><span class="panel-title">States (Q)</span></div>
+        <div style="display:flex;gap:.5rem;margin-bottom:.625rem">
+          <input type="text" class="form-input" id="state-input" placeholder="e.g. q0" aria-label="New state name" style="flex:1" />
+          <button class="btn btn-secondary btn-sm" id="add-state-btn">Add</button>
+        </div>
+        <div class="chip-list" id="state-chips" aria-live="polite"></div>
+      </div>
+
+      <!-- Input Alphabet -->
+      <div class="card-elevated">
+        <div class="panel-header"><span class="panel-title">Input Alphabet (Σ)</span></div>
+        <div style="display:flex;gap:.5rem;margin-bottom:.625rem">
+          <input type="text" class="form-input" id="symbol-input" placeholder="e.g. 0" maxlength="4" aria-label="New input symbol" style="flex:1" />
+          <button class="btn btn-secondary btn-sm" id="add-symbol-btn">Add</button>
+        </div>
+        <div class="chip-list" id="alphabet-chips" aria-live="polite"></div>
+      </div>
+
+      <!-- Output Alphabet -->
+      <div class="card-elevated">
+        <div class="panel-header"><span class="panel-title">Output Alphabet (Δ)</span></div>
+        <div style="display:flex;gap:.5rem;margin-bottom:.625rem">
+          <input type="text" class="form-input" id="output-symbol-input" placeholder="e.g. 0" maxlength="4" aria-label="New output symbol" style="flex:1" />
+          <button class="btn btn-secondary btn-sm" id="add-output-symbol-btn">Add</button>
+        </div>
+        <div class="chip-list" id="output-alphabet-chips" aria-live="polite"></div>
+      </div>
+
+      <!-- Initial State -->
+      <div class="card-elevated">
+        <div class="panel-header"><span class="panel-title">Initial State (q₀)</span></div>
+        <select class="form-select" id="initial-select" aria-label="Select initial state">
+          <option value="">— select initial state —</option>
+        </select>
+      </div>
+
+      <!-- State Outputs λ(q) -->
+      <div class="card-elevated">
+        <div class="panel-header"><span class="panel-title">State Outputs λ(q)</span></div>
+        <p class="form-hint" style="margin-bottom:.625rem">Assign one output symbol to each state.</p>
+        <div id="output-assignments" style="display:flex;flex-direction:column;gap:.5rem" aria-label="State output assignments">
+          <span class="text-muted text-sm">Add states and output alphabet first.</span>
+        </div>
+      </div>
+
+      <!-- Transitions δ(q,a) -->
+      <div class="card-elevated">
+        <div class="panel-header"><span class="panel-title">Transitions δ(q, a)</span></div>
+        <p class="form-hint" style="margin-bottom:.625rem">Each cell: the single next state.</p>
+        <div style="overflow-x:auto">
+          <table class="transition-grid" id="transition-table" aria-label="Moore transition function">
+            <thead></thead><tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Errors -->
+      <div id="validation-errors" role="alert" aria-live="assertive" style="display:none"></div>
+
+      <!-- Run / Clear -->
+      <div style="display:flex;gap:.5rem">
+        <button class="btn btn-primary w-full" id="run-btn">Convert to Mealy Machine</button>
+        <button class="btn btn-secondary" id="clear-btn" title="Clear all" aria-label="Clear all inputs">✕</button>
+      </div>
+    </div>
+
+    <!-- ── RIGHT: Results Panel ───────────────────────── -->
+    <div class="workspace-panel">
+      <div>
+        <div class="tabs" role="tablist" aria-label="Result views">
+          <button class="tab-btn active" role="tab" aria-selected="true"  data-tab="moore-tab"  id="tab-moore">Moore Machine</button>
+          <button class="tab-btn"        role="tab" aria-selected="false" data-tab="steps-tab"  id="tab-steps">Step View</button>
+          <button class="tab-btn"        role="tab" aria-selected="false" data-tab="mealy-tab"  id="tab-mealy">Mealy Machine</button>
+          <button class="tab-btn"        role="tab" aria-selected="false" data-tab="graph-tab"  id="tab-graph">Graph</button>
+          <button class="tab-btn"        role="tab" aria-selected="false" data-tab="test-tab"   id="tab-test">Simulate</button>
+        </div>
+
+        <!-- Moore Table -->
+        <div class="tab-pane active" id="moore-tab" role="tabpanel" aria-labelledby="tab-moore">
+          <div id="moore-table-wrap">
+            <div class="empty-state">
+              <div class="empty-icon" aria-hidden="true">⊞</div>
+              <p>Define the Moore machine and click Convert.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Steps -->
+        <div class="tab-pane" id="steps-tab" role="tabpanel" aria-labelledby="tab-steps">
+          <div id="steps-panel">
+            <div class="empty-state">
+              <div class="empty-icon" aria-hidden="true">▷</div>
+              <p>Run the conversion to step through it.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mealy Table -->
+        <div class="tab-pane" id="mealy-tab" role="tabpanel" aria-labelledby="tab-mealy">
+          <div id="mealy-table-wrap">
+            <div class="empty-state">
+              <div class="empty-icon" aria-hidden="true">⇄</div>
+              <p>The resulting Mealy machine will appear here.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Graph -->
+        <div class="tab-pane" id="graph-tab" role="tabpanel" aria-labelledby="tab-graph">
+          <div id="graph-container" role="img" aria-label="Mealy machine graph" style="margin-bottom:.75rem">
+            <div class="empty-state" id="graph-empty">
+              <div class="empty-icon" aria-hidden="true">⊙</div>
+              <p>Run the conversion to see the graph.</p>
+            </div>
+            <svg id="graph-canvas" class="graph-svg" style="display:none"
+                 xmlns="http://www.w3.org/2000/svg" aria-label="Mealy machine graph" role="img">
+              <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                  <polygon points="0 0,10 3.5,0 7" fill="var(--text-secondary)" />
+                </marker>
+              </defs>
+              <g id="graph-root"></g>
+            </svg>
+            <div class="graph-controls" aria-label="Graph controls">
+              <button class="graph-btn" id="zoom-in"   aria-label="Zoom in"        title="Zoom in">+</button>
+              <button class="graph-btn" id="zoom-out"  aria-label="Zoom out"       title="Zoom out">−</button>
+              <button class="graph-btn" id="fit-graph" aria-label="Fit to screen"  title="Fit to screen">⊡</button>
+            </div>
+          </div>
+          <!-- Legend -->
+          <div style="display:flex;flex-wrap:wrap;gap:.625rem" role="list" aria-label="Graph legend">
+            <div role="listitem" style="display:flex;align-items:center;gap:.375rem;font-size:.75rem;color:var(--text-secondary)"><span style="width:14px;height:14px;border-radius:50%;background:var(--node-initial);border:2px solid var(--accent);display:inline-block"></span>Initial</div>
+            <div role="listitem" style="display:flex;align-items:center;gap:.375rem;font-size:.75rem;color:var(--text-secondary)"><span style="width:14px;height:14px;border-radius:50%;background:var(--node-normal);border:2px solid var(--border-strong);display:inline-block"></span>State (output in label)</div>
+            <div role="listitem" style="display:flex;align-items:center;gap:.375rem;font-size:.75rem;color:var(--text-secondary)"><span style="width:14px;height:14px;border-radius:50%;background:var(--node-active);border:2px solid var(--warning);display:inline-block"></span>Active step</div>
+          </div>
+        </div>
+
+        <!-- Simulate -->
+        <div class="tab-pane" id="test-tab" role="tabpanel" aria-labelledby="tab-test">
+          <div id="simulate-panel">
+            <div class="empty-state">
+              <div class="empty-icon" aria-hidden="true">🔤</div>
+              <p>Run the conversion first, then simulate strings here.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end workspace -->
+</div>
+</div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  // ── App state ──────────────────────────────────────────────
+  const S = {
+    states: [], inputAlphabet: [], outputAlphabet: [],
+    initialState: '', outputs: {}, transitions: {},
+    mealy: null, steps: [], currentStep: -1,
+    isPlaying: false, speed: 600, playTimer: null,
+    graphScale: 1, graphOffsetX: 0, graphOffsetY: 0
+  };
+
+  const $ = id => document.getElementById(id);
+
+  // ── Tabs ───────────────────────────────────────────────────
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active'); btn.setAttribute('aria-selected','true');
+      $(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ── Examples ───────────────────────────────────────────────
+  MOORE_EXAMPLES.forEach(ex => {
+    const opt = document.createElement('option');
+    opt.value = ex.id; opt.textContent = ex.title;
+    $('example-select').appendChild(opt);
+  });
+  $('example-select').addEventListener('change', function () {
+    const ex = MOORE_EXAMPLES.find(e => e.id === this.value);
+    if (ex) loadExample(ex);
+  });
+
+  function loadExample(ex) {
+    clearAll();
+    ex.states.forEach(addState);
+    ex.inputAlphabet.forEach(addSymbol);
+    ex.outputAlphabet.forEach(addOutputSymbol);
+    S.initialState = ex.initialState;
+    S.outputs      = { ...ex.outputs };
+    S.transitions  = JSON.parse(JSON.stringify(ex.transitions));
+    refreshAll();
+  }
+
+  // ── States ─────────────────────────────────────────────────
+  $('state-input').addEventListener('keydown', e => { if (e.key==='Enter') $('add-state-btn').click(); });
+  $('add-state-btn').addEventListener('click', () => {
+    const v = $('state-input').value.trim();
+    if (!v || S.states.includes(v)) return;
+    addState(v); $('state-input').value = ''; $('state-input').focus();
+  });
+
+  function addState(name) {
+    S.states.push(name);
+    S.transitions[name] = S.transitions[name] || {};
+    S.inputAlphabet.forEach(sym => { S.transitions[name][sym] = S.transitions[name][sym] || ''; });
+    refreshAll();
+  }
+
+  function removeState(name) {
+    S.states = S.states.filter(s => s !== name);
+    delete S.transitions[name];
+    delete S.outputs[name];
+    if (S.initialState === name) S.initialState = '';
+    refreshAll();
+  }
+
+  // ── Input Alphabet ─────────────────────────────────────────
+  $('symbol-input').addEventListener('keydown', e => { if (e.key==='Enter') $('add-symbol-btn').click(); });
+  $('add-symbol-btn').addEventListener('click', () => {
+    const v = $('symbol-input').value.trim();
+    if (!v || S.inputAlphabet.includes(v)) return;
+    addSymbol(v); $('symbol-input').value = ''; $('symbol-input').focus();
+  });
+
+  function addSymbol(sym) {
+    S.inputAlphabet.push(sym);
+    S.states.forEach(s => { if (!S.transitions[s]) S.transitions[s] = {}; S.transitions[s][sym] = S.transitions[s][sym] || ''; });
+    refreshAll();
+  }
+
+  function removeSymbol(sym) {
+    S.inputAlphabet = S.inputAlphabet.filter(s => s !== sym);
+    S.states.forEach(s => { if (S.transitions[s]) delete S.transitions[s][sym]; });
+    refreshAll();
+  }
+
+  // ── Output Alphabet ────────────────────────────────────────
+  $('output-symbol-input').addEventListener('keydown', e => { if (e.key==='Enter') $('add-output-symbol-btn').click(); });
+  $('add-output-symbol-btn').addEventListener('click', () => {
+    const v = $('output-symbol-input').value.trim();
+    if (!v || S.outputAlphabet.includes(v)) return;
+    addOutputSymbol(v); $('output-symbol-input').value = ''; $('output-symbol-input').focus();
+  });
+
+  function addOutputSymbol(sym) {
+    S.outputAlphabet.push(sym);
+    refreshAll();
+  }
+
+  function removeOutputSymbol(sym) {
+    S.outputAlphabet = S.outputAlphabet.filter(s => s !== sym);
+    // Clear assignments using this symbol
+    Object.keys(S.outputs).forEach(k => { if (S.outputs[k] === sym) S.outputs[k] = ''; });
+    refreshAll();
+  }
+
+  // ── Refresh helpers ────────────────────────────────────────
+  function refreshAll() {
+    refreshStateChips();
+    refreshAlphabetChips();
+    refreshOutputAlphabetChips();
+    refreshInitialSelect();
+    refreshOutputAssignments();
+    refreshTransitionTable();
+    renderMooreTable();
+  }
+
+  function refreshStateChips() {
+    const el = $('state-chips');
+    el.innerHTML = '';
+    if (S.states.length === 0) { el.innerHTML = '<span class="text-muted text-sm">No states yet.</span>'; return; }
+    S.states.forEach(s => {
+      const chip = document.createElement('span');
+      chip.className = 'chip' + (s === S.initialState ? ' chip-initial' : '');
+      chip.innerHTML = (s === S.initialState ? '→ ' : '') + s +
+        `<button class="chip-remove" aria-label="Remove ${s}" data-s="${s}">✕</button>`;
+      el.appendChild(chip);
+    });
+    el.querySelectorAll('.chip-remove').forEach(b => b.addEventListener('click', () => removeState(b.dataset.s)));
+  }
+
+  function refreshAlphabetChips() {
+    const el = $('alphabet-chips');
+    el.innerHTML = '';
+    if (S.inputAlphabet.length === 0) { el.innerHTML = '<span class="text-muted text-sm">No symbols yet.</span>'; return; }
+    S.inputAlphabet.forEach(sym => {
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.innerHTML = sym + `<button class="chip-remove" aria-label="Remove ${sym}" data-sym="${sym}">✕</button>`;
+      el.appendChild(chip);
+    });
+    el.querySelectorAll('.chip-remove').forEach(b => b.addEventListener('click', () => removeSymbol(b.dataset.sym)));
+  }
+
+  function refreshOutputAlphabetChips() {
+    const el = $('output-alphabet-chips');
+    el.innerHTML = '';
+    if (S.outputAlphabet.length === 0) { el.innerHTML = '<span class="text-muted text-sm">No output symbols yet.</span>'; return; }
+    S.outputAlphabet.forEach(sym => {
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.innerHTML = sym + `<button class="chip-remove" aria-label="Remove ${sym}" data-sym="${sym}">✕</button>`;
+      el.appendChild(chip);
+    });
+    el.querySelectorAll('.chip-remove').forEach(b => b.addEventListener('click', () => removeOutputSymbol(b.dataset.sym)));
+  }
+
+  function refreshInitialSelect() {
+    const sel = $('initial-select');
+    sel.innerHTML = '<option value="">— select initial state —</option>';
+    S.states.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s; opt.textContent = s;
+      if (s === S.initialState) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+  $('initial-select').addEventListener('change', function () {
+    S.initialState = this.value; refreshStateChips();
+  });
+
+  function refreshOutputAssignments() {
+    const el = $('output-assignments');
+    el.innerHTML = '';
+    if (S.states.length === 0 || S.outputAlphabet.length === 0) {
+      el.innerHTML = '<span class="text-muted text-sm">Add states and output alphabet first.</span>'; return;
+    }
+    S.states.forEach(s => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:.625rem';
+      const lbl = document.createElement('span');
+      lbl.style.cssText = 'font-family:var(--font-mono);font-size:.875rem;min-width:60px;font-weight:600';
+      lbl.textContent = 'λ(' + s + ') =';
+      const sel = document.createElement('select');
+      sel.className = 'form-select';
+      sel.style.flex = '1';
+      sel.setAttribute('aria-label', `Output for state ${s}`);
+      const blank = document.createElement('option');
+      blank.value = ''; blank.textContent = '— select —';
+      sel.appendChild(blank);
+      S.outputAlphabet.forEach(sym => {
+        const opt = document.createElement('option');
+        opt.value = sym; opt.textContent = sym;
+        if (S.outputs[s] === sym) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.addEventListener('change', function () { S.outputs[s] = this.value; });
+      row.appendChild(lbl); row.appendChild(sel);
+      el.appendChild(row);
+    });
+  }
+
+  function refreshTransitionTable() {
+    const thead = $('transition-table').querySelector('thead');
+    const tbody = $('transition-table').querySelector('tbody');
+    thead.innerHTML = ''; tbody.innerHTML = '';
+    if (S.states.length === 0 || S.inputAlphabet.length === 0) {
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = S.inputAlphabet.length + 1;
+      td.style.cssText = 'color:var(--text-muted);font-size:.8rem;padding:.75rem;font-family:var(--font-sans)';
+      td.textContent = 'Add states and alphabet symbols first.';
+      tbody.appendChild(tr); tr.appendChild(td); return;
+    }
+    // Header
+    const hrow = document.createElement('tr');
+    const thd = document.createElement('th'); thd.textContent = 'δ'; thd.style.textAlign='center'; hrow.appendChild(thd);
+    S.inputAlphabet.forEach(sym => { const th=document.createElement('th'); th.textContent=sym; hrow.appendChild(th); });
+    thead.appendChild(hrow);
+    // Rows
+    S.states.forEach(s => {
+      const tr = document.createElement('tr');
+      const tdS = document.createElement('td'); tdS.className='row-state';
+      tdS.textContent = (s===S.initialState?'→ ':'')+s; tr.appendChild(tdS);
+      S.inputAlphabet.forEach(sym => {
+        const td = document.createElement('td');
+        const inp = document.createElement('input');
+        inp.type = 'text'; inp.placeholder = '—';
+        inp.setAttribute('aria-label', `δ(${s},${sym})`);
+        inp.style.cssText = 'width:100%;min-width:60px;background:none;border:none;outline:none;font-family:var(--font-mono);font-size:.75rem;color:var(--text);text-align:center;padding:.2rem';
+        const cur = (S.transitions[s] && S.transitions[s][sym]) || '';
+        inp.value = cur;
+        inp.addEventListener('input', function () {
+          if (!S.transitions[s]) S.transitions[s] = {};
+          S.transitions[s][sym] = this.value.trim();
+        });
+        inp.addEventListener('focus', e => e.target.style.background='var(--accent-light)');
+        inp.addEventListener('blur',  e => e.target.style.background='');
+        td.appendChild(inp); tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ── Moore Table (live preview) ─────────────────────────────
+  function renderMooreTable() {
+    const wrap = $('moore-table-wrap');
+    if (S.states.length === 0) {
+      wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">⊞</div><p>Define the Moore machine and click Convert.</p></div>';
+      return;
+    }
+    let html = '<div class="table-wrap"><table class="trans-table" aria-label="Moore machine table">';
+    html += '<caption style="text-align:left;padding:.5rem;font-size:.75rem;color:var(--text-muted)">→ = initial state &nbsp; λ(q) = state output</caption>';
+    html += '<thead><tr><th>State</th><th>λ(q)</th>';
+    S.inputAlphabet.forEach(sym => html += `<th class="font-mono">${sym}</th>`);
+    html += '</tr></thead><tbody>';
+    S.states.forEach(s => {
+      const isInit = s === S.initialState;
+      html += `<tr><td class="state-cell font-mono">${isInit?'→ ':''}${s}</td>`;
+      html += `<td class="font-mono" style="color:var(--accent)">${S.outputs[s] || '—'}</td>`;
+      S.inputAlphabet.forEach(sym => {
+        const next = S.transitions[s] && S.transitions[s][sym];
+        html += `<td class="font-mono">${next || '—'}</td>`;
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+    wrap.innerHTML = html;
+  }
+
+  // ── Validation ─────────────────────────────────────────────
+  function validate() {
+    const errors = [];
+    if (S.states.length === 0) errors.push('Add at least one state.');
+    if (S.inputAlphabet.length === 0) errors.push('Add at least one input symbol.');
+    if (S.outputAlphabet.length === 0) errors.push('Add at least one output symbol.');
+    if (!S.initialState) errors.push('Select an initial state.');
+    const stateSet = new Set(S.states);
+    S.states.forEach(s => {
+      if (!S.outputs[s]) errors.push(`State "${s}" has no output assigned (λ(${s}) is empty).`);
+    });
+    S.states.forEach(s => {
+      S.inputAlphabet.forEach(sym => {
+        const next = S.transitions[s] && S.transitions[s][sym];
+        if (next && !stateSet.has(next)) errors.push(`Transition δ(${s},${sym}) = "${next}" is not a valid state.`);
+      });
+    });
+    return errors;
+  }
+
+  function showErrors(errors) {
+    const el = $('validation-errors');
+    el.style.display = 'block';
+    el.innerHTML = '<ul class="error-list">' + errors.map(e=>`<li>${e}</li>`).join('') + '</ul>';
+  }
+  function clearErrors() {
+    const el = $('validation-errors'); el.style.display='none'; el.innerHTML='';
+  }
+
+  // ── Run conversion ─────────────────────────────────────────
+  $('run-btn').addEventListener('click', runConversion);
+
+  function runConversion() {
+    clearErrors();
+    const errors = validate();
+    if (errors.length > 0) { showErrors(errors); return; }
+
+    const moore = {
+      states:         [...S.states],
+      inputAlphabet:  [...S.inputAlphabet],
+      outputAlphabet: [...S.outputAlphabet],
+      initialState:   S.initialState,
+      outputs:        { ...S.outputs },
+      transitions:    JSON.parse(JSON.stringify(S.transitions))
+    };
+
+    let result;
+    try { result = mooreToMealy(moore); }
+    catch(e) { showErrors(['Conversion error: ' + e.message]); return; }
+
+    S.mealy = result.mealy;
+    S.steps = result.steps;
+    S.currentStep = -1;
+    clearInterval(S.playTimer); S.isPlaying = false;
+
+    renderMooreTable();
+    renderMealyTable(result.mealy, result.note);
+    renderStepsPanel(result.steps);
+    renderGraph(result.mealy);
+    renderSimulatePanel(result.mealy);
+
+    // Switch to steps tab
+    document.querySelector('[data-tab="steps-tab"]').click();
+  }
+
+  // ── Clear ──────────────────────────────────────────────────
+  $('clear-btn').addEventListener('click', clearAll);
+  function clearAll() {
+    Object.assign(S, { states:[], inputAlphabet:[], outputAlphabet:[], initialState:'', outputs:{}, transitions:{},
+      mealy:null, steps:[], currentStep:-1, isPlaying:false });
+    clearInterval(S.playTimer);
+    $('example-select').value = '';
+    clearErrors(); refreshAll();
+    $('graph-canvas').style.display='none'; $('graph-empty').style.display='flex';
+    $('mealy-table-wrap').innerHTML='<div class="empty-state"><div class="empty-icon">⇄</div><p>The resulting Mealy machine will appear here.</p></div>';
+    $('steps-panel').innerHTML='<div class="empty-state"><div class="empty-icon">▷</div><p>Run the conversion to step through it.</p></div>';
+    $('simulate-panel').innerHTML='<div class="empty-state"><div class="empty-icon">🔤</div><p>Run the conversion first, then simulate strings here.</p></div>';
+  }
+
+  // ── Moore Table (refresh) ──────────────────────────────────
+  // Called again after conversion to lock the table
+  document.querySelector('[data-tab="moore-tab"]').addEventListener('click', renderMooreTable);
+
+  // ── Mealy Table ────────────────────────────────────────────
+  function renderMealyTable(mealy, note) {
+    const wrap = $('mealy-table-wrap');
+    let html = '';
+
+    // Note about initial state
+    html += `<div class="alert alert-info" style="margin-bottom:.75rem;font-size:.8rem">${note}</div>`;
+
+    html += '<div class="table-wrap"><table class="trans-table" aria-label="Mealy machine table">';
+    html += '<caption style="text-align:left;padding:.5rem;font-size:.75rem;color:var(--text-muted)">Each cell shows: next-state / output</caption>';
+    html += '<thead><tr><th>State</th>';
+    mealy.inputAlphabet.forEach(sym => html += `<th class="font-mono">${sym}</th>`);
+    html += '</tr></thead><tbody>';
+
+    mealy.states.forEach(s => {
+      const isInit = s === mealy.initialState;
+      html += `<tr><td class="state-cell font-mono">${isInit?'→ ':''}${s}</td>`;
+      mealy.inputAlphabet.forEach(sym => {
+        const t = mealy.transitions[s] && mealy.transitions[s][sym];
+        if (t) {
+          html += `<td class="font-mono"><strong>${t.nextState}</strong> <span style="color:var(--accent)">/ ${t.output}</span></td>`;
+        } else {
+          html += `<td class="font-mono cell-dead">—</td>`;
+        }
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+    wrap.innerHTML = html;
+  }
+
+  // ── Steps Panel ────────────────────────────────────────────
+  function renderStepsPanel(steps) {
+    const panel = $('steps-panel');
+    panel.innerHTML = '';
+
+    if (steps.length === 0) {
+      panel.innerHTML = '<div class="alert alert-info">No steps — the machine has no defined transitions.</div>'; return;
+    }
+
+    panel.innerHTML = `
+      <div class="execution-controls" style="margin-bottom:1rem" role="toolbar" aria-label="Step controls">
+        <button class="btn btn-secondary btn-sm" id="step-prev"  aria-label="Previous step">◀ Prev</button>
+        <button class="btn btn-primary  btn-sm" id="step-play"  aria-label="Play">▶ Play</button>
+        <button class="btn btn-secondary btn-sm" id="step-next"  aria-label="Next step">Next ▶</button>
+        <button class="btn btn-ghost    btn-sm" id="step-reset" aria-label="Reset">↺ Reset</button>
+        <span class="step-counter" id="step-counter" aria-live="polite">Step 0 / ${steps.length}</span>
+        <select class="speed-select" id="speed-select" aria-label="Speed">
+          <option value="1000">Slow</option>
+          <option value="600" selected>Normal</option>
+          <option value="250">Fast</option>
+        </select>
+      </div>
+      <div class="step-box" id="step-box">
+        <div class="text-muted text-sm">Click Play or Next to start.</div>
+      </div>
+    `;
+
+    $('step-prev').addEventListener('click',  stepBack);
+    $('step-next').addEventListener('click',  stepForward);
+    $('step-reset').addEventListener('click', stepReset);
+    $('step-play').addEventListener('click',  togglePlay);
+    $('speed-select').addEventListener('change', function () {
+      S.speed = parseInt(this.value);
+      if (S.isPlaying) { clearInterval(S.playTimer); startPlay(); }
+    });
+  }
+
+  function updateStepView() {
+    const idx = S.currentStep;
+    const counter = $('step-counter');
+    if (counter) counter.textContent = `Step ${idx < 0 ? 0 : idx+1} / ${S.steps.length}`;
+
+    if (idx < 0) {
+      const sb = $('step-box');
+      if (sb) sb.innerHTML = '<div class="text-muted text-sm">Click Play or Next to start.</div>';
+      if (S.mealy) renderGraph(S.mealy, -1);
+      return;
+    }
+
+    const step = S.steps[idx];
+    if (!step) return;
+
+    const sb = $('step-box');
+    if (sb) {
+      const skipped = step.nextState === null;
+      sb.innerHTML = `
+        <div class="step-label">Step ${idx+1} of ${S.steps.length}</div>
+        <div class="step-detail"><span class="step-detail-key">From state:</span><span class="step-detail-val">${step.fromState}</span></div>
+        <div class="step-detail"><span class="step-detail-key">Input symbol:</span><span class="step-detail-val">"${step.symbol}"</span></div>
+        ${skipped
+          ? `<div class="step-detail"><span class="step-detail-val" style="color:var(--text-muted)">Transition not defined — skipped.</span></div>`
+          : `<div class="step-detail"><span class="step-detail-key">Next state:</span><span class="step-detail-val">${step.nextState}</span></div>
+             <div class="step-detail"><span class="step-detail-key">Moore λ(${step.nextState}):</span><span class="step-detail-val" style="color:var(--accent)">"${step.mooreOutput}"</span></div>`
+        }
+        <div style="margin-top:.625rem;font-size:.8rem;color:var(--text-secondary);line-height:1.6">${step.description}</div>
+      `;
+    }
+
+    if (S.mealy) renderGraph(S.mealy, idx);
+  }
+
+  function stepForward() {
+    if (S.currentStep < S.steps.length - 1) { S.currentStep++; updateStepView(); }
+    else stopPlay();
+  }
+  function stepBack() {
+    if (S.currentStep > 0) { S.currentStep--; updateStepView(); }
+    else if (S.currentStep === 0) { S.currentStep = -1; updateStepView(); }
+  }
+  function stepReset() { stopPlay(); S.currentStep = -1; updateStepView(); }
+  function startPlay() {
+    S.isPlaying = true;
+    const pb = $('step-play'); if (pb) pb.textContent = '⏸ Pause';
+    S.playTimer = setInterval(() => { if (S.currentStep >= S.steps.length-1) { stopPlay(); return; } stepForward(); }, S.speed);
+  }
+  function stopPlay() {
+    S.isPlaying = false; clearInterval(S.playTimer);
+    const pb = $('step-play'); if (pb) pb.textContent = '▶ Play';
+  }
+  function togglePlay() { S.isPlaying ? stopPlay() : startPlay(); }
+
+  // ── Graph ──────────────────────────────────────────────────
+  function renderGraph(mealy, activeStepIdx) {
+    const canvas = $('graph-canvas'), empty = $('graph-empty'), root = $('graph-root');
+    root.innerHTML = '';
+    canvas.style.display = 'block'; empty.style.display = 'none';
+
+    const nodes = []; const n = mealy.states.length;
+    const cx=400, cy=220, R=Math.min(160,55*n/2+60);
+
+    mealy.states.forEach((s, i) => {
+      let x, y;
+      if (n===1) { x=cx; y=cy; }
+      else { const a=(2*Math.PI*i/n)-Math.PI/2; x=cx+R*Math.cos(a); y=cy+R*Math.sin(a); }
+      nodes.push({ id:s, x, y });
+    });
+
+    // Determine active node from step
+    let activeNode = null;
+    if (activeStepIdx >= 0 && S.steps[activeStepIdx]) activeNode = S.steps[activeStepIdx].fromState;
+
+    // Build edges (merge parallel edges)
+    const edgeMap = {};
+    mealy.states.forEach(s => {
+      mealy.inputAlphabet.forEach(sym => {
+        const t = mealy.transitions[s] && mealy.transitions[s][sym];
+        if (!t) return;
+        const key = s + '→' + t.nextState;
+        if (!edgeMap[key]) edgeMap[key] = { from:s, to:t.nextState, labels:[], selfLoop: s===t.nextState };
+        edgeMap[key].labels.push(sym+'/'+t.output);
+      });
+    });
+
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('transform', `translate(${S.graphOffsetX},${S.graphOffsetY}) scale(${S.graphScale})`);
+    root.appendChild(g);
+
+    const r = 32;
+    // Draw edges
+    Object.values(edgeMap).forEach(edge => {
+      const fn = nodes.find(n=>n.id===edge.from), tn = nodes.find(n=>n.id===edge.to);
+      if (!fn||!tn) return;
+      const grp = document.createElementNS('http://www.w3.org/2000/svg','g');
+      grp.className = 'graph-edge';
+      const label = edge.labels.join(', ');
+
+      if (edge.selfLoop) {
+        const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+        const lx=fn.x, ly=fn.y-r, dx=28, dy=38;
+        path.setAttribute('d',`M${lx-dx/2} ${ly} C${lx-dx*1.5} ${ly-dy*2} ${lx+dx*1.5} ${ly-dy*2} ${lx+dx/2} ${ly}`);
+        path.setAttribute('fill','none'); path.setAttribute('stroke','var(--text-secondary)');
+        path.setAttribute('stroke-width','1.8'); path.setAttribute('marker-end','url(#arrowhead)');
+        const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+        txt.setAttribute('x',lx); txt.setAttribute('y',ly-dy*1.5);
+        txt.setAttribute('text-anchor','middle'); txt.setAttribute('fill','var(--text)');
+        txt.setAttribute('font-size','10'); txt.setAttribute('font-family','var(--font-mono)');
+        txt.textContent = label;
+        grp.appendChild(path); grp.appendChild(txt);
+      } else {
+        const hasRev = Object.values(edgeMap).some(e=>e.from===edge.to&&e.to===edge.from);
+        const dx=tn.x-fn.x, dy=tn.y-fn.y, len=Math.sqrt(dx*dx+dy*dy);
+        const sx=fn.x+(dx/len)*(r+2), sy=fn.y+(dy/len)*(r+2);
+        const ex=tn.x-(dx/len)*(r+4), ey=tn.y-(dy/len)*(r+4);
+        const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+        let d;
+        if (hasRev) { const cpx=(sx+ex)/2-dy*0.3, cpy=(sy+ey)/2+dx*0.3; d=`M${sx} ${sy} Q${cpx} ${cpy} ${ex} ${ey}`; }
+        else d=`M${sx} ${sy} L${ex} ${ey}`;
+        path.setAttribute('d',d); path.setAttribute('fill','none');
+        path.setAttribute('stroke','var(--text-secondary)'); path.setAttribute('stroke-width','1.8');
+        path.setAttribute('marker-end','url(#arrowhead)');
+        const mx=hasRev?(sx+ex)/2-dy*0.3:(sx+ex)/2, my=hasRev?(sy+ey)/2+dx*0.3:(sy+ey)/2;
+        const bg=document.createElementNS('http://www.w3.org/2000/svg','rect');
+        bg.setAttribute('x',mx-18); bg.setAttribute('y',my-9);
+        bg.setAttribute('width',36); bg.setAttribute('height',14);
+        bg.setAttribute('rx',3); bg.setAttribute('fill','var(--bg)');
+        const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+        txt.setAttribute('x',mx); txt.setAttribute('y',my+1);
+        txt.setAttribute('text-anchor','middle'); txt.setAttribute('fill','var(--text)');
+        txt.setAttribute('font-size','10'); txt.setAttribute('font-family','var(--font-mono)');
+        txt.textContent = label;
+        grp.appendChild(path); grp.appendChild(bg); grp.appendChild(txt);
+      }
+      g.appendChild(grp);
+    });
+
+    // Draw nodes
+    nodes.forEach(node => {
+      const isActive = node.id === activeNode;
+      const isInit   = node.id === mealy.initialState;
+      const grp = document.createElementNS('http://www.w3.org/2000/svg','g');
+      grp.setAttribute('transform',`translate(${node.x},${node.y})`);
+
+      const fill   = isActive ? 'var(--node-active)'  : isInit ? 'var(--node-initial)' : 'var(--node-normal)';
+      const stroke = isActive ? 'var(--warning)'      : isInit ? 'var(--accent)'       : 'var(--border-strong)';
+      const sw     = isActive ? '3' : '2';
+
+      const circ = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      circ.setAttribute('r',r); circ.setAttribute('fill',fill);
+      circ.setAttribute('stroke',stroke); circ.setAttribute('stroke-width',sw);
+      grp.appendChild(circ);
+
+      if (isInit) {
+        const arr = document.createElementNS('http://www.w3.org/2000/svg','line');
+        arr.setAttribute('x1',-(r+28)); arr.setAttribute('y1','0');
+        arr.setAttribute('x2',-(r+2));  arr.setAttribute('y2','0');
+        arr.setAttribute('stroke','var(--accent)'); arr.setAttribute('stroke-width','2');
+        arr.setAttribute('marker-end','url(#arrowhead)');
+        grp.appendChild(arr);
+      }
+
+      // Node label: "state / λ(state)"
+      const mooreOut = S.mealy ? '' : '';
+      const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+      txt.setAttribute('fill','var(--text)'); txt.setAttribute('font-size','11');
+      txt.setAttribute('font-family','var(--font-mono)'); txt.setAttribute('text-anchor','middle');
+      txt.setAttribute('dominant-baseline','middle');
+      txt.textContent = node.id;
+      grp.appendChild(txt);
+
+      g.appendChild(grp);
+    });
+
+    setupGraphControls();
+  }
+
+  function setupGraphControls() {
+    $('zoom-in').onclick  = () => { S.graphScale = Math.min(S.graphScale+0.2,3); if(S.mealy) renderGraph(S.mealy,S.currentStep); };
+    $('zoom-out').onclick = () => { S.graphScale = Math.max(S.graphScale-0.2,0.3); if(S.mealy) renderGraph(S.mealy,S.currentStep); };
+    $('fit-graph').onclick= () => { S.graphScale=1; S.graphOffsetX=0; S.graphOffsetY=0; if(S.mealy) renderGraph(S.mealy,S.currentStep); };
+    const cv=$('graph-canvas'); let drag=false,lx=0,ly=0;
+    cv.onmousedown  = e=>{drag=true;lx=e.clientX;ly=e.clientY;};
+    cv.onmousemove  = e=>{if(!drag)return;S.graphOffsetX+=e.clientX-lx;S.graphOffsetY+=e.clientY-ly;lx=e.clientX;ly=e.clientY;if(S.mealy)renderGraph(S.mealy,S.currentStep);};
+    cv.onmouseup    = ()=>drag=false;
+    cv.onmouseleave = ()=>drag=false;
+  }
+
+  // ── Simulate Panel ─────────────────────────────────────────
+  function renderSimulatePanel(mealy) {
+    const panel = $('simulate-panel');
+    panel.innerHTML = `
+      <div style="margin-bottom:.75rem">
+        <div class="panel-title" style="margin-bottom:.5rem">Simulate Input String</div>
+        <p class="form-hint" style="margin-bottom:.75rem">Enter a string over Σ = {${mealy.inputAlphabet.join(', ')}}. The Mealy machine produces one output symbol per input symbol.</p>
+      </div>
+      <div class="string-input-row" style="margin-bottom:1rem">
+        <input type="text" class="form-input" id="sim-input"
+               placeholder="e.g. 0110"
+               aria-label="Input string" autocomplete="off" spellcheck="false" />
+        <button class="btn btn-primary" id="sim-btn" aria-label="Simulate">Simulate</button>
+      </div>
+      <div id="sim-result" aria-live="polite"></div>
+    `;
+    $('sim-btn').addEventListener('click', () => {
+      const input = $('sim-input').value;
+      const result = simulateMealy(mealy, input);
+      renderSimResult(result);
+    });
+    $('sim-input').addEventListener('keydown', e => { if(e.key==='Enter') $('sim-btn').click(); });
+  }
+
+  function renderSimResult(result) {
+    const el = $('sim-result'); if (!el) return;
+    let html = '';
+
+    if (result.error) {
+      html += `<div class="alert alert-warning" style="margin-bottom:.75rem">⚠ ${result.error}</div>`;
+    }
+
+    if (result.outputString !== undefined && !result.error) {
+      html += `
+        <div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
+          <div class="card-elevated" style="flex:1;min-width:120px;text-align:center;padding:1rem">
+            <div class="text-muted text-sm" style="margin-bottom:.25rem">Input</div>
+            <div class="font-mono" style="font-size:1.125rem;font-weight:700">${result.input}</div>
+          </div>
+          <div style="font-size:1.5rem;align-self:center;color:var(--text-muted)" aria-hidden="true">→</div>
+          <div class="card-elevated" style="flex:1;min-width:120px;text-align:center;padding:1rem;border-color:var(--accent)">
+            <div class="text-muted text-sm" style="margin-bottom:.25rem">Output</div>
+            <div class="font-mono" style="font-size:1.125rem;font-weight:700;color:var(--accent)">${result.outputString || '(none)'}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    if (result.trace && result.trace.length > 0) {
+      html += '<div class="panel-title" style="margin-bottom:.5rem">Transition Trace</div>';
+      html += '<ul class="trace-list" aria-label="Mealy simulation trace">';
+      result.trace.forEach(t => {
+        html += `<li class="trace-item">
+          <span class="trace-char">'${t.char}'</span>
+          <span class="trace-arrow">→</span>
+          <span class="trace-state">${t.toState}</span>
+          <span style="margin-left:auto;font-family:var(--font-mono);font-size:.8rem;color:var(--accent)">out: ${t.output}</span>
+        </li>`;
+      });
+      html += '</ul>';
+    }
+
+    el.innerHTML = html || '<div class="text-muted text-sm">No output produced.</div>';
+  }
+
+  // ── Init ───────────────────────────────────────────────────
+  refreshAll();
+
+})();
+</script>
+</body>
+</html>

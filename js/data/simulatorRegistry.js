@@ -136,14 +136,14 @@ const SIMULATORS = [
     page: null
   },
   {
-    id: 'mealy-to-moore',
-    title: 'Mealy → Moore Conversion',
-    description: 'Convert a Mealy machine to an equivalent Moore machine step by step.',
-    status: 'coming-soon',
+    id: 'moore-to-mealy',
+    title: 'Moore → Mealy Conversion',
+    description: 'Convert a Moore machine to an equivalent Mealy machine. Outputs move from states to transitions — step by step.',
+    status: 'active',
     icon: '⇄',
     difficulty: 'Intermediate',
     topic: 'Finite Automata',
-    page: null
+    page: 'moore-to-mealy.html'
   },
   {
     id: 'closure-operations',
