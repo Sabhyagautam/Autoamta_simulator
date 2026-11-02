@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Moore → Mealy Theory — Automata Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/components/layout.js" defer></script>
+</head>
+<body>
+<main>
+<div class="section">
+<div class="container-sm">
+
+  <h1 style="margin-bottom:.5rem">Moore → Mealy: Theory &amp; Algorithm</h1>
+  <p style="margin-bottom:2rem">Complete theory reference for CSET302 — Automata Theory and Computability, Bennett University.</p>
+
+  <!-- TOC -->
+  <nav class="card-elevated" style="margin-bottom:2rem" aria-label="Table of contents">
+    <div style="font-weight:600;margin-bottom:.5rem;font-size:.875rem">Contents</div>
+    <ol style="margin-left:1.25rem;font-size:.875rem;color:var(--text-secondary);display:flex;flex-direction:column;gap:.25rem">
+      <li><a href="#moore-def">Moore Machine — Formal Definition</a></li>
+      <li><a href="#mealy-def">Mealy Machine — Formal Definition</a></li>
+      <li><a href="#comparison">Moore vs Mealy — Key Differences</a></li>
+      <li><a href="#conversion">Conversion Algorithm</a></li>
+      <li><a href="#output-difference">The n vs n+1 Output Property</a></li>
+      <li><a href="#worked">Worked Example (Assignment §12)</a></li>
+      <li><a href="#complexity">Complexity</a></li>
+      <li><a href="#correctness">Correctness Sketch</a></li>
+      <li><a href="#mistakes">Common Mistakes</a></li>
+    </ol>
+  </nav>
+
+  <!-- Moore definition -->
+  <div class="learn-section" id="moore-def">
+    <h2>1. Moore Machine — Formal Definition</h2>
+    <p>A Moore machine is a finite-state transducer where the output depends only on the current state (not on the input symbol).</p>
+    <div class="math-def">
+      M = (Q, Σ, Δ, δ, λ, q₀)<br/><br/>
+      Q   — finite, non-empty set of states<br/>
+      Σ   — finite input alphabet<br/>
+      Δ   — finite output alphabet<br/>
+      δ   — transition function: Q × Σ → Q<br/>
+      λ   — output function: Q → Δ &nbsp; (output depends on STATE only)<br/>
+      q₀  — initial state, q₀ ∈ Q
+    </div>
+    <p>For an input string w = a₁a₂…aₙ, the Moore machine visits states q₀,q₁,…,qₙ where qᵢ = δ(qᵢ₋₁, aᵢ). The output string is λ(q₀)λ(q₁)…λ(qₙ) — of length <strong>n+1</strong>.</p>
+  </div>
+
+  <!-- Mealy definition -->
+  <div class="learn-section" id="mealy-def">
+    <h2>2. Mealy Machine — Formal Definition</h2>
+    <p>A Mealy machine is a finite-state transducer where the output depends on both the current state AND the current input symbol.</p>
+    <div class="math-def">
+      M' = (Q, Σ, Δ, δ, λ', q₀)<br/><br/>
+      Q, Σ, Δ, δ, q₀ — same as above<br/>
+      λ'  — output function: Q × Σ → Δ &nbsp; (output depends on STATE and INPUT)
+    </div>
+    <p>For input w = a₁a₂…aₙ, the Mealy output is λ'(q₀,a₁)λ'(q₁,a₂)…λ'(qₙ₋₁,aₙ) — of length <strong>n</strong>.</p>
+  </div>
+
+  <!-- Comparison -->
+  <div class="learn-section" id="comparison">
+    <h2>3. Moore vs Mealy — Key Differences</h2>
+    <div style="overflow-x:auto;margin:1rem 0">
+      <table class="comparison-table" aria-label="Moore vs Mealy comparison">
+        <thead><tr><th>Property</th><th>Moore Machine</th><th>Mealy Machine</th></tr></thead>
+        <tbody>
+          <tr><td>Output function domain</td><td>States only: λ: Q → Δ</td><td>State × Input: λ': Q × Σ → Δ</td></tr>
+          <tr><td>Output length for input |w|=n</td><td>n + 1 (includes λ(q₀))</td><td>n</td></tr>
+          <tr><td>Where output appears</td><td>On nodes/states</td><td>On edges/transitions</td></tr>
+          <tr><td>Number of states after conversion</td><td colspan="2" style="text-align:center">Same — no extra states needed (Moore→Mealy)</td></tr>
+          <tr><td>Complexity of conversion</td><td colspan="2" style="text-align:center">O(|Q| · |Σ|)</td></tr>
+          <tr><td>Expressive power</td><td colspan="2" style="text-align:center">Equivalent — any Moore machine can be converted to Mealy and vice versa</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The key equivalence: MealyOutput(w) = MooreOutput(w)[1:] — the Mealy output is the Moore output with the first symbol (the initial state's output) dropped.</p>
+  </div>
+
+  <!-- Algorithm -->
+  <div class="learn-section" id="conversion">
+    <h2>4. Conversion Algorithm</h2>
+    <h3 style="margin:.75rem 0 .5rem">Rule</h3>
+    <div class="math-def">
+      For every transition δ(q, a) = p in the Moore machine:<br/>
+      &nbsp;&nbsp;Set λ'(q, a) = λ(p)<br/><br/>
+      That is: the Mealy output on edge (q, a) equals the Moore output of the DESTINATION state p.
+    </div>
+    <h3 style="margin:.75rem 0 .5rem">Pseudocode</h3>
+    <div class="math-def" style="line-height:1.9;font-size:.8rem">
+      ALGORITHM MooreToMealy(M = (Q, Σ, Δ, δ, λ, q₀))<br/><br/>
+      &nbsp;1.&nbsp; Q' ← Q<br/>
+      &nbsp;2.&nbsp; Σ' ← Σ<br/>
+      &nbsp;3.&nbsp; Δ' ← Δ<br/>
+      &nbsp;4.&nbsp; q₀' ← q₀<br/>
+      &nbsp;5.&nbsp; δ' ← δ<br/>
+      &nbsp;6.&nbsp; Create empty table λ': Q × Σ → Δ<br/>
+      &nbsp;7.&nbsp; FOR each state q in Q:<br/>
+      &nbsp;8.&nbsp;&nbsp;&nbsp;&nbsp; FOR each symbol a in Σ:<br/>
+      &nbsp;9.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; p ← δ(q, a)<br/>
+      10.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; λ'(q, a) ← λ(p)     ← output of destination<br/>
+      11.&nbsp; RETURN M' = (Q', Σ', Δ', δ', λ', q₀')
+    </div>
+    <p style="margin-top:.75rem"><strong>Time complexity:</strong> O(|Q| · |Σ|) — one operation per (state, symbol) pair.</p>
+    <p><strong>Important:</strong> The resulting Mealy machine has the same state set Q. No state splitting or merging is required. This is simpler than the reverse direction (Mealy → Moore), which may require state splitting.</p>
+  </div>
+
+  <!-- n vs n+1 -->
+  <div class="learn-section" id="output-difference">
+    <h2>5. The n vs n+1 Output Property</h2>
+    <p>This is the most important property to understand and is explicitly tested in the simulator.</p>
+    <div class="alert alert-info" style="margin:.75rem 0">
+      <strong>Moore:</strong> outputs λ(q₀) before reading any input, then one output per transition.<br/>
+      <strong>Mealy:</strong> produces output only on transitions — no output for empty input.
+    </div>
+    <div class="math-def">
+      Moore output for w = a₁a₂…aₙ:<br/>
+      &nbsp;&nbsp;λ(q₀) · λ(q₁) · … · λ(qₙ)  &nbsp; (length n+1)<br/><br/>
+      Mealy output for w = a₁a₂…aₙ:<br/>
+      &nbsp;&nbsp;λ'(q₀,a₁) · λ'(q₁,a₂) · … · λ'(qₙ₋₁,aₙ)  &nbsp; (length n)<br/><br/>
+      Equivalence: MealyOutput = MooreOutput[1:]<br/>
+      &nbsp;&nbsp;(Moore output with the FIRST symbol dropped)
+    </div>
+    <p>For empty string ε: Moore outputs λ(q₀); Mealy outputs ε (nothing).</p>
+  </div>
+
+  <!-- Worked example -->
+  <div class="learn-section" id="worked">
+    <h2>6. Worked Example — Assignment §12</h2>
+    <h3 style="margin-bottom:.5rem">Input Moore Machine</h3>
+    <div class="math-def">
+      Q = {A, B, C} &nbsp; Σ = {0, 1} &nbsp; Δ = {0, 1} &nbsp; q₀ = A<br/><br/>
+      λ(A) = 0 &nbsp; λ(B) = 1 &nbsp; λ(C) = 0<br/><br/>
+      δ(A,0)=A &nbsp; δ(A,1)=B &nbsp; δ(B,0)=C &nbsp; δ(B,1)=A &nbsp; δ(C,0)=B &nbsp; δ(C,1)=C
+    </div>
+
+    <h3 style="margin:.75rem 0 .5rem">Conversion Steps</h3>
+    <div style="overflow-x:auto">
+      <table class="trans-table" aria-label="Conversion steps">
+        <thead><tr><th>State q</th><th>Input a</th><th>δ(q,a)=p</th><th>λ(p) (destination)</th><th>Mealy edge</th></tr></thead>
+        <tbody>
+          <tr><td class="font-mono">A</td><td class="font-mono">0</td><td class="font-mono">A</td><td class="font-mono">λ(A)=0</td><td class="font-mono">A —0/0→ A</td></tr>
+          <tr><td class="font-mono">A</td><td class="font-mono">1</td><td class="font-mono">B</td><td class="font-mono">λ(B)=1</td><td class="font-mono">A —1/1→ B</td></tr>
+          <tr><td class="font-mono">B</td><td class="font-mono">0</td><td class="font-mono">C</td><td class="font-mono">λ(C)=0</td><td class="font-mono">B —0/0→ C</td></tr>
+          <tr><td class="font-mono">B</td><td class="font-mono">1</td><td class="font-mono">A</td><td class="font-mono">λ(A)=0</td><td class="font-mono">B —1/0→ A</td></tr>
+          <tr><td class="font-mono">C</td><td class="font-mono">0</td><td class="font-mono">B</td><td class="font-mono">λ(B)=1</td><td class="font-mono">C —0/1→ B</td></tr>
+          <tr><td class="font-mono">C</td><td class="font-mono">1</td><td class="font-mono">C</td><td class="font-mono">λ(C)=0</td><td class="font-mono">C —1/0→ C</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin:.75rem 0 .5rem">Validation with input "101"</h3>
+    <div class="math-def" style="line-height:2">
+      <strong>Moore path:</strong> A —1→ B —0→ C —1→ C<br/>
+      <strong>Moore output:</strong> λ(A) λ(B) λ(C) λ(C) = 0 · 1 · 0 · 0 = "0100" &nbsp; (n+1 = 4 symbols)<br/>
+      <strong>Moore[1:]:</strong> "100"<br/><br/>
+      <strong>Mealy transitions:</strong> (A,1)→B/1  &nbsp;  (B,0)→C/0  &nbsp;  (C,1)→C/0<br/>
+      <strong>Mealy output:</strong> 1 · 0 · 0 = "100" &nbsp; (n = 3 symbols)<br/><br/>
+      <span style="color:var(--success);font-weight:700">✓ Moore[1:] = "100" = Mealy output. Equivalence verified.</span>
+    </div>
+    <div style="margin-top:1rem">
+      <a href="moore-to-mealy.html" class="btn btn-primary">Try this in the Simulator →</a>
+    </div>
+  </div>
+
+  <!-- Complexity -->
+  <div class="learn-section" id="complexity">
+    <h2>7. Complexity</h2>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:.75rem">
+      <div><div class="text-muted text-sm">Conversion time</div><span class="complexity-badge">O(|Q| · |Σ|)</span></div>
+      <div><div class="text-muted text-sm">Conversion space</div><span class="complexity-badge">O(|Q| · |Σ|)</span></div>
+      <div><div class="text-muted text-sm">State count change</div><span class="complexity-badge">0 (unchanged)</span></div>
+    </div>
+    <p>Moore → Mealy is the easy direction: state count stays the same, and the algorithm is a simple table lookup. Mealy → Moore is harder and may require state splitting, potentially multiplying the state count by |Δ|.</p>
+  </div>
+
+  <!-- Correctness -->
+  <div class="learn-section" id="correctness">
+    <h2>8. Correctness Sketch</h2>
+    <p><strong>Claim:</strong> For any input string w, the Moore machine M and the constructed Mealy machine M' satisfy: MealyOutput(w) = MooreOutput(w)[1:].</p>
+    <p><strong>Proof sketch:</strong> Let w = a₁a₂…aₙ and let q₀,q₁,…,qₙ be the state sequence in M (same in M' since δ'=δ).</p>
+    <ul style="margin-left:1.25rem;color:var(--text-secondary);font-size:.875rem;display:flex;flex-direction:column;gap:.375rem">
+      <li>Moore output = λ(q₀) · λ(q₁) · … · λ(qₙ)</li>
+      <li>By construction: λ'(qᵢ₋₁, aᵢ) = λ(δ(qᵢ₋₁, aᵢ)) = λ(qᵢ) for i = 1…n</li>
+      <li>Mealy output = λ'(q₀,a₁) · λ'(q₁,a₂) · … · λ'(qₙ₋₁,aₙ) = λ(q₁) · λ(q₂) · … · λ(qₙ)</li>
+      <li>This equals MooreOutput with the first symbol λ(q₀) dropped. ∎</li>
+    </ul>
+  </div>
+
+  <!-- Common mistakes -->
+  <div class="learn-section" id="mistakes">
+    <h2>9. Common Mistakes</h2>
+    <div class="alert alert-warning" style="margin-bottom:.5rem"><strong>⚠ Wrong output state:</strong> Using λ(q) (source state) instead of λ(p) = λ(δ(q,a)) (destination state). Always use the destination.</div>
+    <div class="alert alert-warning" style="margin-bottom:.5rem"><strong>⚠ Forgetting the initial output:</strong> When comparing Moore and Mealy outputs, remember Moore has one extra symbol at the start. MealyOutput ≠ MooreOutput — they differ by exactly λ(q₀).</div>
+    <div class="alert alert-warning" style="margin-bottom:.5rem"><strong>⚠ Confusing this with Mealy→Moore:</strong> Moore→Mealy needs no extra states. Mealy→Moore is the reverse and may require state splitting.</div>
+    <div class="alert alert-warning"><strong>⚠ Empty string:</strong> Moore outputs λ(q₀) for ε input. Mealy outputs nothing (empty string). Handle this case explicitly.</div>
+  </div>
+
+</div>
+</div>
+</main>
+</body>
+</html>

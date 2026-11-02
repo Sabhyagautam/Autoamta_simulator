@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Milestone 1 Documentation — Automata Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/components/layout.js" defer></script>
+</head>
+<body>
+<main>
+<div class="section">
+<div class="container-sm">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.5rem">
+    <div>
+      <span class="badge badge-accent" style="margin-bottom:.5rem">Milestone 1 Evidence</span>
+      <h1 style="font-size:1.625rem;margin-bottom:.25rem">Project Documentation</h1>
+      <p>CSET302 — Automata Theory and Computability &nbsp;·&nbsp; Bennett University</p>
+    </div>
+    <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨 Print / Export PDF</button>
+  </div>
+
+  <!-- ── 1. Problem Definition ─────────────────────────────── -->
+  <div class="learn-section" id="problem">
+    <h2>1. Problem Definition &amp; Specification</h2>
+
+    <h3 style="margin-bottom:.5rem">Problem Statement</h3>
+    <p>Automata theory is a fundamental topic in computer science, yet most students struggle to understand finite-state transducers — particularly the conversion between Moore and Mealy machines — because existing tools lack step-by-step visual explanations. Students need an interactive simulator that shows exactly how the conversion algorithm works, one transition at a time.</p>
+
+    <h3 style="margin:.75rem 0 .5rem">Project Objective</h3>
+    <p>Build <strong>Automata Lab</strong>, a browser-based educational simulator that allows students to:</p>
+    <ul style="margin-left:1.25rem;font-size:.875rem;color:var(--text-secondary);display:flex;flex-direction:column;gap:.25rem">
+      <li>Define a Moore machine using a form, text editor, or by loading a preset.</li>
+      <li>Validate the machine with detailed error and warning messages.</li>
+      <li>Execute the Moore→Mealy conversion algorithm step by step, with pseudocode highlighting.</li>
+      <li>Inspect the resulting Mealy machine's graph and transition table.</li>
+      <li>Simulate both machines on custom input strings and verify the n+1 vs n output property.</li>
+      <li>Practice conversions with quiz mode and random machine generation.</li>
+    </ul>
+
+    <h3 style="margin:.75rem 0 .5rem">Inputs and Outputs</h3>
+    <div class="grid-2" style="gap:1rem">
+      <div class="card-elevated">
+        <div style="font-weight:600;margin-bottom:.5rem">Inputs</div>
+        <ul style="margin-left:1rem;font-size:.875rem;color:var(--text-secondary);display:flex;flex-direction:column;gap:.2rem">
+          <li>Set of states Q</li>
+          <li>Input alphabet Σ</li>
+          <li>Output alphabet Δ</li>
+          <li>Initial state q₀</li>
+          <li>State output function λ: Q → Δ</li>
+          <li>Transition function δ: Q × Σ → Q</li>
+        </ul>
+      </div>
+      <div class="card-elevated">
+        <div style="font-weight:600;margin-bottom:.5rem">Outputs</div>
+        <ul style="margin-left:1rem;font-size:.875rem;color:var(--text-secondary);display:flex;flex-direction:column;gap:.2rem">
+          <li>Equivalent Mealy machine M' with λ': Q × Σ → Δ</li>
+          <li>Step-by-step conversion trace</li>
+          <li>Moore and Mealy transition tables</li>
+          <li>Interactive SVG graph of both machines</li>
+          <li>Output strings for test inputs</li>
+          <li>Equivalence verification</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="margin:.75rem 0 .5rem">Formal Definitions</h3>
+    <div class="math-def">
+      <strong>Moore Machine:</strong> M = (Q, Σ, Δ, δ, λ, q₀)<br/>
+      &nbsp;&nbsp;δ: Q × Σ → Q &nbsp;|&nbsp; λ: Q → Δ<br/><br/>
+      <strong>Mealy Machine:</strong> M' = (Q, Σ, Δ, δ, λ', q₀)<br/>
+      &nbsp;&nbsp;δ: Q × Σ → Q &nbsp;|&nbsp; λ': Q × Σ → Δ<br/><br/>
+      <strong>Conversion rule:</strong> ∀q∈Q, ∀a∈Σ: λ'(q,a) = λ(δ(q,a))
+    </div>
+  </div>
+
+  <!-- ── 2. Existing Tools ──────────────────────────────────── -->
+  <div class="learn-section" id="existing-tools">
+    <h2>2. Existing Tools &amp; Feasibility Analysis</h2>
+
+    <h3 style="margin-bottom:.5rem">Existing Tool Review</h3>
+    <p class="alert alert-warning" style="margin-bottom:.75rem;font-size:.8rem">
+      Note: Tool details below should be independently verified by the team before submission, as tool features and availability change over time.
+    </p>
+    <div style="overflow-x:auto">
+      <table class="trans-table" aria-label="Existing tools comparison">
+        <thead><tr>
+          <th>Tool</th><th>Platform</th><th>Moore→Mealy?</th><th>Step-by-step?</th><th>Custom input?</th><th>Visual editor?</th><th>Limitations</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>JFLAP</strong></td><td>Desktop (Java)</td>
+            <td style="color:var(--warning)">Partial</td><td style="color:var(--danger)">No</td>
+            <td style="color:var(--success)">Yes</td><td style="color:var(--success)">Yes</td>
+            <td style="font-size:.8rem">Requires Java; no web access; no step explanation</td>
+          </tr>
+          <tr>
+            <td><strong>Automaton Simulator (Caleb Evans)</strong></td><td>Web</td>
+            <td style="color:var(--danger)">No</td><td style="color:var(--danger)">No</td>
+            <td style="color:var(--success)">Yes</td><td style="color:var(--success)">Yes</td>
+            <td style="font-size:.8rem">Focuses on DFA/NFA; no transducer support</td>
+          </tr>
+          <tr>
+            <td><strong>FSM Simulator (various web tools)</strong></td><td>Web</td>
+            <td style="color:var(--danger)">No</td><td style="color:var(--danger)">No</td>
+            <td style="color:var(--warning)">Limited</td><td style="color:var(--danger)">No</td>
+            <td style="font-size:.8rem">Typically only DFA simulation; no conversion</td>
+          </tr>
+          <tr>
+            <td><strong>Automata Tutor</strong></td><td>Web</td>
+            <td style="color:var(--danger)">No</td><td style="color:var(--danger)">No</td>
+            <td style="color:var(--success)">Yes</td><td style="color:var(--warning)">Limited</td>
+            <td style="font-size:.8rem">Grading tool; no conversion visualization</td>
+          </tr>
+          <tr>
+            <td><strong>Automata Lab (this project)</strong></td><td>Web</td>
+            <td style="color:var(--success)">✓ Yes</td><td style="color:var(--success)">✓ Yes</td>
+            <td style="color:var(--success)">✓ Yes</td><td style="color:var(--success)">✓ Yes</td>
+            <td style="font-size:.8rem;color:var(--success)">Purpose-built for this conversion; no Java needed</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin:.75rem 0 .5rem">Feasibility Analysis</h3>
+    <div class="grid-2" style="gap:1rem">
+      <div class="card-elevated">
+        <div style="font-weight:600;color:var(--success);margin-bottom:.5rem">Technical Feasibility</div>
+        <ul style="margin-left:1rem;font-size:.875rem;color:var(--text-secondary);display:flex;flex-direction:column;gap:.2rem">
+          <li>Algorithm is O(|Q|·|Σ|) — trivially efficient</li>
+          <li>All computation runs client-side in JavaScript</li>
+          <li>SVG graph rendering requires no external library</li>
+          <li>No backend, no database, no authentication needed</li>
+          <li>Deployable to any static hosting (Vercel, GitHub Pages)</li>
+        </ul>
+      </div>
+      <div class="card-elevated">
+        <div style="font-weight:600;color:var(--success);margin-bottom:.5rem">Resource Feasibility</div>
+        <ul style="margin-left:1rem;font-size:.875rem;color:var(--text-secondary);display:flex;flex-direction:column;gap:.2rem">
+          <li>Technology: HTML, CSS, vanilla JavaScript — no cost</li>
+          <li>Hosting: Vercel free tier sufficient</li>
+          <li>Development time: within one semester</li>
+          <li>No external API or paid service required</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 3. Architecture & Design ─────────────────────────── -->
+  <div class="learn-section" id="architecture">
+    <h2>3. Simulator Design &amp; Architecture</h2>
+
+    <h3 style="margin-bottom:.5rem">System Architecture</h3>
+    <div class="math-def" style="font-size:.8rem;line-height:2">
+      ┌──────────────────────────────────────────────────────┐<br/>
+      │ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Browser (Client)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │<br/>
+      │ &nbsp;┌─────────────┐ &nbsp;┌─────────────────┐ &nbsp;┌────────┐│<br/>
+      │ &nbsp;│ UI Layer&nbsp;&nbsp;&nbsp;&nbsp;│ &nbsp;│ Algorithm Layer │ &nbsp;│ Graph&nbsp;&nbsp;││<br/>
+      │ &nbsp;│ HTML/CSS/JS │──▶│ mooreToMealy.js │──▶│ SVG&nbsp;&nbsp;&nbsp;&nbsp;││<br/>
+      │ &nbsp;│ moore-to-   │ &nbsp;│ validateMoore() │ &nbsp;│ Canvas ││<br/>
+      │ &nbsp;│ mealy.html&nbsp;&nbsp;│ &nbsp;│ simulateMoore() │ &nbsp;└────────┘│<br/>
+      │ &nbsp;│ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│ &nbsp;│ simulateMealy() │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │<br/>
+      │ &nbsp;│ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│ &nbsp;│ parseMooreText()│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │<br/>
+      │ &nbsp;└─────────────┘ &nbsp;└─────────────────┘&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │<br/>
+      │ &nbsp;┌──────────────────────────────────┐&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │<br/>
+      │ &nbsp;│ State: S{states,alphabet,...}&nbsp;&nbsp;&nbsp;&nbsp;│ localStorage&nbsp;│<br/>
+      │ &nbsp;└──────────────────────────────────┘&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │<br/>
+      └──────────────────────────────────────────────────────┘
+    </div>
+
+    <h3 style="margin:.75rem 0 .5rem">Module Breakdown</h3>
+    <div class="grid-2" style="gap:.75rem">
+      <div class="card-elevated" style="font-size:.8rem">
+        <div style="font-weight:600;margin-bottom:.5rem;font-family:var(--font-mono)">mooreToMealy.js</div>
+        Core algorithm (pure functions): mooreToMealy(), validateMoore(), simulateMoore(), simulateMealy(), checkEquivalence(), findUnreachable(), generateRandom(), parseMooreText(), serializeMoore()
+      </div>
+      <div class="card-elevated" style="font-size:.8rem">
+        <div style="font-weight:600;margin-bottom:.5rem;font-family:var(--font-mono)">moore-to-mealy.html</div>
+        Main simulator page: state management, form/text/saved input methods, step viewer, result page, simulate &amp; compare, practice mode, JSON import/export
+      </div>
+      <div class="card-elevated" style="font-size:.8rem">
+        <div style="font-weight:600;margin-bottom:.5rem;font-family:var(--font-mono)">mooreExamples.js</div>
+        6 preset machines including the canonical assignment example (A/B/C), parity checker, mod-3 counter, 2-bit counter, sequence detector, unreachable-state example
+      </div>
+      <div class="card-elevated" style="font-size:.8rem">
+        <div style="font-weight:600;margin-bottom:.5rem;font-family:var(--font-mono)">layout.js + style.css</div>
+        Shared navbar/footer with theme toggle (dark/light); complete design system with CSS variables
+      </div>
+    </div>
+
+    <h3 style="margin:.75rem 0 .5rem">Main Workflow Flowchart</h3>
+    <div class="math-def" style="font-size:.8rem;line-height:2">
+      User Defines Moore Machine<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;│ (Form | Text Editor | Preset | JSON Import)<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;▼<br/>
+      validateMoore(M) — check errors &amp; warnings<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;│ errors? → show validation panel, block conversion<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;│ OK → enable "Convert" button<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;▼<br/>
+      mooreToMealy(M) — generate steps[] + mealy<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;▼<br/>
+      Step-by-Step Viewer (page 2)<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;│ Play/Pause/Next/Prev controls<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;│ Pseudocode highlighting<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;│ Side-by-side Moore + Mealy graphs<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;│ Progressive Mealy table<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;▼<br/>
+      Mealy Result (page 3)<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;│ Final Mealy graph + tables + formal tuple<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;▼<br/>
+      Simulate &amp; Compare (page 4)<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;│ Run both machines on input string<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;│ Check equivalence: MealyOut = MooreOut[1:]<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;▼<br/>
+      Practice Mode (page 5)<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;│ Quiz: fill Mealy table manually<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;│ Random machine generation
+    </div>
+
+    <h3 style="margin:.75rem 0 .5rem">UML — Key Classes (Logical)</h3>
+    <div class="math-def" style="font-size:.78rem;line-height:1.8">
+      MooreMachine {<br/>
+      &nbsp;&nbsp;states: string[]<br/>
+      &nbsp;&nbsp;inputAlphabet: string[]<br/>
+      &nbsp;&nbsp;outputAlphabet: string[]<br/>
+      &nbsp;&nbsp;initialState: string<br/>
+      &nbsp;&nbsp;outputs: Record&lt;string, string&gt;   // λ: Q → Δ<br/>
+      &nbsp;&nbsp;transitions: Record&lt;string, Record&lt;string, string&gt;&gt;  // δ<br/>
+      }<br/><br/>
+      MealyMachine {<br/>
+      &nbsp;&nbsp;states: string[]<br/>
+      &nbsp;&nbsp;inputAlphabet: string[]<br/>
+      &nbsp;&nbsp;outputAlphabet: string[]<br/>
+      &nbsp;&nbsp;initialState: string<br/>
+      &nbsp;&nbsp;transitions: Record&lt;string, Record&lt;string, {nextState, output}&gt;&gt;<br/>
+      }<br/><br/>
+      ConversionStep {<br/>
+      &nbsp;&nbsp;index: number<br/>
+      &nbsp;&nbsp;fromState: string<br/>
+      &nbsp;&nbsp;symbol: string<br/>
+      &nbsp;&nbsp;nextState: string | null<br/>
+      &nbsp;&nbsp;mooreOutput: string | null<br/>
+      &nbsp;&nbsp;pseudocodeLine: number<br/>
+      &nbsp;&nbsp;description: string<br/>
+      &nbsp;&nbsp;explanation: string<br/>
+      }<br/><br/>
+      ValidationResult {<br/>
+      &nbsp;&nbsp;errors: {msg, type, ref?}[]<br/>
+      &nbsp;&nbsp;warnings: {msg, type, ref?}[]<br/>
+      }
+    </div>
+  </div>
+
+  <!-- ── 4. Algorithm & Correctness ─────────────────────────── -->
+  <div class="learn-section" id="algorithm-docs">
+    <h2>4. Algorithm &amp; Correctness</h2>
+
+    <h3 style="margin-bottom:.5rem">Algorithm Selection Rationale</h3>
+    <p>The standard Moore-to-Mealy conversion is the only known algorithm for this problem. It runs in O(|Q|·|Σ|) time and requires no extra states, making it both optimal and simple to implement and explain.</p>
+
+    <h3 style="margin:.75rem 0 .5rem">Pseudocode</h3>
+    <div class="math-def" style="font-size:.8rem;line-height:2">
+      ALGORITHM MooreToMealy(M = (Q, Σ, Δ, δ, λ, q₀))<br/>
+      &nbsp;1. Q' ← Q ;  Σ' ← Σ ;  Δ' ← Δ ;  q₀' ← q₀ ;  δ' ← δ<br/>
+      &nbsp;2. Create empty table λ': Q × Σ → Δ<br/>
+      &nbsp;3. FOR each state q in Q:<br/>
+      &nbsp;4.   FOR each symbol a in Σ:<br/>
+      &nbsp;5.     p ← δ(q, a)<br/>
+      &nbsp;6.     λ'(q, a) ← λ(p)    // output of destination state<br/>
+      &nbsp;7. RETURN M' = (Q', Σ', Δ', δ', λ', q₀')
+    </div>
+
+    <h3 style="margin:.75rem 0 .5rem">Manually Validated Example</h3>
+    <p>This is the canonical example from the assignment brief. Verified by hand:</p>
+    <div class="math-def" style="font-size:.8rem;line-height:1.9">
+      <strong>Moore machine:</strong><br/>
+      Q={A,B,C}, Σ={0,1}, Δ={0,1}, q₀=A<br/>
+      λ: A→0, B→1, C→0<br/>
+      δ: A,0→A; A,1→B; B,0→C; B,1→A; C,0→B; C,1→C<br/><br/>
+      <strong>Mealy result (applying λ'(q,a)=λ(δ(q,a))):</strong><br/>
+      A,0→A / out λ(A)=0<br/>
+      A,1→B / out λ(B)=1<br/>
+      B,0→C / out λ(C)=0<br/>
+      B,1→A / out λ(A)=0<br/>
+      C,0→B / out λ(B)=1<br/>
+      C,1→C / out λ(C)=0<br/><br/>
+      <strong>Validation with w="101":</strong><br/>
+      Moore path: A→B→C→C<br/>
+      Moore outputs: λ(A)·λ(B)·λ(C)·λ(C) = 0·1·0·0 = "0100" (n+1=4)<br/>
+      Mealy outputs: 1·0·0 = "100" (n=3)<br/>
+      Check: MooreOutput[1:] = "100" = MealyOutput ✓
+    </div>
+    <div class="alert alert-success" style="margin-top:.75rem">
+      ✓ The simulator produces exactly this result when the canonical example is loaded. Verified programmatically by the test suite.
+    </div>
+
+    <h3 style="margin:.75rem 0 .5rem">Validation Checks Implemented</h3>
+    <div style="display:flex;flex-direction:column;gap:.375rem">
+      <div class="val-item" style="background:var(--danger-bg);border-color:var(--danger);color:var(--danger)">✕ ERRORS (block conversion): empty states/alphabet/outputs, no initial state, state without output, invalid output symbol, transition to unknown state, nondeterminism</div>
+      <div class="val-item" style="background:var(--warning-bg);border-color:var(--warning);color:var(--warning)">⚠ WARNINGS (advisory): missing transitions (incomplete δ), unreachable states, unused output symbols</div>
+    </div>
+  </div>
+
+</div>
+</div>
+</main>
+<style>
+  .val-item { display:flex;align-items:flex-start;gap:.5rem;padding:.5rem .75rem;border-radius:var(--radius);font-size:.8rem;border:1px solid; }
+  @media print {
+    .navbar, footer, .btn { display:none !important; }
+    .learn-section { break-inside:avoid; }
+  }
+</style>
+</body>
+</html>

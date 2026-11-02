@@ -8,6 +8,103 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ── Stepper bar ─────────────────────────────────── */
+    .stepper { display:flex; align-items:center; gap:0; margin-bottom:1.5rem; overflow-x:auto; }
+    .stepper-step {
+      display:flex; align-items:center; gap:.5rem;
+      padding:.5rem .875rem; font-size:.8rem; font-weight:500;
+      color:var(--text-muted); white-space:nowrap;
+      border-bottom:2px solid var(--border);
+      cursor:pointer; transition:all .15s;
+    }
+    .stepper-step:hover { color:var(--text); border-color:var(--border-strong); }
+    .stepper-step.active { color:var(--accent); border-color:var(--accent); }
+    .stepper-step.done   { color:var(--success); border-color:var(--success); }
+    .stepper-num {
+      width:20px; height:20px; border-radius:50%; font-size:.7rem; font-weight:700;
+      display:flex; align-items:center; justify-content:center;
+      background:var(--bg-subtle); border:1px solid var(--border);
+    }
+    .stepper-step.active .stepper-num { background:var(--accent); color:white; border-color:var(--accent); }
+    .stepper-step.done   .stepper-num { background:var(--success); color:white; border-color:var(--success); }
+
+    /* ── Pseudocode panel ────────────────────────────── */
+    .pseudocode {
+      background:var(--bg-subtle); border:1px solid var(--border);
+      border-radius:var(--radius); padding:.75rem 1rem;
+      font-family:var(--font-mono); font-size:.78rem; line-height:1.8;
+    }
+    .pc-line { padding:.1rem .5rem; border-radius:3px; display:block; }
+    .pc-line.highlighted { background:var(--node-active); color:var(--text); font-weight:600; }
+
+    /* ── Side-by-side graph area ─────────────────────── */
+    .dual-graph { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    @media(max-width:700px){ .dual-graph { grid-template-columns:1fr; } }
+    .graph-panel-title {
+      font-size:.75rem; font-weight:600; text-transform:uppercase;
+      letter-spacing:.05em; color:var(--text-secondary);
+      margin-bottom:.5rem;
+    }
+
+    /* ── Validation panel ────────────────────────────── */
+    .validation-panel { display:flex; flex-direction:column; gap:.375rem; }
+    .val-item {
+      display:flex; align-items:flex-start; gap:.5rem;
+      padding:.5rem .75rem; border-radius:var(--radius);
+      font-size:.8rem; border:1px solid transparent;
+    }
+    .val-error   { background:var(--danger-bg);  border-color:var(--danger);  color:var(--danger); }
+    .val-warning { background:var(--warning-bg); border-color:var(--warning); color:var(--warning); }
+    .val-ok      { background:var(--success-bg); border-color:var(--success); color:var(--success); }
+
+    /* ── Comparison view ─────────────────────────────── */
+    .output-compare {
+      display:grid; grid-template-columns:1fr 1fr; gap:1rem;
+      margin-top:1rem;
+    }
+    @media(max-width:600px){ .output-compare { grid-template-columns:1fr; } }
+    .output-box {
+      background:var(--bg-elevated); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:1rem; text-align:center;
+    }
+    .output-string {
+      font-family:var(--font-mono); font-size:1.375rem; font-weight:700;
+      letter-spacing:.1em; margin:.5rem 0;
+    }
+    .output-highlight-first { color:var(--warning); text-decoration:underline; }
+
+    /* ── Practice mode ───────────────────────────────── */
+    .answer-cell {
+      font-family:var(--font-mono); font-size:.75rem;
+      background:none; border:1px solid var(--border);
+      border-radius:3px; padding:.2rem .4rem; width:80px;
+      text-align:center; color:var(--text);
+      outline:none;
+    }
+    .answer-cell:focus { border-color:var(--accent); }
+    .answer-cell.correct { border-color:var(--success); background:var(--success-bg); }
+    .answer-cell.wrong   { border-color:var(--danger);  background:var(--danger-bg);  }
+
+    /* ── Text editor ─────────────────────────────────── */
+    .text-editor {
+      width:100%; min-height:200px;
+      font-family:var(--font-mono); font-size:.8rem; line-height:1.7;
+      background:var(--bg-subtle); border:1px solid var(--border);
+      border-radius:var(--radius); padding:.75rem 1rem;
+      color:var(--text); resize:vertical; outline:none;
+    }
+    .text-editor:focus { border-color:var(--accent); }
+
+    /* ── Save/load section ───────────────────────────── */
+    .saved-item {
+      display:flex; align-items:center; gap:.625rem;
+      padding:.5rem .75rem; border:1px solid var(--border);
+      border-radius:var(--radius); background:var(--bg-elevated);
+      font-size:.875rem;
+    }
+    .saved-name { flex:1; font-weight:500; }
+  </style>
   <script src="js/components/layout.js" defer></script>
   <script src="js/data/mooreExamples.js"></script>
   <script src="js/algorithms/mooreToMealy.js"></script>
@@ -17,874 +114,1685 @@
 <div class="section-sm">
 <div class="container">
 
-  <!-- Header -->
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem">
+  <!-- ── Page header ───────────────────────────────────────── -->
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
     <div>
       <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.25rem">
         <span class="badge badge-active">● Active</span>
         <span class="badge badge-info">Finite Automata</span>
+        <span class="badge badge-soon">CSET302 — Bennett University</span>
       </div>
       <h1 style="font-size:1.5rem;margin-bottom:.25rem">Moore → Mealy Conversion</h1>
-      <p style="font-size:.875rem">Enter a Moore machine and convert it to an equivalent Mealy machine — step by step.</p>
+      <p style="font-size:.875rem">M = (Q, Σ, Δ, δ, λ, q₀) &nbsp;→&nbsp; M' = (Q, Σ, Δ, δ, λ', q₀) &nbsp; where &nbsp; λ'(q, a) = λ(δ(q, a))</p>
     </div>
-    <a href="dashboard.html" class="btn btn-secondary btn-sm">← Dashboard</a>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+      <a href="moore-theory.html" class="btn btn-secondary btn-sm">📖 Theory</a>
+      <a href="moore-docs.html"   class="btn btn-secondary btn-sm">📄 Docs</a>
+      <a href="dashboard.html"    class="btn btn-secondary btn-sm">← Dashboard</a>
+    </div>
   </div>
 
-  <!-- Theory banner -->
-  <div class="alert alert-info" style="margin-bottom:1.5rem;font-size:.875rem">
-    <strong>Rule:</strong> For every transition δ(q, a) = p in the Moore machine, the Mealy output on that edge is <strong>λ(p)</strong> — the Moore output of the <em>destination</em> state. States stay the same; only outputs move from states to edges.
-  </div>
+  <!-- ── Stepper (workflow progress) ──────────────────────── -->
+  <nav class="stepper" id="stepper" aria-label="Workflow steps">
+    <div class="stepper-step active" data-step="0"><span class="stepper-num">1</span>Define Machine</div>
+    <div class="stepper-step"        data-step="1"><span class="stepper-num">2</span>Validate</div>
+    <div class="stepper-step"        data-step="2"><span class="stepper-num">3</span>Convert (Step-by-Step)</div>
+    <div class="stepper-step"        data-step="3"><span class="stepper-num">4</span>Mealy Result</div>
+    <div class="stepper-step"        data-step="4"><span class="stepper-num">5</span>Simulate &amp; Compare</div>
+    <div class="stepper-step"        data-step="5"><span class="stepper-num">6</span>Practice</div>
+  </nav>
 
-  <div class="workspace">
+  <!-- ══════════════════════════════════════════════════════════
+       PAGE 0: DEFINE MACHINE
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="page-section" id="page-0">
+    <div class="workspace">
 
-    <!-- ── LEFT: Input Panel ───────────────────────────── -->
-    <div class="workspace-panel" id="input-panel">
+      <!-- Left: Input methods -->
+      <div class="workspace-panel" id="input-panel">
 
-      <!-- Example selector -->
-      <div class="card-elevated">
-        <div class="panel-header"><span class="panel-title">Load Example</span></div>
-        <select class="form-select" id="example-select" aria-label="Select example Moore machine">
-          <option value="">— choose an example —</option>
+        <!-- Input method tabs -->
+        <div class="tabs" role="tablist" aria-label="Input method" style="margin-bottom:.75rem">
+          <button class="tab-btn active" data-tab="form-tab"  role="tab" aria-selected="true">Form</button>
+          <button class="tab-btn"        data-tab="text-tab"  role="tab" aria-selected="false">Text Editor</button>
+          <button class="tab-btn"        data-tab="saved-tab" role="tab" aria-selected="false">Saved</button>
+        </div>
+
+        <!-- ── FORM TAB ── -->
+        <div class="tab-pane active" id="form-tab">
+
+          <!-- Presets -->
+          <div class="card-elevated" style="margin-bottom:.75rem">
+            <div class="panel-header"><span class="panel-title">Load Preset</span></div>
+            <select class="form-select" id="example-select" aria-label="Select preset Moore machine">
+              <option value="">— choose a preset —</option>
+            </select>
+          </div>
+
+          <!-- States -->
+          <div class="card-elevated" style="margin-bottom:.75rem">
+            <div class="panel-header"><span class="panel-title">States (Q)</span></div>
+            <div style="display:flex;gap:.5rem;margin-bottom:.5rem">
+              <input type="text" class="form-input" id="state-input" placeholder="e.g. q0" style="flex:1" aria-label="New state" />
+              <button class="btn btn-secondary btn-sm" id="add-state-btn">Add</button>
+            </div>
+            <div class="chip-list" id="state-chips" aria-live="polite"></div>
+          </div>
+
+          <!-- Input Alphabet -->
+          <div class="card-elevated" style="margin-bottom:.75rem">
+            <div class="panel-header"><span class="panel-title">Input Alphabet (Σ)</span></div>
+            <div style="display:flex;gap:.5rem;margin-bottom:.5rem">
+              <input type="text" class="form-input" id="symbol-input" placeholder="e.g. 0" maxlength="4" style="flex:1" aria-label="New symbol" />
+              <button class="btn btn-secondary btn-sm" id="add-symbol-btn">Add</button>
+            </div>
+            <div class="chip-list" id="alphabet-chips" aria-live="polite"></div>
+          </div>
+
+          <!-- Output Alphabet -->
+          <div class="card-elevated" style="margin-bottom:.75rem">
+            <div class="panel-header"><span class="panel-title">Output Alphabet (Δ)</span></div>
+            <div style="display:flex;gap:.5rem;margin-bottom:.5rem">
+              <input type="text" class="form-input" id="output-symbol-input" placeholder="e.g. 0" maxlength="4" style="flex:1" aria-label="New output symbol" />
+              <button class="btn btn-secondary btn-sm" id="add-output-symbol-btn">Add</button>
+            </div>
+            <div class="chip-list" id="output-alphabet-chips" aria-live="polite"></div>
+          </div>
+
+          <!-- Initial state -->
+          <div class="card-elevated" style="margin-bottom:.75rem">
+            <div class="panel-header"><span class="panel-title">Initial State (q₀)</span></div>
+            <select class="form-select" id="initial-select" aria-label="Initial state">
+              <option value="">— select —</option>
+            </select>
+          </div>
+
+          <!-- State outputs λ(q) -->
+          <div class="card-elevated" style="margin-bottom:.75rem">
+            <div class="panel-header"><span class="panel-title">State Outputs λ: Q → Δ</span></div>
+            <p class="form-hint" style="margin-bottom:.5rem">Assign one output symbol per state.</p>
+            <div id="output-assignments" aria-label="State outputs">
+              <span class="text-muted text-sm">Add states and output alphabet first.</span>
+            </div>
+          </div>
+
+          <!-- Transitions δ(q,a) -->
+          <div class="card-elevated" style="margin-bottom:.75rem">
+            <div class="panel-header"><span class="panel-title">Transitions δ: Q × Σ → Q</span></div>
+            <p class="form-hint" style="margin-bottom:.5rem">One next-state per cell. Empty = undefined transition.</p>
+            <div style="overflow-x:auto">
+              <table class="transition-grid" id="transition-table" aria-label="Transition function"></table>
+            </div>
+          </div>
+
+          <!-- Action buttons -->
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+            <button class="btn btn-primary" style="flex:1" id="validate-btn">① Validate Machine</button>
+            <button class="btn btn-secondary" id="clear-btn" title="Clear all" aria-label="Clear all">✕</button>
+          </div>
+        </div>
+
+        <!-- ── TEXT EDITOR TAB ── -->
+        <div class="tab-pane" id="text-tab">
+          <div style="margin-bottom:.5rem">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+              <span class="panel-title">Text Format Editor</span>
+              <button class="btn btn-secondary btn-sm" id="generate-text-btn">↑ Generate from Machine</button>
+            </div>
+            <textarea class="text-editor" id="text-editor" spellcheck="false" aria-label="Moore machine text definition"># Moore machine text format
+# Lines starting with # are comments
+
+States: A,B,C
+Alphabet: 0,1
+Outputs: 0,1
+Initial: A
+
+StateOutputs:
+  A -> 0
+  B -> 1
+  C -> 0
+
+Transitions:
+  A,0 -> A
+  A,1 -> B
+  B,0 -> C
+  B,1 -> A
+  C,0 -> B
+  C,1 -> C</textarea>
+            <div id="text-errors" style="margin-top:.5rem"></div>
+          </div>
+          <div style="display:flex;gap:.5rem">
+            <button class="btn btn-primary" style="flex:1" id="parse-text-btn">Parse &amp; Apply</button>
+          </div>
+          <details style="margin-top:.75rem">
+            <summary style="font-size:.8rem;color:var(--text-muted);cursor:pointer">Format instructions</summary>
+            <div class="math-def" style="margin-top:.5rem;font-size:.75rem;line-height:1.9">
+              States: state1, state2, ...<br/>
+              Alphabet: sym1, sym2, ...<br/>
+              Outputs: out1, out2, ...<br/>
+              Initial: stateName<br/>
+              <br/>
+              StateOutputs:<br/>
+              &nbsp;&nbsp;stateName -&gt; outputSymbol<br/>
+              <br/>
+              Transitions:<br/>
+              &nbsp;&nbsp;fromState,symbol -&gt; toState<br/>
+              <br/>
+              # Lines starting with # are comments
+            </div>
+          </details>
+        </div>
+
+        <!-- ── SAVED TAB ── -->
+        <div class="tab-pane" id="saved-tab">
+          <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
+            <input type="text" class="form-input" id="save-name-input" placeholder="Machine name…" style="flex:1" aria-label="Name for saved machine" />
+            <button class="btn btn-secondary btn-sm" id="save-machine-btn">Save</button>
+          </div>
+          <div id="saved-list" style="display:flex;flex-direction:column;gap:.375rem">
+            <div class="empty-state" style="padding:1.5rem">
+              <div class="empty-icon">💾</div>
+              <p>No saved machines yet.</p>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+            <button class="btn btn-secondary btn-sm" id="export-json-btn">⬇ Export JSON</button>
+            <label class="btn btn-secondary btn-sm" style="cursor:pointer">
+              ⬆ Import JSON
+              <input type="file" id="import-json-input" accept=".json" style="display:none" />
+            </label>
+          </div>
+        </div>
+
+      </div><!-- end left panel -->
+
+      <!-- Right: Live Moore preview -->
+      <div class="workspace-panel">
+        <div class="panel-header"><span class="panel-title">Live Moore Machine Preview</span></div>
+
+        <!-- Validation panel -->
+        <div id="validation-panel" style="margin-bottom:.75rem">
+          <div class="val-item val-ok"><span>✓</span><span>Define a machine to see validation results.</span></div>
+        </div>
+
+        <!-- Moore table -->
+        <div id="moore-table-wrap">
+          <div class="empty-state"><div class="empty-icon">⊞</div><p>Define states, alphabet and transitions.</p></div>
+        </div>
+
+        <!-- Formal tuple -->
+        <div id="formal-tuple" style="margin-top:.75rem;display:none">
+          <div class="panel-title" style="margin-bottom:.5rem">Formal Specification</div>
+          <div class="math-def" id="formal-tuple-text" style="font-size:.8rem;line-height:1.9"></div>
+        </div>
+
+        <!-- Convert button -->
+        <button class="btn btn-primary btn-lg w-full" id="run-btn" style="margin-top:.75rem" disabled>
+          Convert to Mealy Machine →
+        </button>
+      </div>
+
+    </div>
+  </div><!-- end page-0 -->
+
+  <!-- ══════════════════════════════════════════════════════════
+       PAGE 2: STEP-BY-STEP CONVERSION
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="page-section" id="page-2" style="display:none">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem">
+      <h2 style="font-size:1.125rem">Step-by-Step Conversion</h2>
+      <div style="display:flex;gap:.5rem;align-items:center" role="toolbar" aria-label="Step controls">
+        <button class="btn btn-secondary btn-sm" id="step-prev">◀ Prev</button>
+        <button class="btn btn-primary  btn-sm" id="step-play">▶ Play</button>
+        <button class="btn btn-secondary btn-sm" id="step-next">Next ▶</button>
+        <button class="btn btn-ghost    btn-sm" id="step-reset">↺ Reset</button>
+        <button class="btn btn-secondary btn-sm" id="skip-result-btn">Skip →</button>
+        <span class="step-counter" id="step-counter" aria-live="polite">Step 0 / 0</span>
+        <select class="speed-select" id="speed-select" aria-label="Speed">
+          <option value="1500">Slow</option>
+          <option value="700" selected>Normal</option>
+          <option value="300">Fast</option>
         </select>
-      </div>
-
-      <!-- States -->
-      <div class="card-elevated">
-        <div class="panel-header"><span class="panel-title">States (Q)</span></div>
-        <div style="display:flex;gap:.5rem;margin-bottom:.625rem">
-          <input type="text" class="form-input" id="state-input" placeholder="e.g. q0" aria-label="New state name" style="flex:1" />
-          <button class="btn btn-secondary btn-sm" id="add-state-btn">Add</button>
-        </div>
-        <div class="chip-list" id="state-chips" aria-live="polite"></div>
-      </div>
-
-      <!-- Input Alphabet -->
-      <div class="card-elevated">
-        <div class="panel-header"><span class="panel-title">Input Alphabet (Σ)</span></div>
-        <div style="display:flex;gap:.5rem;margin-bottom:.625rem">
-          <input type="text" class="form-input" id="symbol-input" placeholder="e.g. 0" maxlength="4" aria-label="New input symbol" style="flex:1" />
-          <button class="btn btn-secondary btn-sm" id="add-symbol-btn">Add</button>
-        </div>
-        <div class="chip-list" id="alphabet-chips" aria-live="polite"></div>
-      </div>
-
-      <!-- Output Alphabet -->
-      <div class="card-elevated">
-        <div class="panel-header"><span class="panel-title">Output Alphabet (Δ)</span></div>
-        <div style="display:flex;gap:.5rem;margin-bottom:.625rem">
-          <input type="text" class="form-input" id="output-symbol-input" placeholder="e.g. 0" maxlength="4" aria-label="New output symbol" style="flex:1" />
-          <button class="btn btn-secondary btn-sm" id="add-output-symbol-btn">Add</button>
-        </div>
-        <div class="chip-list" id="output-alphabet-chips" aria-live="polite"></div>
-      </div>
-
-      <!-- Initial State -->
-      <div class="card-elevated">
-        <div class="panel-header"><span class="panel-title">Initial State (q₀)</span></div>
-        <select class="form-select" id="initial-select" aria-label="Select initial state">
-          <option value="">— select initial state —</option>
-        </select>
-      </div>
-
-      <!-- State Outputs λ(q) -->
-      <div class="card-elevated">
-        <div class="panel-header"><span class="panel-title">State Outputs λ(q)</span></div>
-        <p class="form-hint" style="margin-bottom:.625rem">Assign one output symbol to each state.</p>
-        <div id="output-assignments" style="display:flex;flex-direction:column;gap:.5rem" aria-label="State output assignments">
-          <span class="text-muted text-sm">Add states and output alphabet first.</span>
-        </div>
-      </div>
-
-      <!-- Transitions δ(q,a) -->
-      <div class="card-elevated">
-        <div class="panel-header"><span class="panel-title">Transitions δ(q, a)</span></div>
-        <p class="form-hint" style="margin-bottom:.625rem">Each cell: the single next state.</p>
-        <div style="overflow-x:auto">
-          <table class="transition-grid" id="transition-table" aria-label="Moore transition function">
-            <thead></thead><tbody></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Errors -->
-      <div id="validation-errors" role="alert" aria-live="assertive" style="display:none"></div>
-
-      <!-- Run / Clear -->
-      <div style="display:flex;gap:.5rem">
-        <button class="btn btn-primary w-full" id="run-btn">Convert to Mealy Machine</button>
-        <button class="btn btn-secondary" id="clear-btn" title="Clear all" aria-label="Clear all inputs">✕</button>
       </div>
     </div>
 
-    <!-- ── RIGHT: Results Panel ───────────────────────── -->
-    <div class="workspace-panel">
+    <!-- Side-by-side graphs -->
+    <div class="dual-graph" style="margin-bottom:1rem">
       <div>
-        <div class="tabs" role="tablist" aria-label="Result views">
-          <button class="tab-btn active" role="tab" aria-selected="true"  data-tab="moore-tab"  id="tab-moore">Moore Machine</button>
-          <button class="tab-btn"        role="tab" aria-selected="false" data-tab="steps-tab"  id="tab-steps">Step View</button>
-          <button class="tab-btn"        role="tab" aria-selected="false" data-tab="mealy-tab"  id="tab-mealy">Mealy Machine</button>
-          <button class="tab-btn"        role="tab" aria-selected="false" data-tab="graph-tab"  id="tab-graph">Graph</button>
-          <button class="tab-btn"        role="tab" aria-selected="false" data-tab="test-tab"   id="tab-test">Simulate</button>
-        </div>
-
-        <!-- Moore Table -->
-        <div class="tab-pane active" id="moore-tab" role="tabpanel" aria-labelledby="tab-moore">
-          <div id="moore-table-wrap">
-            <div class="empty-state">
-              <div class="empty-icon" aria-hidden="true">⊞</div>
-              <p>Define the Moore machine and click Convert.</p>
-            </div>
+        <div class="graph-panel-title">Moore Machine (source)</div>
+        <div style="height:300px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-lg);position:relative;overflow:hidden">
+          <svg id="moore-graph-canvas" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-label="Moore machine graph" role="img">
+            <defs>
+              <marker id="arr-moore" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0,10 3.5,0 7" fill="var(--text-secondary)"/>
+              </marker>
+              <marker id="arr-moore-active" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0,10 3.5,0 7" fill="var(--warning)"/>
+              </marker>
+            </defs>
+            <g id="moore-graph-root"></g>
+          </svg>
+          <div class="empty-state" id="moore-graph-empty" style="position:absolute;inset:0;background:var(--bg-elevated)">
+            <div class="empty-icon">⊙</div><p>Convert to see graph.</p>
           </div>
         </div>
-
-        <!-- Steps -->
-        <div class="tab-pane" id="steps-tab" role="tabpanel" aria-labelledby="tab-steps">
-          <div id="steps-panel">
-            <div class="empty-state">
-              <div class="empty-icon" aria-hidden="true">▷</div>
-              <p>Run the conversion to step through it.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Mealy Table -->
-        <div class="tab-pane" id="mealy-tab" role="tabpanel" aria-labelledby="tab-mealy">
-          <div id="mealy-table-wrap">
-            <div class="empty-state">
-              <div class="empty-icon" aria-hidden="true">⇄</div>
-              <p>The resulting Mealy machine will appear here.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Graph -->
-        <div class="tab-pane" id="graph-tab" role="tabpanel" aria-labelledby="tab-graph">
-          <div id="graph-container" role="img" aria-label="Mealy machine graph" style="margin-bottom:.75rem">
-            <div class="empty-state" id="graph-empty">
-              <div class="empty-icon" aria-hidden="true">⊙</div>
-              <p>Run the conversion to see the graph.</p>
-            </div>
-            <svg id="graph-canvas" class="graph-svg" style="display:none"
-                 xmlns="http://www.w3.org/2000/svg" aria-label="Mealy machine graph" role="img">
-              <defs>
-                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                  <polygon points="0 0,10 3.5,0 7" fill="var(--text-secondary)" />
-                </marker>
-              </defs>
-              <g id="graph-root"></g>
-            </svg>
-            <div class="graph-controls" aria-label="Graph controls">
-              <button class="graph-btn" id="zoom-in"   aria-label="Zoom in"        title="Zoom in">+</button>
-              <button class="graph-btn" id="zoom-out"  aria-label="Zoom out"       title="Zoom out">−</button>
-              <button class="graph-btn" id="fit-graph" aria-label="Fit to screen"  title="Fit to screen">⊡</button>
-            </div>
-          </div>
-          <!-- Legend -->
-          <div style="display:flex;flex-wrap:wrap;gap:.625rem" role="list" aria-label="Graph legend">
-            <div role="listitem" style="display:flex;align-items:center;gap:.375rem;font-size:.75rem;color:var(--text-secondary)"><span style="width:14px;height:14px;border-radius:50%;background:var(--node-initial);border:2px solid var(--accent);display:inline-block"></span>Initial</div>
-            <div role="listitem" style="display:flex;align-items:center;gap:.375rem;font-size:.75rem;color:var(--text-secondary)"><span style="width:14px;height:14px;border-radius:50%;background:var(--node-normal);border:2px solid var(--border-strong);display:inline-block"></span>State (output in label)</div>
-            <div role="listitem" style="display:flex;align-items:center;gap:.375rem;font-size:.75rem;color:var(--text-secondary)"><span style="width:14px;height:14px;border-radius:50%;background:var(--node-active);border:2px solid var(--warning);display:inline-block"></span>Active step</div>
-          </div>
-        </div>
-
-        <!-- Simulate -->
-        <div class="tab-pane" id="test-tab" role="tabpanel" aria-labelledby="tab-test">
-          <div id="simulate-panel">
-            <div class="empty-state">
-              <div class="empty-icon" aria-hidden="true">🔤</div>
-              <p>Run the conversion first, then simulate strings here.</p>
-            </div>
+      </div>
+      <div>
+        <div class="graph-panel-title">Mealy Machine (being built)</div>
+        <div style="height:300px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-lg);position:relative;overflow:hidden">
+          <svg id="mealy-graph-canvas" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-label="Mealy machine graph being built" role="img">
+            <defs>
+              <marker id="arr-mealy" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0,10 3.5,0 7" fill="var(--text-secondary)"/>
+              </marker>
+              <marker id="arr-mealy-new" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0,10 3.5,0 7" fill="var(--success)"/>
+              </marker>
+            </defs>
+            <g id="mealy-graph-root"></g>
+          </svg>
+          <div class="empty-state" id="mealy-graph-empty" style="position:absolute;inset:0;background:var(--bg-elevated)">
+            <div class="empty-icon">⇄</div><p>Steps will build this graph.</p>
           </div>
         </div>
       </div>
     </div>
 
-  </div><!-- end workspace -->
-</div>
-</div>
+    <!-- Step detail + pseudocode + progressive table -->
+    <div class="grid-2" style="gap:1rem;margin-bottom:1rem">
+      <!-- Step explanation -->
+      <div>
+        <div class="panel-title" style="margin-bottom:.5rem">Current Step</div>
+        <div class="step-box" id="step-box" style="min-height:120px">
+          <div class="text-muted text-sm">Click Play or Next to begin.</div>
+        </div>
+        <!-- Pseudocode -->
+        <div class="panel-title" style="margin:.75rem 0 .5rem">Algorithm Pseudocode</div>
+        <div class="pseudocode" id="pseudocode-panel">
+          <span class="pc-line" data-line="1">ALGORITHM MooreToMealy(M)</span>
+          <span class="pc-line" data-line="2">  Q' ← Q;  Σ' ← Σ;  Δ' ← Δ;  q0' ← q0;  δ' ← δ</span>
+          <span class="pc-line" data-line="3">  CREATE empty table λ'</span>
+          <span class="pc-line" data-line="4">  FOR each state q in Q:</span>
+          <span class="pc-line" data-line="5">    FOR each symbol a in Σ:</span>
+          <span class="pc-line" data-line="6">      p ← δ(q, a)</span>
+          <span class="pc-line" data-line="7">      λ'(q, a) ← λ(p)     // output of destination</span>
+          <span class="pc-line" data-line="8">  RETURN M'</span>
+        </div>
+      </div>
+      <!-- Progressive Mealy table -->
+      <div>
+        <div class="panel-title" style="margin-bottom:.5rem">Mealy Table (built progressively)</div>
+        <div id="progressive-mealy-wrap">
+          <div class="empty-state" style="padding:2rem"><div class="empty-icon">⊞</div><p>Will fill as steps progress.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PAGE 3: MEALY RESULT
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="page-section" id="page-3" style="display:none">
+    <h2 style="margin-bottom:1rem">Generated Mealy Machine</h2>
+
+    <div class="grid-2" style="gap:1rem;margin-bottom:1.5rem">
+      <!-- Mealy graph -->
+      <div>
+        <div class="panel-title" style="margin-bottom:.5rem">Mealy Graph</div>
+        <div style="height:320px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-lg);position:relative;overflow:hidden">
+          <svg id="result-mealy-canvas" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-label="Final Mealy machine graph" role="img">
+            <defs>
+              <marker id="arr-result" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0,10 3.5,0 7" fill="var(--text-secondary)"/>
+              </marker>
+            </defs>
+            <g id="result-graph-root"></g>
+          </svg>
+          <div class="graph-controls" aria-label="Graph controls">
+            <button class="graph-btn" id="rg-zoom-in"  title="Zoom in">+</button>
+            <button class="graph-btn" id="rg-zoom-out" title="Zoom out">−</button>
+            <button class="graph-btn" id="rg-fit"      title="Fit to screen">⊡</button>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem" role="list" aria-label="Graph legend">
+          <div role="listitem" style="display:flex;align-items:center;gap:.375rem;font-size:.75rem;color:var(--text-secondary)"><span style="width:12px;height:12px;border-radius:50%;background:var(--node-initial);border:2px solid var(--accent);display:inline-block"></span>Initial</div>
+          <div role="listitem" style="display:flex;align-items:center;gap:.375rem;font-size:.75rem;color:var(--text-secondary)"><span style="width:12px;height:12px;border-radius:50%;background:var(--node-normal);border:2px solid var(--border-strong);display:inline-block"></span>State</div>
+        </div>
+      </div>
+      <!-- Formal tuple comparison -->
+      <div>
+        <div class="panel-title" style="margin-bottom:.5rem">Formal Comparison</div>
+        <div id="tuple-compare" class="card-elevated" style="font-size:.8rem;line-height:1.9;font-family:var(--font-mono)">
+          Run conversion first.
+        </div>
+      </div>
+    </div>
+
+    <!-- Tables side by side -->
+    <div class="grid-2" style="gap:1rem;margin-bottom:1.5rem">
+      <div>
+        <div class="panel-title" style="margin-bottom:.5rem">Moore Transition Table</div>
+        <div id="moore-result-table"></div>
+      </div>
+      <div>
+        <div class="panel-title" style="margin-bottom:.5rem">Mealy Transition Table</div>
+        <div id="mealy-result-table"></div>
+      </div>
+    </div>
+
+    <!-- Export row -->
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+      <button class="btn btn-secondary btn-sm" id="export-json-result">⬇ Export JSON</button>
+      <button class="btn btn-secondary btn-sm" id="copy-text-btn">📋 Copy as Text</button>
+    </div>
+
+    <button class="btn btn-primary btn-lg w-full" id="goto-simulate-btn" style="margin-top:1rem">
+      Simulate &amp; Compare →
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PAGE 4: SIMULATE & COMPARE
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="page-section" id="page-4" style="display:none">
+    <h2 style="margin-bottom:1rem">Simulate &amp; Compare Both Machines</h2>
+
+    <div class="alert alert-info" style="margin-bottom:1rem;font-size:.875rem">
+      <strong>Key property:</strong> For input of length n, Moore outputs n+1 symbols (including λ(q₀) before any input).
+      Mealy outputs n symbols. <strong>MealyOutput = MooreOutput[1:]</strong>
+    </div>
+
+    <!-- Single string tester -->
+    <div class="card-elevated" style="margin-bottom:1rem">
+      <div class="panel-title" style="margin-bottom:.75rem">Test a String</div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem">
+        <input type="text" class="form-input" id="sim-input" placeholder="Enter input string…"
+               style="flex:1;font-family:var(--font-mono)" aria-label="Input string" autocomplete="off" spellcheck="false" />
+        <button class="btn btn-primary" id="sim-btn">▶ Run Both</button>
+        <button class="btn btn-secondary btn-sm" id="random-string-btn" title="Random string">🎲</button>
+      </div>
+      <div id="sim-result" aria-live="polite"></div>
+    </div>
+
+    <!-- Batch tester -->
+    <div class="card-elevated">
+      <div class="panel-title" style="margin-bottom:.5rem">Batch Tester</div>
+      <p class="form-hint" style="margin-bottom:.5rem">One string per line. All strings tested for Moore/Mealy equivalence.</p>
+      <textarea class="text-editor" id="batch-input" style="min-height:100px" placeholder="0&#10;1&#10;01&#10;10&#10;101&#10;110" aria-label="Batch strings"></textarea>
+      <div style="display:flex;gap:.5rem;margin-top:.5rem">
+        <button class="btn btn-secondary btn-sm" id="batch-run-btn">Run All</button>
+        <button class="btn btn-secondary btn-sm" id="batch-gen-btn">Generate up to length 4</button>
+      </div>
+      <div id="batch-result" style="margin-top:.75rem"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PAGE 5: PRACTICE MODE
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="page-section" id="page-5" style="display:none">
+    <h2 style="margin-bottom:1rem">Practice Mode</h2>
+
+    <div class="grid-2" style="gap:1rem">
+      <!-- Quiz section -->
+      <div>
+        <div class="card-elevated" style="margin-bottom:.75rem">
+          <div class="panel-title" style="margin-bottom:.75rem">Quiz: Fill in the Mealy Table</div>
+          <p class="form-hint" style="margin-bottom:.75rem">
+            Convert the Moore machine below to a Mealy machine. Fill in each cell as <code>nextState/output</code>.
+          </p>
+          <div id="quiz-moore-display" style="margin-bottom:.75rem"></div>
+          <div id="quiz-answer-table" style="margin-bottom:.75rem"></div>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+            <button class="btn btn-primary btn-sm" id="quiz-check-btn">Check Answers</button>
+            <button class="btn btn-secondary btn-sm" id="quiz-hint-btn">Hint</button>
+            <button class="btn btn-secondary btn-sm" id="quiz-reveal-btn">Reveal Solution</button>
+            <button class="btn btn-ghost btn-sm" id="quiz-new-btn">New Question</button>
+          </div>
+          <div id="quiz-feedback" style="margin-top:.75rem"></div>
+        </div>
+      </div>
+
+      <!-- Random generator -->
+      <div>
+        <div class="card-elevated">
+          <div class="panel-title" style="margin-bottom:.75rem">Generate Random Machine</div>
+          <div style="display:flex;flex-direction:column;gap:.625rem">
+            <div class="form-group">
+              <label class="form-label" for="rand-states">Number of states</label>
+              <input type="range" id="rand-states" min="2" max="8" value="3" class="w-full" />
+              <span class="form-hint" id="rand-states-val">3 states</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="rand-alpha">Alphabet size</label>
+              <input type="range" id="rand-alpha" min="1" max="3" value="2" class="w-full" />
+              <span class="form-hint" id="rand-alpha-val">2 symbols</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="rand-out">Output alphabet size</label>
+              <input type="range" id="rand-out" min="2" max="4" value="2" class="w-full" />
+              <span class="form-hint" id="rand-out-val">2 output symbols</span>
+            </div>
+            <button class="btn btn-primary" id="rand-gen-btn">🎲 Generate &amp; Load</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end container -->
+</div><!-- end section -->
 </main>
 
 <script>
+/* ─────────────────────────────────────────────────────────────
+   Automata Lab — Moore → Mealy Simulator Controller
+   All algorithm logic lives in mooreToMealy.js (external file).
+   This script handles all UI, state management, and rendering.
+   ───────────────────────────────────────────────────────────── */
 (function () {
-  'use strict';
+'use strict';
 
-  // ── App state ──────────────────────────────────────────────
-  const S = {
-    states: [], inputAlphabet: [], outputAlphabet: [],
-    initialState: '', outputs: {}, transitions: {},
-    mealy: null, steps: [], currentStep: -1,
-    isPlaying: false, speed: 600, playTimer: null,
-    graphScale: 1, graphOffsetX: 0, graphOffsetY: 0
+// ── App state ─────────────────────────────────────────────────
+const S = {
+  states: [], inputAlphabet: [], outputAlphabet: [],
+  initialState: '', outputs: {}, transitions: {},
+  mealy: null, mooreSrc: null, steps: [], currentStep: -1,
+  isPlaying: false, speed: 700, playTimer: null,
+  resultGraphScale: 1, resultGraphOffX: 0, resultGraphOffY: 0,
+  quizMoore: null, quizMealy: null, currentPage: 0
+};
+
+const $ = id => document.getElementById(id);
+
+// ── Page / stepper navigation ──────────────────────────────────
+function showPage(n) {
+  S.currentPage = n;
+  document.querySelectorAll('.page-section').forEach((el, i) => {
+    el.style.display = i === n ? '' : 'none';
+  });
+  document.querySelectorAll('.stepper-step').forEach((el, i) => {
+    el.classList.toggle('active', i === n);
+    el.classList.toggle('done',   i < n);
+  });
+}
+
+document.querySelectorAll('.stepper-step').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const n = parseInt(btn.dataset.step);
+    if (n === 0) { showPage(0); return; }
+    if (n >= 2 && !S.mealy) { alert('Run the conversion first.'); return; }
+    showPage(n);
+    if (n === 3) renderResultPage();
+    if (n === 4) renderSimulatePage();
+    if (n === 5) renderPracticePage();
+  });
+});
+
+// ── Input method tabs ──────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const parent = btn.closest('.tabs');
+    if (!parent) return;
+    parent.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+    btn.classList.add('active'); btn.setAttribute('aria-selected','true');
+    const pane = btn.dataset.tab;
+    if (!pane) return;
+    document.querySelectorAll(`#${pane}`).forEach(p => p.classList.add('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => { if (p.id !== pane) p.classList.remove('active'); });
+  });
+});
+
+// ── Load presets ───────────────────────────────────────────────
+MOORE_EXAMPLES.forEach(ex => {
+  const opt = document.createElement('option');
+  opt.value = ex.id; opt.textContent = ex.title;
+  $('example-select').appendChild(opt);
+});
+$('example-select').addEventListener('change', function () {
+  const ex = MOORE_EXAMPLES.find(e => e.id === this.value);
+  if (ex) loadMachine(ex);
+});
+
+function loadMachine(m) {
+  clearAll(true);
+  m.states.forEach(s => { S.states.push(s); S.transitions[s] = S.transitions[s]||{}; });
+  m.inputAlphabet.forEach(s => {
+    S.inputAlphabet.push(s);
+    S.states.forEach(st => { S.transitions[st][s] = S.transitions[st][s]||''; });
+  });
+  m.outputAlphabet.forEach(s => S.outputAlphabet.push(s));
+  S.initialState = m.initialState;
+  S.outputs      = {...m.outputs};
+  // Load transitions
+  m.states.forEach(st => {
+    m.inputAlphabet.forEach(sym => {
+      S.transitions[st][sym] = (m.transitions[st] && m.transitions[st][sym]) || '';
+    });
+  });
+  refreshAll(); runValidation();
+}
+
+// Load canonical example on first open
+loadMachine(MOORE_EXAMPLES[0]);
+
+// ── State management ───────────────────────────────────────────
+$('state-input').addEventListener('keydown', e => { if (e.key==='Enter') $('add-state-btn').click(); });
+$('add-state-btn').addEventListener('click', () => {
+  const v = $('state-input').value.trim();
+  if (!v || S.states.includes(v)) return;
+  S.states.push(v); S.transitions[v]={};
+  S.inputAlphabet.forEach(s => { S.transitions[v][s]=''; });
+  $('state-input').value=''; $('state-input').focus();
+  refreshAll(); runValidation();
+});
+
+function removeState(name) {
+  S.states = S.states.filter(s=>s!==name);
+  delete S.transitions[name]; delete S.outputs[name];
+  if (S.initialState===name) S.initialState='';
+  refreshAll(); runValidation();
+}
+
+// ── Alphabet management ────────────────────────────────────────
+$('symbol-input').addEventListener('keydown', e => { if (e.key==='Enter') $('add-symbol-btn').click(); });
+$('add-symbol-btn').addEventListener('click', () => {
+  const v = $('symbol-input').value.trim();
+  if (!v || S.inputAlphabet.includes(v)) return;
+  S.inputAlphabet.push(v);
+  S.states.forEach(s => { S.transitions[s][v]=''; });
+  $('symbol-input').value=''; $('symbol-input').focus();
+  refreshAll(); runValidation();
+});
+function removeSymbol(sym) {
+  S.inputAlphabet = S.inputAlphabet.filter(s=>s!==sym);
+  S.states.forEach(s => { if(S.transitions[s]) delete S.transitions[s][sym]; });
+  refreshAll(); runValidation();
+}
+
+// ── Output alphabet ────────────────────────────────────────────
+$('output-symbol-input').addEventListener('keydown', e => { if (e.key==='Enter') $('add-output-symbol-btn').click(); });
+$('add-output-symbol-btn').addEventListener('click', () => {
+  const v = $('output-symbol-input').value.trim();
+  if (!v || S.outputAlphabet.includes(v)) return;
+  S.outputAlphabet.push(v);
+  $('output-symbol-input').value=''; $('output-symbol-input').focus();
+  refreshAll(); runValidation();
+});
+function removeOutputSymbol(sym) {
+  S.outputAlphabet = S.outputAlphabet.filter(s=>s!==sym);
+  Object.keys(S.outputs).forEach(k => { if(S.outputs[k]===sym) S.outputs[k]=''; });
+  refreshAll(); runValidation();
+}
+
+// ── Refresh all UI from state ──────────────────────────────────
+function refreshAll() {
+  refreshChips('state-chips', S.states, s => removeState(s),
+    s => (s===S.initialState?'chip-initial':'')+' chip',
+    s => (s===S.initialState?'→ ':'')+s);
+  refreshChips('alphabet-chips', S.inputAlphabet, s => removeSymbol(s));
+  refreshChips('output-alphabet-chips', S.outputAlphabet, s => removeOutputSymbol(s));
+  refreshInitialSelect();
+  refreshOutputAssignments();
+  refreshTransitionTable();
+  renderMoorePreview();
+  renderFormalTuple();
+}
+
+function refreshChips(containerId, items, onRemove, classGetter, labelGetter) {
+  const el = $(containerId); el.innerHTML='';
+  if(!items.length){el.innerHTML='<span class="text-muted text-sm">None yet.</span>';return;}
+  items.forEach(item=>{
+    const chip=document.createElement('span');
+    chip.className=(classGetter?classGetter(item):'chip');
+    if(!chip.className.includes('chip'))chip.className='chip '+chip.className;
+    chip.innerHTML=(labelGetter?labelGetter(item):item)+
+      `<button class="chip-remove" aria-label="Remove ${item}" data-v="${item}">✕</button>`;
+    el.appendChild(chip);
+  });
+  el.querySelectorAll('.chip-remove').forEach(b=>b.addEventListener('click',()=>onRemove(b.dataset.v)));
+}
+
+function refreshInitialSelect(){
+  const sel=$('initial-select');
+  sel.innerHTML='<option value="">— select —</option>';
+  S.states.forEach(s=>{
+    const o=document.createElement('option');
+    o.value=s;o.textContent=s;
+    if(s===S.initialState)o.selected=true;
+    sel.appendChild(o);
+  });
+}
+$('initial-select').addEventListener('change',function(){S.initialState=this.value;refreshAll();runValidation();});
+
+function refreshOutputAssignments(){
+  const el=$('output-assignments'); el.innerHTML='';
+  if(!S.states.length||!S.outputAlphabet.length){
+    el.innerHTML='<span class="text-muted text-sm">Add states and output alphabet first.</span>';return;
+  }
+  S.states.forEach(s=>{
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:.5rem;margin-bottom:.375rem';
+    const lbl=document.createElement('span');
+    lbl.style.cssText='font-family:var(--font-mono);font-size:.8rem;min-width:70px;font-weight:600;color:var(--accent)';
+    lbl.textContent=`λ(${s}) =`;
+    const sel=document.createElement('select');
+    sel.className='form-select'; sel.style.flex='1';
+    sel.setAttribute('aria-label',`Output for ${s}`);
+    const blank=document.createElement('option'); blank.value=''; blank.textContent='—';
+    sel.appendChild(blank);
+    S.outputAlphabet.forEach(sym=>{
+      const o=document.createElement('option'); o.value=sym; o.textContent=sym;
+      if(S.outputs[s]===sym) o.selected=true;
+      sel.appendChild(o);
+    });
+    sel.addEventListener('change',function(){S.outputs[s]=this.value;renderMoorePreview();runValidation();});
+    row.appendChild(lbl); row.appendChild(sel); el.appendChild(row);
+  });
+}
+
+function refreshTransitionTable(){
+  const table=$('transition-table'); table.innerHTML='';
+  if(!S.states.length||!S.inputAlphabet.length){
+    table.innerHTML='<tr><td style="color:var(--text-muted);font-size:.8rem;padding:.75rem">Add states and alphabet.</td></tr>';return;
+  }
+  // Header
+  let hrow='<thead><tr><th style="text-align:center">δ(q,a)</th>';
+  S.inputAlphabet.forEach(sym=>hrow+=`<th>${sym}</th>`);
+  hrow+='</tr></thead>';
+  table.innerHTML=hrow+'<tbody></tbody>';
+  const tbody=table.querySelector('tbody');
+  S.states.forEach(s=>{
+    const tr=document.createElement('tr');
+    const tdS=document.createElement('td'); tdS.className='row-state';
+    tdS.textContent=(s===S.initialState?'→ ':'')+s+(S.outputs[s]?` / ${S.outputs[s]}`:'');
+    tr.appendChild(tdS);
+    S.inputAlphabet.forEach(sym=>{
+      const td=document.createElement('td');
+      const inp=document.createElement('input'); inp.type='text';
+      inp.placeholder='—'; inp.setAttribute('aria-label',`δ(${s},${sym})`);
+      inp.style.cssText='width:100%;min-width:55px;background:none;border:none;outline:none;font-family:var(--font-mono);font-size:.75rem;color:var(--text);text-align:center;padding:.2rem';
+      inp.value=(S.transitions[s]&&S.transitions[s][sym])||'';
+      inp.addEventListener('input',function(){
+        if(!S.transitions[s])S.transitions[s]={};
+        S.transitions[s][sym]=this.value.trim();
+        runValidation();
+      });
+      inp.addEventListener('focus',e=>e.target.style.background='var(--accent-light)');
+      inp.addEventListener('blur', e=>e.target.style.background='');
+      td.appendChild(inp); tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+// ── Moore preview table ────────────────────────────────────────
+function renderMoorePreview(){
+  const wrap=$('moore-table-wrap');
+  if(!S.states.length){
+    wrap.innerHTML='<div class="empty-state"><div class="empty-icon">⊞</div><p>Define the machine above.</p></div>';
+    return;
+  }
+  let html='<div class="table-wrap"><table class="trans-table" aria-label="Moore machine">';
+  html+='<caption style="text-align:left;padding:.375rem;font-size:.72rem;color:var(--text-muted)">→ = initial &nbsp; λ(q) = state output</caption>';
+  html+='<thead><tr><th>State</th><th>λ(q)</th>';
+  S.inputAlphabet.forEach(s=>html+=`<th class="font-mono">${s}</th>`);
+  html+='</tr></thead><tbody>';
+  S.states.forEach(s=>{
+    const isInit=s===S.initialState;
+    html+=`<tr ${isInit?'style="font-weight:600"':''}><td class="state-cell font-mono">${isInit?'→ ':''}${s}</td>`;
+    html+=`<td class="font-mono" style="color:var(--accent)">${S.outputs[s]||'—'}</td>`;
+    S.inputAlphabet.forEach(sym=>{
+      const v=S.transitions[s]&&S.transitions[s][sym];
+      const missing=!v;
+      html+=`<td class="font-mono" ${missing?'style="color:var(--warning)"':''}>${v||'∅'}</td>`;
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table></div>';
+  wrap.innerHTML=html;
+}
+
+function renderFormalTuple(){
+  const el=$('formal-tuple');
+  const txt=$('formal-tuple-text');
+  if(!S.states.length){el.style.display='none';return;}
+  el.style.display='block';
+  txt.innerHTML=
+    `M = (Q, Σ, Δ, δ, λ, q₀)<br/>` +
+    `Q = {${S.states.join(', ')}}<br/>` +
+    `Σ = {${S.inputAlphabet.join(', ')}}<br/>` +
+    `Δ = {${S.outputAlphabet.join(', ')}}<br/>` +
+    `q₀ = ${S.initialState||'(not set)'}<br/>` +
+    `λ: ${S.states.map(s=>`${s}→${S.outputs[s]||'?'}`).join(', ')}`;
+}
+
+// ── Validation ─────────────────────────────────────────────────
+$('validate-btn').addEventListener('click', () => { runValidation(); });
+
+function runValidation(){
+  const moore=buildMooreObject();
+  const {errors, warnings}=validateMoore(moore);
+  renderValidationPanel(errors, warnings);
+  const canRun=errors.length===0;
+  $('run-btn').disabled=!canRun;
+  return canRun;
+}
+
+function renderValidationPanel(errors, warnings){
+  const panel=$('validation-panel'); panel.innerHTML='';
+  if(!errors.length&&!warnings.length){
+    panel.innerHTML='<div class="val-item val-ok">✓ Machine is valid. Ready to convert.</div>';
+    return;
+  }
+  errors.forEach(e=>{
+    const d=document.createElement('div');
+    d.className='val-item val-error';
+    d.innerHTML=`<span style="font-weight:700">✕</span><span>${e.msg}</span>`;
+    panel.appendChild(d);
+  });
+  warnings.forEach(w=>{
+    const d=document.createElement('div');
+    d.className='val-item val-warning';
+    d.innerHTML=`<span>⚠</span><span>${w.msg}</span>`;
+    panel.appendChild(d);
+  });
+}
+
+function buildMooreObject(){
+  return {
+    states:[...S.states],
+    inputAlphabet:[...S.inputAlphabet],
+    outputAlphabet:[...S.outputAlphabet],
+    initialState:S.initialState,
+    outputs:{...S.outputs},
+    transitions:JSON.parse(JSON.stringify(S.transitions))
   };
+}
 
-  const $ = id => document.getElementById(id);
+// ── Run conversion ─────────────────────────────────────────────
+$('run-btn').addEventListener('click', runConversion);
 
-  // ── Tabs ───────────────────────────────────────────────────
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
-      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active'); btn.setAttribute('aria-selected','true');
-      $(btn.dataset.tab).classList.add('active');
-    });
+function runConversion(){
+  if(!runValidation()) return;
+  const moore=buildMooreObject();
+  let result;
+  try { result=mooreToMealy(moore); }
+  catch(e){ alert('Conversion error: '+e.message); return; }
+
+  S.mealy=result.mealy; S.steps=result.steps; S.mooreSrc=moore;
+  S.currentStep=-1; clearInterval(S.playTimer); S.isPlaying=false;
+
+  // Build the Moore graph positions (used in step view)
+  computeNodePositions(moore.states, '_moore');
+  computeNodePositions(moore.states, '_mealy');
+
+  renderStepView();
+  showPage(2);
+}
+
+// ── Compute circular node layout ───────────────────────────────
+const nodePositions = {};
+function computeNodePositions(states, suffix){
+  const n=states.length, cx=200, cy=150, R=Math.min(120,40*n/2+50);
+  states.forEach((s,i)=>{
+    let x,y;
+    if(n===1){x=cx;y=cy;}
+    else{const a=(2*Math.PI*i/n)-Math.PI/2; x=cx+R*Math.cos(a); y=cy+R*Math.sin(a);}
+    nodePositions[s+suffix]={x,y};
   });
+}
 
-  // ── Examples ───────────────────────────────────────────────
-  MOORE_EXAMPLES.forEach(ex => {
-    const opt = document.createElement('option');
-    opt.value = ex.id; opt.textContent = ex.title;
-    $('example-select').appendChild(opt);
+// ─────────────────────────────────────────────────────────────
+// STEP VIEW
+// ─────────────────────────────────────────────────────────────
+function renderStepView(){
+  updateStepCounter();
+  highlightPseudocode(-1);
+  drawGraph('moore-graph-canvas','moore-graph-root','arr-moore', S.mooreSrc, {
+    emptyId:'moore-graph-empty', suffix:'_moore', showOutputInNode:true
   });
-  $('example-select').addEventListener('change', function () {
-    const ex = MOORE_EXAMPLES.find(e => e.id === this.value);
-    if (ex) loadExample(ex);
-  });
+  drawMooreGraphFull();
+  renderProgressiveTable(-1);
+  updateStepBox(-1);
+}
 
-  function loadExample(ex) {
-    clearAll();
-    ex.states.forEach(addState);
-    ex.inputAlphabet.forEach(addSymbol);
-    ex.outputAlphabet.forEach(addOutputSymbol);
-    S.initialState = ex.initialState;
-    S.outputs      = { ...ex.outputs };
-    S.transitions  = JSON.parse(JSON.stringify(ex.transitions));
-    refreshAll();
+$('step-prev').addEventListener('click', stepBack);
+$('step-next').addEventListener('click', stepForward);
+$('step-reset').addEventListener('click', stepReset);
+$('step-play').addEventListener('click', togglePlay);
+$('skip-result-btn').addEventListener('click', ()=>{ stopPlay(); showPage(3); renderResultPage(); });
+$('speed-select').addEventListener('change', function(){
+  S.speed=parseInt(this.value);
+  if(S.isPlaying){clearInterval(S.playTimer);startPlay();}
+});
+
+function stepForward(){
+  if(S.currentStep<S.steps.length-1){S.currentStep++;updateStepView();}
+  else stopPlay();
+}
+function stepBack(){
+  if(S.currentStep>0){S.currentStep--;updateStepView();}
+  else if(S.currentStep===0){S.currentStep=-1;updateStepView();}
+}
+function stepReset(){ stopPlay(); S.currentStep=-1; updateStepView(); }
+function startPlay(){
+  S.isPlaying=true; $('step-play').textContent='⏸ Pause';
+  S.playTimer=setInterval(()=>{
+    if(S.currentStep>=S.steps.length-1){stopPlay();return;}
+    stepForward();
+  },S.speed);
+}
+function stopPlay(){
+  S.isPlaying=false; clearInterval(S.playTimer);
+  const pb=$('step-play'); if(pb) pb.textContent='▶ Play';
+}
+function togglePlay(){ S.isPlaying?stopPlay():startPlay(); }
+
+function updateStepView(){
+  updateStepCounter();
+  updateStepBox(S.currentStep);
+  highlightPseudocode(S.currentStep>=0?S.steps[S.currentStep].pseudocodeLine:-1);
+  renderProgressiveTable(S.currentStep);
+  // Re-draw moore graph with active edge, mealy graph with built edges
+  drawMooreGraphFull(S.currentStep);
+  drawMealyGraphProgressive(S.currentStep);
+}
+
+function updateStepCounter(){
+  const el=$('step-counter');
+  if(el) el.textContent=`Step ${S.currentStep<0?0:S.currentStep+1} / ${S.steps.length}`;
+}
+
+function updateStepBox(idx){
+  const el=$('step-box'); if(!el) return;
+  if(idx<0){
+    el.innerHTML='<div class="text-muted text-sm">Click ▶ Play or Next ▶ to start stepping through the algorithm.</div>';
+    return;
   }
-
-  // ── States ─────────────────────────────────────────────────
-  $('state-input').addEventListener('keydown', e => { if (e.key==='Enter') $('add-state-btn').click(); });
-  $('add-state-btn').addEventListener('click', () => {
-    const v = $('state-input').value.trim();
-    if (!v || S.states.includes(v)) return;
-    addState(v); $('state-input').value = ''; $('state-input').focus();
-  });
-
-  function addState(name) {
-    S.states.push(name);
-    S.transitions[name] = S.transitions[name] || {};
-    S.inputAlphabet.forEach(sym => { S.transitions[name][sym] = S.transitions[name][sym] || ''; });
-    refreshAll();
-  }
-
-  function removeState(name) {
-    S.states = S.states.filter(s => s !== name);
-    delete S.transitions[name];
-    delete S.outputs[name];
-    if (S.initialState === name) S.initialState = '';
-    refreshAll();
-  }
-
-  // ── Input Alphabet ─────────────────────────────────────────
-  $('symbol-input').addEventListener('keydown', e => { if (e.key==='Enter') $('add-symbol-btn').click(); });
-  $('add-symbol-btn').addEventListener('click', () => {
-    const v = $('symbol-input').value.trim();
-    if (!v || S.inputAlphabet.includes(v)) return;
-    addSymbol(v); $('symbol-input').value = ''; $('symbol-input').focus();
-  });
-
-  function addSymbol(sym) {
-    S.inputAlphabet.push(sym);
-    S.states.forEach(s => { if (!S.transitions[s]) S.transitions[s] = {}; S.transitions[s][sym] = S.transitions[s][sym] || ''; });
-    refreshAll();
-  }
-
-  function removeSymbol(sym) {
-    S.inputAlphabet = S.inputAlphabet.filter(s => s !== sym);
-    S.states.forEach(s => { if (S.transitions[s]) delete S.transitions[s][sym]; });
-    refreshAll();
-  }
-
-  // ── Output Alphabet ────────────────────────────────────────
-  $('output-symbol-input').addEventListener('keydown', e => { if (e.key==='Enter') $('add-output-symbol-btn').click(); });
-  $('add-output-symbol-btn').addEventListener('click', () => {
-    const v = $('output-symbol-input').value.trim();
-    if (!v || S.outputAlphabet.includes(v)) return;
-    addOutputSymbol(v); $('output-symbol-input').value = ''; $('output-symbol-input').focus();
-  });
-
-  function addOutputSymbol(sym) {
-    S.outputAlphabet.push(sym);
-    refreshAll();
-  }
-
-  function removeOutputSymbol(sym) {
-    S.outputAlphabet = S.outputAlphabet.filter(s => s !== sym);
-    // Clear assignments using this symbol
-    Object.keys(S.outputs).forEach(k => { if (S.outputs[k] === sym) S.outputs[k] = ''; });
-    refreshAll();
-  }
-
-  // ── Refresh helpers ────────────────────────────────────────
-  function refreshAll() {
-    refreshStateChips();
-    refreshAlphabetChips();
-    refreshOutputAlphabetChips();
-    refreshInitialSelect();
-    refreshOutputAssignments();
-    refreshTransitionTable();
-    renderMooreTable();
-  }
-
-  function refreshStateChips() {
-    const el = $('state-chips');
-    el.innerHTML = '';
-    if (S.states.length === 0) { el.innerHTML = '<span class="text-muted text-sm">No states yet.</span>'; return; }
-    S.states.forEach(s => {
-      const chip = document.createElement('span');
-      chip.className = 'chip' + (s === S.initialState ? ' chip-initial' : '');
-      chip.innerHTML = (s === S.initialState ? '→ ' : '') + s +
-        `<button class="chip-remove" aria-label="Remove ${s}" data-s="${s}">✕</button>`;
-      el.appendChild(chip);
-    });
-    el.querySelectorAll('.chip-remove').forEach(b => b.addEventListener('click', () => removeState(b.dataset.s)));
-  }
-
-  function refreshAlphabetChips() {
-    const el = $('alphabet-chips');
-    el.innerHTML = '';
-    if (S.inputAlphabet.length === 0) { el.innerHTML = '<span class="text-muted text-sm">No symbols yet.</span>'; return; }
-    S.inputAlphabet.forEach(sym => {
-      const chip = document.createElement('span');
-      chip.className = 'chip';
-      chip.innerHTML = sym + `<button class="chip-remove" aria-label="Remove ${sym}" data-sym="${sym}">✕</button>`;
-      el.appendChild(chip);
-    });
-    el.querySelectorAll('.chip-remove').forEach(b => b.addEventListener('click', () => removeSymbol(b.dataset.sym)));
-  }
-
-  function refreshOutputAlphabetChips() {
-    const el = $('output-alphabet-chips');
-    el.innerHTML = '';
-    if (S.outputAlphabet.length === 0) { el.innerHTML = '<span class="text-muted text-sm">No output symbols yet.</span>'; return; }
-    S.outputAlphabet.forEach(sym => {
-      const chip = document.createElement('span');
-      chip.className = 'chip';
-      chip.innerHTML = sym + `<button class="chip-remove" aria-label="Remove ${sym}" data-sym="${sym}">✕</button>`;
-      el.appendChild(chip);
-    });
-    el.querySelectorAll('.chip-remove').forEach(b => b.addEventListener('click', () => removeOutputSymbol(b.dataset.sym)));
-  }
-
-  function refreshInitialSelect() {
-    const sel = $('initial-select');
-    sel.innerHTML = '<option value="">— select initial state —</option>';
-    S.states.forEach(s => {
-      const opt = document.createElement('option');
-      opt.value = s; opt.textContent = s;
-      if (s === S.initialState) opt.selected = true;
-      sel.appendChild(opt);
-    });
-  }
-  $('initial-select').addEventListener('change', function () {
-    S.initialState = this.value; refreshStateChips();
-  });
-
-  function refreshOutputAssignments() {
-    const el = $('output-assignments');
-    el.innerHTML = '';
-    if (S.states.length === 0 || S.outputAlphabet.length === 0) {
-      el.innerHTML = '<span class="text-muted text-sm">Add states and output alphabet first.</span>'; return;
+  const step=S.steps[idx];
+  const skipped=step.nextState===null;
+  el.innerHTML=`
+    <div class="step-label">Step ${idx+1} of ${S.steps.length}</div>
+    <div class="step-detail"><span class="step-detail-key">Processing state:</span><span class="step-detail-val font-mono">${step.fromState}</span></div>
+    <div class="step-detail"><span class="step-detail-key">Input symbol:</span><span class="step-detail-val font-mono">"${step.symbol}"</span></div>
+    ${skipped
+      ? `<div class="step-detail"><span class="step-detail-val" style="color:var(--warning)">No transition defined — skipped.</span></div>`
+      : `<div class="step-detail"><span class="step-detail-key">Next state δ(q,a):</span><span class="step-detail-val font-mono">${step.nextState}</span></div>
+         <div class="step-detail"><span class="step-detail-key">Moore λ(${step.nextState}):</span><span class="step-detail-val font-mono" style="color:var(--accent)">"${step.mooreOutput}"</span></div>
+         <div class="step-detail"><span class="step-detail-key">Mealy edge created:</span><span class="step-detail-val font-mono">(${step.fromState}) —${step.symbol}/${step.mooreOutput}→ (${step.nextState})</span></div>`
     }
-    S.states.forEach(s => {
-      const row = document.createElement('div');
-      row.style.cssText = 'display:flex;align-items:center;gap:.625rem';
-      const lbl = document.createElement('span');
-      lbl.style.cssText = 'font-family:var(--font-mono);font-size:.875rem;min-width:60px;font-weight:600';
-      lbl.textContent = 'λ(' + s + ') =';
-      const sel = document.createElement('select');
-      sel.className = 'form-select';
-      sel.style.flex = '1';
-      sel.setAttribute('aria-label', `Output for state ${s}`);
-      const blank = document.createElement('option');
-      blank.value = ''; blank.textContent = '— select —';
-      sel.appendChild(blank);
-      S.outputAlphabet.forEach(sym => {
-        const opt = document.createElement('option');
-        opt.value = sym; opt.textContent = sym;
-        if (S.outputs[s] === sym) opt.selected = true;
-        sel.appendChild(opt);
-      });
-      sel.addEventListener('change', function () { S.outputs[s] = this.value; });
-      row.appendChild(lbl); row.appendChild(sel);
-      el.appendChild(row);
-    });
-  }
+    <div style="margin-top:.625rem;font-size:.8rem;color:var(--text-secondary);line-height:1.6">${step.explanation}</div>
+  `;
+}
 
-  function refreshTransitionTable() {
-    const thead = $('transition-table').querySelector('thead');
-    const tbody = $('transition-table').querySelector('tbody');
-    thead.innerHTML = ''; tbody.innerHTML = '';
-    if (S.states.length === 0 || S.inputAlphabet.length === 0) {
-      const tr = document.createElement('tr');
-      const td = document.createElement('td');
-      td.colSpan = S.inputAlphabet.length + 1;
-      td.style.cssText = 'color:var(--text-muted);font-size:.8rem;padding:.75rem;font-family:var(--font-sans)';
-      td.textContent = 'Add states and alphabet symbols first.';
-      tbody.appendChild(tr); tr.appendChild(td); return;
+function highlightPseudocode(lineNum){
+  document.querySelectorAll('.pc-line').forEach(el=>{
+    el.classList.toggle('highlighted', parseInt(el.dataset.line)===lineNum);
+  });
+}
+
+function renderProgressiveTable(upToIdx){
+  const wrap=$('progressive-mealy-wrap'); if(!wrap||!S.mooreSrc) return;
+  const moore=S.mooreSrc;
+  let html='<div class="table-wrap"><table class="trans-table" style="font-size:.8rem">';
+  html+='<thead><tr><th>State</th>';
+  moore.inputAlphabet.forEach(s=>html+=`<th>${s}</th>`);
+  html+='</tr></thead><tbody>';
+
+  // Collect which (state,sym) pairs have been processed so far
+  const done=new Set();
+  if(upToIdx>=0){
+    for(let i=0;i<=upToIdx;i++){
+      const st=S.steps[i];
+      if(st.nextState) done.add(st.fromState+'__'+st.symbol);
     }
-    // Header
-    const hrow = document.createElement('tr');
-    const thd = document.createElement('th'); thd.textContent = 'δ'; thd.style.textAlign='center'; hrow.appendChild(thd);
-    S.inputAlphabet.forEach(sym => { const th=document.createElement('th'); th.textContent=sym; hrow.appendChild(th); });
-    thead.appendChild(hrow);
-    // Rows
-    S.states.forEach(s => {
-      const tr = document.createElement('tr');
-      const tdS = document.createElement('td'); tdS.className='row-state';
-      tdS.textContent = (s===S.initialState?'→ ':'')+s; tr.appendChild(tdS);
-      S.inputAlphabet.forEach(sym => {
-        const td = document.createElement('td');
-        const inp = document.createElement('input');
-        inp.type = 'text'; inp.placeholder = '—';
-        inp.setAttribute('aria-label', `δ(${s},${sym})`);
-        inp.style.cssText = 'width:100%;min-width:60px;background:none;border:none;outline:none;font-family:var(--font-mono);font-size:.75rem;color:var(--text);text-align:center;padding:.2rem';
-        const cur = (S.transitions[s] && S.transitions[s][sym]) || '';
-        inp.value = cur;
-        inp.addEventListener('input', function () {
-          if (!S.transitions[s]) S.transitions[s] = {};
-          S.transitions[s][sym] = this.value.trim();
-        });
-        inp.addEventListener('focus', e => e.target.style.background='var(--accent-light)');
-        inp.addEventListener('blur',  e => e.target.style.background='');
-        td.appendChild(inp); tr.appendChild(td);
-      });
-      tbody.appendChild(tr);
-    });
   }
+  const curStep=upToIdx>=0?S.steps[upToIdx]:null;
 
-  // ── Moore Table (live preview) ─────────────────────────────
-  function renderMooreTable() {
-    const wrap = $('moore-table-wrap');
-    if (S.states.length === 0) {
-      wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">⊞</div><p>Define the Moore machine and click Convert.</p></div>';
-      return;
-    }
-    let html = '<div class="table-wrap"><table class="trans-table" aria-label="Moore machine table">';
-    html += '<caption style="text-align:left;padding:.5rem;font-size:.75rem;color:var(--text-muted)">→ = initial state &nbsp; λ(q) = state output</caption>';
-    html += '<thead><tr><th>State</th><th>λ(q)</th>';
-    S.inputAlphabet.forEach(sym => html += `<th class="font-mono">${sym}</th>`);
-    html += '</tr></thead><tbody>';
-    S.states.forEach(s => {
-      const isInit = s === S.initialState;
-      html += `<tr><td class="state-cell font-mono">${isInit?'→ ':''}${s}</td>`;
-      html += `<td class="font-mono" style="color:var(--accent)">${S.outputs[s] || '—'}</td>`;
-      S.inputAlphabet.forEach(sym => {
-        const next = S.transitions[s] && S.transitions[s][sym];
-        html += `<td class="font-mono">${next || '—'}</td>`;
-      });
-      html += '</tr>';
-    });
-    html += '</tbody></table></div>';
-    wrap.innerHTML = html;
-  }
-
-  // ── Validation ─────────────────────────────────────────────
-  function validate() {
-    const errors = [];
-    if (S.states.length === 0) errors.push('Add at least one state.');
-    if (S.inputAlphabet.length === 0) errors.push('Add at least one input symbol.');
-    if (S.outputAlphabet.length === 0) errors.push('Add at least one output symbol.');
-    if (!S.initialState) errors.push('Select an initial state.');
-    const stateSet = new Set(S.states);
-    S.states.forEach(s => {
-      if (!S.outputs[s]) errors.push(`State "${s}" has no output assigned (λ(${s}) is empty).`);
-    });
-    S.states.forEach(s => {
-      S.inputAlphabet.forEach(sym => {
-        const next = S.transitions[s] && S.transitions[s][sym];
-        if (next && !stateSet.has(next)) errors.push(`Transition δ(${s},${sym}) = "${next}" is not a valid state.`);
-      });
-    });
-    return errors;
-  }
-
-  function showErrors(errors) {
-    const el = $('validation-errors');
-    el.style.display = 'block';
-    el.innerHTML = '<ul class="error-list">' + errors.map(e=>`<li>${e}</li>`).join('') + '</ul>';
-  }
-  function clearErrors() {
-    const el = $('validation-errors'); el.style.display='none'; el.innerHTML='';
-  }
-
-  // ── Run conversion ─────────────────────────────────────────
-  $('run-btn').addEventListener('click', runConversion);
-
-  function runConversion() {
-    clearErrors();
-    const errors = validate();
-    if (errors.length > 0) { showErrors(errors); return; }
-
-    const moore = {
-      states:         [...S.states],
-      inputAlphabet:  [...S.inputAlphabet],
-      outputAlphabet: [...S.outputAlphabet],
-      initialState:   S.initialState,
-      outputs:        { ...S.outputs },
-      transitions:    JSON.parse(JSON.stringify(S.transitions))
-    };
-
-    let result;
-    try { result = mooreToMealy(moore); }
-    catch(e) { showErrors(['Conversion error: ' + e.message]); return; }
-
-    S.mealy = result.mealy;
-    S.steps = result.steps;
-    S.currentStep = -1;
-    clearInterval(S.playTimer); S.isPlaying = false;
-
-    renderMooreTable();
-    renderMealyTable(result.mealy, result.note);
-    renderStepsPanel(result.steps);
-    renderGraph(result.mealy);
-    renderSimulatePanel(result.mealy);
-
-    // Switch to steps tab
-    document.querySelector('[data-tab="steps-tab"]').click();
-  }
-
-  // ── Clear ──────────────────────────────────────────────────
-  $('clear-btn').addEventListener('click', clearAll);
-  function clearAll() {
-    Object.assign(S, { states:[], inputAlphabet:[], outputAlphabet:[], initialState:'', outputs:{}, transitions:{},
-      mealy:null, steps:[], currentStep:-1, isPlaying:false });
-    clearInterval(S.playTimer);
-    $('example-select').value = '';
-    clearErrors(); refreshAll();
-    $('graph-canvas').style.display='none'; $('graph-empty').style.display='flex';
-    $('mealy-table-wrap').innerHTML='<div class="empty-state"><div class="empty-icon">⇄</div><p>The resulting Mealy machine will appear here.</p></div>';
-    $('steps-panel').innerHTML='<div class="empty-state"><div class="empty-icon">▷</div><p>Run the conversion to step through it.</p></div>';
-    $('simulate-panel').innerHTML='<div class="empty-state"><div class="empty-icon">🔤</div><p>Run the conversion first, then simulate strings here.</p></div>';
-  }
-
-  // ── Moore Table (refresh) ──────────────────────────────────
-  // Called again after conversion to lock the table
-  document.querySelector('[data-tab="moore-tab"]').addEventListener('click', renderMooreTable);
-
-  // ── Mealy Table ────────────────────────────────────────────
-  function renderMealyTable(mealy, note) {
-    const wrap = $('mealy-table-wrap');
-    let html = '';
-
-    // Note about initial state
-    html += `<div class="alert alert-info" style="margin-bottom:.75rem;font-size:.8rem">${note}</div>`;
-
-    html += '<div class="table-wrap"><table class="trans-table" aria-label="Mealy machine table">';
-    html += '<caption style="text-align:left;padding:.5rem;font-size:.75rem;color:var(--text-muted)">Each cell shows: next-state / output</caption>';
-    html += '<thead><tr><th>State</th>';
-    mealy.inputAlphabet.forEach(sym => html += `<th class="font-mono">${sym}</th>`);
-    html += '</tr></thead><tbody>';
-
-    mealy.states.forEach(s => {
-      const isInit = s === mealy.initialState;
-      html += `<tr><td class="state-cell font-mono">${isInit?'→ ':''}${s}</td>`;
-      mealy.inputAlphabet.forEach(sym => {
-        const t = mealy.transitions[s] && mealy.transitions[s][sym];
-        if (t) {
-          html += `<td class="font-mono"><strong>${t.nextState}</strong> <span style="color:var(--accent)">/ ${t.output}</span></td>`;
-        } else {
-          html += `<td class="font-mono cell-dead">—</td>`;
-        }
-      });
-      html += '</tr>';
-    });
-    html += '</tbody></table></div>';
-    wrap.innerHTML = html;
-  }
-
-  // ── Steps Panel ────────────────────────────────────────────
-  function renderStepsPanel(steps) {
-    const panel = $('steps-panel');
-    panel.innerHTML = '';
-
-    if (steps.length === 0) {
-      panel.innerHTML = '<div class="alert alert-info">No steps — the machine has no defined transitions.</div>'; return;
-    }
-
-    panel.innerHTML = `
-      <div class="execution-controls" style="margin-bottom:1rem" role="toolbar" aria-label="Step controls">
-        <button class="btn btn-secondary btn-sm" id="step-prev"  aria-label="Previous step">◀ Prev</button>
-        <button class="btn btn-primary  btn-sm" id="step-play"  aria-label="Play">▶ Play</button>
-        <button class="btn btn-secondary btn-sm" id="step-next"  aria-label="Next step">Next ▶</button>
-        <button class="btn btn-ghost    btn-sm" id="step-reset" aria-label="Reset">↺ Reset</button>
-        <span class="step-counter" id="step-counter" aria-live="polite">Step 0 / ${steps.length}</span>
-        <select class="speed-select" id="speed-select" aria-label="Speed">
-          <option value="1000">Slow</option>
-          <option value="600" selected>Normal</option>
-          <option value="250">Fast</option>
-        </select>
-      </div>
-      <div class="step-box" id="step-box">
-        <div class="text-muted text-sm">Click Play or Next to start.</div>
-      </div>
-    `;
-
-    $('step-prev').addEventListener('click',  stepBack);
-    $('step-next').addEventListener('click',  stepForward);
-    $('step-reset').addEventListener('click', stepReset);
-    $('step-play').addEventListener('click',  togglePlay);
-    $('speed-select').addEventListener('change', function () {
-      S.speed = parseInt(this.value);
-      if (S.isPlaying) { clearInterval(S.playTimer); startPlay(); }
-    });
-  }
-
-  function updateStepView() {
-    const idx = S.currentStep;
-    const counter = $('step-counter');
-    if (counter) counter.textContent = `Step ${idx < 0 ? 0 : idx+1} / ${S.steps.length}`;
-
-    if (idx < 0) {
-      const sb = $('step-box');
-      if (sb) sb.innerHTML = '<div class="text-muted text-sm">Click Play or Next to start.</div>';
-      if (S.mealy) renderGraph(S.mealy, -1);
-      return;
-    }
-
-    const step = S.steps[idx];
-    if (!step) return;
-
-    const sb = $('step-box');
-    if (sb) {
-      const skipped = step.nextState === null;
-      sb.innerHTML = `
-        <div class="step-label">Step ${idx+1} of ${S.steps.length}</div>
-        <div class="step-detail"><span class="step-detail-key">From state:</span><span class="step-detail-val">${step.fromState}</span></div>
-        <div class="step-detail"><span class="step-detail-key">Input symbol:</span><span class="step-detail-val">"${step.symbol}"</span></div>
-        ${skipped
-          ? `<div class="step-detail"><span class="step-detail-val" style="color:var(--text-muted)">Transition not defined — skipped.</span></div>`
-          : `<div class="step-detail"><span class="step-detail-key">Next state:</span><span class="step-detail-val">${step.nextState}</span></div>
-             <div class="step-detail"><span class="step-detail-key">Moore λ(${step.nextState}):</span><span class="step-detail-val" style="color:var(--accent)">"${step.mooreOutput}"</span></div>`
-        }
-        <div style="margin-top:.625rem;font-size:.8rem;color:var(--text-secondary);line-height:1.6">${step.description}</div>
-      `;
-    }
-
-    if (S.mealy) renderGraph(S.mealy, idx);
-  }
-
-  function stepForward() {
-    if (S.currentStep < S.steps.length - 1) { S.currentStep++; updateStepView(); }
-    else stopPlay();
-  }
-  function stepBack() {
-    if (S.currentStep > 0) { S.currentStep--; updateStepView(); }
-    else if (S.currentStep === 0) { S.currentStep = -1; updateStepView(); }
-  }
-  function stepReset() { stopPlay(); S.currentStep = -1; updateStepView(); }
-  function startPlay() {
-    S.isPlaying = true;
-    const pb = $('step-play'); if (pb) pb.textContent = '⏸ Pause';
-    S.playTimer = setInterval(() => { if (S.currentStep >= S.steps.length-1) { stopPlay(); return; } stepForward(); }, S.speed);
-  }
-  function stopPlay() {
-    S.isPlaying = false; clearInterval(S.playTimer);
-    const pb = $('step-play'); if (pb) pb.textContent = '▶ Play';
-  }
-  function togglePlay() { S.isPlaying ? stopPlay() : startPlay(); }
-
-  // ── Graph ──────────────────────────────────────────────────
-  function renderGraph(mealy, activeStepIdx) {
-    const canvas = $('graph-canvas'), empty = $('graph-empty'), root = $('graph-root');
-    root.innerHTML = '';
-    canvas.style.display = 'block'; empty.style.display = 'none';
-
-    const nodes = []; const n = mealy.states.length;
-    const cx=400, cy=220, R=Math.min(160,55*n/2+60);
-
-    mealy.states.forEach((s, i) => {
-      let x, y;
-      if (n===1) { x=cx; y=cy; }
-      else { const a=(2*Math.PI*i/n)-Math.PI/2; x=cx+R*Math.cos(a); y=cy+R*Math.sin(a); }
-      nodes.push({ id:s, x, y });
-    });
-
-    // Determine active node from step
-    let activeNode = null;
-    if (activeStepIdx >= 0 && S.steps[activeStepIdx]) activeNode = S.steps[activeStepIdx].fromState;
-
-    // Build edges (merge parallel edges)
-    const edgeMap = {};
-    mealy.states.forEach(s => {
-      mealy.inputAlphabet.forEach(sym => {
-        const t = mealy.transitions[s] && mealy.transitions[s][sym];
-        if (!t) return;
-        const key = s + '→' + t.nextState;
-        if (!edgeMap[key]) edgeMap[key] = { from:s, to:t.nextState, labels:[], selfLoop: s===t.nextState };
-        edgeMap[key].labels.push(sym+'/'+t.output);
-      });
-    });
-
-    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
-    g.setAttribute('transform', `translate(${S.graphOffsetX},${S.graphOffsetY}) scale(${S.graphScale})`);
-    root.appendChild(g);
-
-    const r = 32;
-    // Draw edges
-    Object.values(edgeMap).forEach(edge => {
-      const fn = nodes.find(n=>n.id===edge.from), tn = nodes.find(n=>n.id===edge.to);
-      if (!fn||!tn) return;
-      const grp = document.createElementNS('http://www.w3.org/2000/svg','g');
-      grp.className = 'graph-edge';
-      const label = edge.labels.join(', ');
-
-      if (edge.selfLoop) {
-        const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-        const lx=fn.x, ly=fn.y-r, dx=28, dy=38;
-        path.setAttribute('d',`M${lx-dx/2} ${ly} C${lx-dx*1.5} ${ly-dy*2} ${lx+dx*1.5} ${ly-dy*2} ${lx+dx/2} ${ly}`);
-        path.setAttribute('fill','none'); path.setAttribute('stroke','var(--text-secondary)');
-        path.setAttribute('stroke-width','1.8'); path.setAttribute('marker-end','url(#arrowhead)');
-        const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
-        txt.setAttribute('x',lx); txt.setAttribute('y',ly-dy*1.5);
-        txt.setAttribute('text-anchor','middle'); txt.setAttribute('fill','var(--text)');
-        txt.setAttribute('font-size','10'); txt.setAttribute('font-family','var(--font-mono)');
-        txt.textContent = label;
-        grp.appendChild(path); grp.appendChild(txt);
+  moore.states.forEach(s=>{
+    html+=`<tr><td class="state-cell font-mono">${s===moore.initialState?'→ ':''} ${s}</td>`;
+    moore.inputAlphabet.forEach(sym=>{
+      const key=s+'__'+sym;
+      const isDone=done.has(key);
+      const isCurrent=curStep&&curStep.fromState===s&&curStep.symbol===sym&&curStep.nextState;
+      if(isCurrent){
+        html+=`<td class="font-mono" style="background:var(--node-active);font-weight:700;color:var(--text)">${curStep.nextState} / <span style="color:var(--accent)">${curStep.mooreOutput}</span></td>`;
+      } else if(isDone){
+        const t=S.mealy&&S.mealy.transitions[s]&&S.mealy.transitions[s][sym];
+        html+=`<td class="font-mono">${t?`${t.nextState} / <span style="color:var(--accent)">${t.output}</span>`:'—'}</td>`;
       } else {
-        const hasRev = Object.values(edgeMap).some(e=>e.from===edge.to&&e.to===edge.from);
-        const dx=tn.x-fn.x, dy=tn.y-fn.y, len=Math.sqrt(dx*dx+dy*dy);
-        const sx=fn.x+(dx/len)*(r+2), sy=fn.y+(dy/len)*(r+2);
-        const ex=tn.x-(dx/len)*(r+4), ey=tn.y-(dy/len)*(r+4);
-        const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-        let d;
-        if (hasRev) { const cpx=(sx+ex)/2-dy*0.3, cpy=(sy+ey)/2+dx*0.3; d=`M${sx} ${sy} Q${cpx} ${cpy} ${ex} ${ey}`; }
-        else d=`M${sx} ${sy} L${ex} ${ey}`;
-        path.setAttribute('d',d); path.setAttribute('fill','none');
-        path.setAttribute('stroke','var(--text-secondary)'); path.setAttribute('stroke-width','1.8');
-        path.setAttribute('marker-end','url(#arrowhead)');
-        const mx=hasRev?(sx+ex)/2-dy*0.3:(sx+ex)/2, my=hasRev?(sy+ey)/2+dx*0.3:(sy+ey)/2;
-        const bg=document.createElementNS('http://www.w3.org/2000/svg','rect');
-        bg.setAttribute('x',mx-18); bg.setAttribute('y',my-9);
-        bg.setAttribute('width',36); bg.setAttribute('height',14);
-        bg.setAttribute('rx',3); bg.setAttribute('fill','var(--bg)');
-        const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
-        txt.setAttribute('x',mx); txt.setAttribute('y',my+1);
-        txt.setAttribute('text-anchor','middle'); txt.setAttribute('fill','var(--text)');
-        txt.setAttribute('font-size','10'); txt.setAttribute('font-family','var(--font-mono)');
-        txt.textContent = label;
-        grp.appendChild(path); grp.appendChild(bg); grp.appendChild(txt);
+        html+=`<td style="color:var(--text-muted);font-size:.75rem">?</td>`;
       }
-      g.appendChild(grp);
     });
+    html+='</tr>';
+  });
+  html+='</tbody></table></div>';
+  wrap.innerHTML=html;
+}
 
-    // Draw nodes
-    nodes.forEach(node => {
-      const isActive = node.id === activeNode;
-      const isInit   = node.id === mealy.initialState;
-      const grp = document.createElementNS('http://www.w3.org/2000/svg','g');
-      grp.setAttribute('transform',`translate(${node.x},${node.y})`);
+// ─────────────────────────────────────────────────────────────
+// SVG GRAPH RENDERING
+// ─────────────────────────────────────────────────────────────
+function drawGraph(canvasId, rootId, markerId, machine, opts){
+  const canvas=$(canvasId), root=$(rootId);
+  if(!canvas||!root) return;
+  root.innerHTML='';
+  if(opts.emptyId){
+    const e=$(opts.emptyId);
+    if(e) e.style.display='none';
+  }
 
-      const fill   = isActive ? 'var(--node-active)'  : isInit ? 'var(--node-initial)' : 'var(--node-normal)';
-      const stroke = isActive ? 'var(--warning)'      : isInit ? 'var(--accent)'       : 'var(--border-strong)';
-      const sw     = isActive ? '3' : '2';
+  const suf=opts.suffix||'';
+  const r=26;
+  const n=machine.states.length;
 
-      const circ = document.createElementNS('http://www.w3.org/2000/svg','circle');
-      circ.setAttribute('r',r); circ.setAttribute('fill',fill);
-      circ.setAttribute('stroke',stroke); circ.setAttribute('stroke-width',sw);
-      grp.appendChild(circ);
+  // Compute layout if not done
+  machine.states.forEach((s,i)=>{
+    if(!nodePositions[s+suf]){
+      const cx=200,cy=150,R=Math.min(120,40*n/2+50);
+      const a=(2*Math.PI*i/n)-Math.PI/2;
+      nodePositions[s+suf]={x:cx+R*Math.cos(a),y:cy+R*Math.sin(a)};
+    }
+  });
 
-      if (isInit) {
-        const arr = document.createElementNS('http://www.w3.org/2000/svg','line');
-        arr.setAttribute('x1',-(r+28)); arr.setAttribute('y1','0');
-        arr.setAttribute('x2',-(r+2));  arr.setAttribute('y2','0');
-        arr.setAttribute('stroke','var(--accent)'); arr.setAttribute('stroke-width','2');
-        arr.setAttribute('marker-end','url(#arrowhead)');
-        grp.appendChild(arr);
+  // Build edge map
+  const edgeMap={};
+  machine.states.forEach(s=>{
+    machine.inputAlphabet.forEach(sym=>{
+      const next=machine.transitions[s]&&machine.transitions[s][sym];
+      if(!next) return;
+      const key=s+'→'+next;
+      if(!edgeMap[key]) edgeMap[key]={from:s,to:next,labels:[],selfLoop:s===next};
+      // For Moore: label is sym only; for Mealy result: sym/out
+      if(opts.mealyTrans){
+        const t=opts.mealyTrans[s]&&opts.mealyTrans[s][sym];
+        if(t) edgeMap[key].labels.push(`${sym}/${t.output}`);
+      } else {
+        edgeMap[key].labels.push(sym);
       }
-
-      // Node label: "state / λ(state)"
-      const mooreOut = S.mealy ? '' : '';
-      const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
-      txt.setAttribute('fill','var(--text)'); txt.setAttribute('font-size','11');
-      txt.setAttribute('font-family','var(--font-mono)'); txt.setAttribute('text-anchor','middle');
-      txt.setAttribute('dominant-baseline','middle');
-      txt.textContent = node.id;
-      grp.appendChild(txt);
-
-      g.appendChild(grp);
     });
+  });
 
-    setupGraphControls();
+  const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+  if(opts.transform) g.setAttribute('transform',opts.transform);
+  root.appendChild(g);
+
+  // Draw edges
+  Object.values(edgeMap).forEach(edge=>{
+    const fn=nodePositions[edge.from+suf], tn=nodePositions[edge.to+suf];
+    if(!fn||!tn) return;
+    drawEdgeSVG(g, edge, fn, tn, r, markerId, opts.activeEdge, opts.newEdge);
+  });
+
+  // Draw nodes
+  machine.states.forEach(s=>{
+    const pos=nodePositions[s+suf];
+    if(!pos) return;
+    const isInit=s===machine.initialState;
+    const isActive=opts.activeNode===s;
+    const label = opts.showOutputInNode&&machine.outputs ? `${s}/${machine.outputs[s]||'?'}` : s;
+    drawNodeSVG(g, pos, label, r, isInit, false, isActive, false);
+  });
+}
+
+function drawEdgeSVG(g, edge, fn, tn, r, markerId, activeEdge, newEdge){
+  const grp=document.createElementNS('http://www.w3.org/2000/svg','g');
+  const label=edge.labels.join(', ');
+  const isActive=activeEdge&&activeEdge.from===edge.from&&activeEdge.to===edge.to;
+  const isNew=newEdge&&newEdge.from===edge.from&&newEdge.to===edge.to;
+  const edgeColor=isActive?'var(--warning)':isNew?'var(--success)':'var(--text-secondary)';
+  const edgeWidth=isActive||isNew?'2.5':'1.8';
+
+  if(edge.selfLoop){
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    const lx=fn.x, ly=fn.y-r, dx=22, dy=30;
+    path.setAttribute('d',`M${lx-dx/2} ${ly} C${lx-dx*1.5} ${ly-dy*2} ${lx+dx*1.5} ${ly-dy*2} ${lx+dx/2} ${ly}`);
+    path.setAttribute('fill','none'); path.setAttribute('stroke',edgeColor);
+    path.setAttribute('stroke-width',edgeWidth);
+    path.setAttribute('marker-end',`url(#${markerId})`);
+    const txt=makeSVGText(lx,ly-dy*1.4,label,'10');
+    txt.setAttribute('fill','var(--text)');
+    grp.appendChild(path); grp.appendChild(txt);
+  } else {
+    const hasRev=fn!==tn; // simplified: check if edge from tn to fn also exists (done via offset)
+    const dx=tn.x-fn.x, dy=tn.y-fn.y, len=Math.sqrt(dx*dx+dy*dy)||1;
+    const sx=fn.x+(dx/len)*(r+1), sy=fn.y+(dy/len)*(r+1);
+    const ex=tn.x-(dx/len)*(r+4), ey=tn.y-(dy/len)*(r+4);
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    // Small perpendicular offset to separate bidirectional edges
+    const offX=-dy*0.2, offY=dx*0.2;
+    const mx=(sx+ex)/2+offX, my=(sy+ey)/2+offY;
+    path.setAttribute('d',`M${sx} ${sy} Q${mx} ${my} ${ex} ${ey}`);
+    path.setAttribute('fill','none'); path.setAttribute('stroke',edgeColor);
+    path.setAttribute('stroke-width',edgeWidth);
+    path.setAttribute('marker-end',`url(#${markerId})`);
+    grp.appendChild(path);
+    const bg=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    const tw=label.length*6+6;
+    bg.setAttribute('x',mx-tw/2); bg.setAttribute('y',my-8);
+    bg.setAttribute('width',tw); bg.setAttribute('height',13);
+    bg.setAttribute('rx',3); bg.setAttribute('fill','var(--bg)');
+    const txt=makeSVGText(mx,my+1,label,'10');
+    txt.setAttribute('fill','var(--text)');
+    grp.appendChild(bg); grp.appendChild(txt);
   }
+  g.appendChild(grp);
+}
 
-  function setupGraphControls() {
-    $('zoom-in').onclick  = () => { S.graphScale = Math.min(S.graphScale+0.2,3); if(S.mealy) renderGraph(S.mealy,S.currentStep); };
-    $('zoom-out').onclick = () => { S.graphScale = Math.max(S.graphScale-0.2,0.3); if(S.mealy) renderGraph(S.mealy,S.currentStep); };
-    $('fit-graph').onclick= () => { S.graphScale=1; S.graphOffsetX=0; S.graphOffsetY=0; if(S.mealy) renderGraph(S.mealy,S.currentStep); };
-    const cv=$('graph-canvas'); let drag=false,lx=0,ly=0;
-    cv.onmousedown  = e=>{drag=true;lx=e.clientX;ly=e.clientY;};
-    cv.onmousemove  = e=>{if(!drag)return;S.graphOffsetX+=e.clientX-lx;S.graphOffsetY+=e.clientY-ly;lx=e.clientX;ly=e.clientY;if(S.mealy)renderGraph(S.mealy,S.currentStep);};
-    cv.onmouseup    = ()=>drag=false;
-    cv.onmouseleave = ()=>drag=false;
+function drawNodeSVG(g, pos, label, r, isInit, isFinal, isActive, isNew){
+  const grp=document.createElementNS('http://www.w3.org/2000/svg','g');
+  grp.setAttribute('transform',`translate(${pos.x},${pos.y})`);
+  const fill=isActive?'var(--node-active)':isNew?'var(--node-new)':isInit?'var(--node-initial)':'var(--node-normal)';
+  const stroke=isActive?'var(--warning)':isNew?'var(--info)':isInit?'var(--accent)':'var(--border-strong)';
+  const sw=isActive||isNew?'3':'2';
+  const circ=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  circ.setAttribute('r',r); circ.setAttribute('fill',fill);
+  circ.setAttribute('stroke',stroke); circ.setAttribute('stroke-width',sw);
+  grp.appendChild(circ);
+  if(isFinal){
+    const inner=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    inner.setAttribute('r',r-4); inner.setAttribute('fill','none');
+    inner.setAttribute('stroke',stroke); inner.setAttribute('stroke-width','1.5');
+    grp.appendChild(inner);
   }
+  if(isInit){
+    const arr=document.createElementNS('http://www.w3.org/2000/svg','line');
+    arr.setAttribute('x1',-(r+22)); arr.setAttribute('y1','0');
+    arr.setAttribute('x2',-(r+2));  arr.setAttribute('y2','0');
+    arr.setAttribute('stroke','var(--accent)'); arr.setAttribute('stroke-width','2');
+    arr.setAttribute('marker-end','url(#arr-moore)');
+    grp.appendChild(arr);
+  }
+  // Label — shorten if long
+  const displayLabel = label.length > 10 ? label.slice(0,8)+'…' : label;
+  const txt=makeSVGText(0,0,displayLabel,'10');
+  txt.setAttribute('fill','var(--text)'); txt.setAttribute('dominant-baseline','middle');
+  grp.appendChild(txt);
+  g.appendChild(grp);
+}
 
-  // ── Simulate Panel ─────────────────────────────────────────
-  function renderSimulatePanel(mealy) {
-    const panel = $('simulate-panel');
-    panel.innerHTML = `
-      <div style="margin-bottom:.75rem">
-        <div class="panel-title" style="margin-bottom:.5rem">Simulate Input String</div>
-        <p class="form-hint" style="margin-bottom:.75rem">Enter a string over Σ = {${mealy.inputAlphabet.join(', ')}}. The Mealy machine produces one output symbol per input symbol.</p>
-      </div>
-      <div class="string-input-row" style="margin-bottom:1rem">
-        <input type="text" class="form-input" id="sim-input"
-               placeholder="e.g. 0110"
-               aria-label="Input string" autocomplete="off" spellcheck="false" />
-        <button class="btn btn-primary" id="sim-btn" aria-label="Simulate">Simulate</button>
-      </div>
-      <div id="sim-result" aria-live="polite"></div>
-    `;
-    $('sim-btn').addEventListener('click', () => {
-      const input = $('sim-input').value;
-      const result = simulateMealy(mealy, input);
-      renderSimResult(result);
+function makeSVGText(x,y,text,size){
+  const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+  t.setAttribute('x',x); t.setAttribute('y',y);
+  t.setAttribute('text-anchor','middle'); t.setAttribute('font-family','var(--font-mono)');
+  t.setAttribute('font-size',size); t.textContent=text;
+  return t;
+}
+
+function drawMooreGraphFull(activeStepIdx){
+  if(!S.mooreSrc) return;
+  const step=activeStepIdx>=0?S.steps[activeStepIdx]:null;
+  const activeEdge=step&&step.nextState?{from:step.fromState,to:step.nextState}:null;
+  const activeNode=step?step.fromState:null;
+  const canvas=$('moore-graph-canvas'), root=$('moore-graph-root'), empty=$('moore-graph-empty');
+  if(empty) empty.style.display='none';
+  root.innerHTML='';
+  const r=26, moore=S.mooreSrc;
+  const edgeMap={};
+  moore.states.forEach(s=>{
+    moore.inputAlphabet.forEach(sym=>{
+      const next=moore.transitions[s]&&moore.transitions[s][sym];
+      if(!next) return;
+      const key=s+'→'+next;
+      if(!edgeMap[key]) edgeMap[key]={from:s,to:next,labels:[],selfLoop:s===next};
+      edgeMap[key].labels.push(sym);
     });
-    $('sim-input').addEventListener('keydown', e => { if(e.key==='Enter') $('sim-btn').click(); });
+  });
+  const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+  root.appendChild(g);
+  Object.values(edgeMap).forEach(edge=>{
+    const fn=nodePositions[edge.from+'_moore'], tn=nodePositions[edge.to+'_moore'];
+    if(!fn||!tn) return;
+    const isActive=activeEdge&&activeEdge.from===edge.from&&activeEdge.to===edge.to;
+    drawEdgeSVG(g,edge,fn,tn,r,'arr-moore',isActive?activeEdge:null,null);
+  });
+  moore.states.forEach(s=>{
+    const pos=nodePositions[s+'_moore'];if(!pos)return;
+    const isInit=s===moore.initialState;
+    const isA=activeNode===s;
+    const label=`${s}/${moore.outputs[s]||'?'}`;
+    drawNodeSVG(g,pos,label,r,isInit,false,isA,false);
+  });
+}
+
+function drawMealyGraphProgressive(upToIdx){
+  if(!S.mooreSrc||!S.mealy) return;
+  const root=$('mealy-graph-root'), empty=$('mealy-graph-empty');
+  if(empty) empty.style.display='none';
+  root.innerHTML='';
+  const r=26, moore=S.mooreSrc;
+
+  // Collect built edges so far
+  const builtEdges=new Set();
+  let newEdge=null;
+  if(upToIdx>=0){
+    for(let i=0;i<=upToIdx;i++){
+      const st=S.steps[i];
+      if(st.nextState) builtEdges.add(st.fromState+'→'+st.nextState+'→'+st.symbol+'/'+st.mooreOutput);
+    }
+    const cur=S.steps[upToIdx];
+    if(cur&&cur.nextState) newEdge={from:cur.fromState,to:cur.nextState};
   }
 
-  function renderSimResult(result) {
-    const el = $('sim-result'); if (!el) return;
-    let html = '';
+  // Build edge map for built edges only (with mealy labels)
+  const edgeMap={};
+  builtEdges.forEach(key=>{
+    const parts=key.split('→');
+    const from=parts[0], rest=parts[1];
+    const [to,labelPart]=rest.split('→');
+    const pairKey=from+'→'+to;
+    if(!edgeMap[pairKey]) edgeMap[pairKey]={from,to,labels:[],selfLoop:from===to};
+    edgeMap[pairKey].labels.push(labelPart);
+  });
 
-    if (result.error) {
-      html += `<div class="alert alert-warning" style="margin-bottom:.75rem">⚠ ${result.error}</div>`;
-    }
+  const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+  root.appendChild(g);
+  Object.values(edgeMap).forEach(edge=>{
+    const fn=nodePositions[edge.from+'_mealy'],tn=nodePositions[edge.to+'_mealy'];
+    if(!fn||!tn)return;
+    const isNew=newEdge&&newEdge.from===edge.from&&newEdge.to===edge.to;
+    drawEdgeSVG(g,edge,fn,tn,r,'arr-mealy',null,isNew?newEdge:null);
+  });
+  moore.states.forEach(s=>{
+    const pos=nodePositions[s+'_mealy'];if(!pos)return;
+    const isInit=s===moore.initialState;
+    drawNodeSVG(g,pos,s,r,isInit,false,false,false);
+  });
+}
 
-    if (result.outputString !== undefined && !result.error) {
-      html += `
-        <div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
-          <div class="card-elevated" style="flex:1;min-width:120px;text-align:center;padding:1rem">
-            <div class="text-muted text-sm" style="margin-bottom:.25rem">Input</div>
-            <div class="font-mono" style="font-size:1.125rem;font-weight:700">${result.input}</div>
-          </div>
-          <div style="font-size:1.5rem;align-self:center;color:var(--text-muted)" aria-hidden="true">→</div>
-          <div class="card-elevated" style="flex:1;min-width:120px;text-align:center;padding:1rem;border-color:var(--accent)">
-            <div class="text-muted text-sm" style="margin-bottom:.25rem">Output</div>
-            <div class="font-mono" style="font-size:1.125rem;font-weight:700;color:var(--accent)">${result.outputString || '(none)'}</div>
-          </div>
-        </div>
-      `;
-    }
+// ─────────────────────────────────────────────────────────────
+// RESULT PAGE
+// ─────────────────────────────────────────────────────────────
+function renderResultPage(){
+  if(!S.mealy||!S.mooreSrc) return;
+  const moore=S.mooreSrc, mealy=S.mealy;
 
-    if (result.trace && result.trace.length > 0) {
-      html += '<div class="panel-title" style="margin-bottom:.5rem">Transition Trace</div>';
-      html += '<ul class="trace-list" aria-label="Mealy simulation trace">';
-      result.trace.forEach(t => {
-        html += `<li class="trace-item">
-          <span class="trace-char">'${t.char}'</span>
-          <span class="trace-arrow">→</span>
-          <span class="trace-state">${t.toState}</span>
-          <span style="margin-left:auto;font-family:var(--font-mono);font-size:.8rem;color:var(--accent)">out: ${t.output}</span>
-        </li>`;
+  // Full Mealy graph
+  const resRoot=$('result-graph-root'), resEmpty=$('result-mealy-canvas');
+  if(resRoot){
+    resRoot.innerHTML='';
+    const r=30, states=mealy.states;
+    const n=states.length, cx=260, cy=160, R=Math.min(160,50*n/2+60);
+    const pos={};
+    states.forEach((s,i)=>{
+      const a=(2*Math.PI*i/n)-Math.PI/2;
+      pos[s]={x:n===1?cx:cx+R*Math.cos(a), y:n===1?cy:cy+R*Math.sin(a)};
+    });
+    const edgeMap={};
+    states.forEach(s=>{
+      mealy.inputAlphabet.forEach(sym=>{
+        const t=mealy.transitions[s]&&mealy.transitions[s][sym];
+        if(!t) return;
+        const key=s+'→'+t.nextState;
+        if(!edgeMap[key]) edgeMap[key]={from:s,to:t.nextState,labels:[],selfLoop:s===t.nextState};
+        edgeMap[key].labels.push(`${sym}/${t.output}`);
       });
-      html += '</ul>';
-    }
-
-    el.innerHTML = html || '<div class="text-muted text-sm">No output produced.</div>';
+    });
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    const gscale=S.resultGraphScale;
+    g.setAttribute('transform',`translate(${S.resultGraphOffX},${S.resultGraphOffY}) scale(${gscale})`);
+    resRoot.appendChild(g);
+    Object.values(edgeMap).forEach(edge=>{
+      const fn=pos[edge.from],tn=pos[edge.to];if(!fn||!tn)return;
+      drawEdgeSVG(g,edge,fn,tn,r,'arr-result',null,null);
+    });
+    states.forEach(s=>{
+      const p=pos[s];if(!p)return;
+      drawNodeSVG(g,p,s,r,s===mealy.initialState,false,false,false);
+    });
   }
 
-  // ── Init ───────────────────────────────────────────────────
+  // Formal comparison
+  const tc=$('tuple-compare');
+  if(tc) tc.innerHTML=
+    `<span style="color:var(--success);font-weight:700">Moore M:</span><br/>` +
+    `Q = {${moore.states.join(', ')}}<br/>` +
+    `Σ = {${moore.inputAlphabet.join(', ')}}<br/>` +
+    `Δ = {${moore.outputAlphabet.join(', ')}}<br/>` +
+    `q₀ = ${moore.initialState}<br/>` +
+    `λ: Q→Δ (outputs per state)<br/><br/>` +
+    `<span style="color:var(--accent);font-weight:700">Mealy M':</span><br/>` +
+    `Q' = Q ✓<br/>Σ' = Σ ✓<br/>Δ' = Δ ✓<br/>q₀' = q₀ ✓<br/>` +
+    `λ': Q×Σ→Δ (outputs per transition)`;
+
+  // Tables
+  const mooreTbl=$('moore-result-table');
+  if(mooreTbl) mooreTbl.innerHTML=buildMooreTableHTML(moore);
+  const mealyTbl=$('mealy-result-table');
+  if(mealyTbl) mealyTbl.innerHTML=buildMealyTableHTML(mealy);
+
+  // Graph controls
+  $('rg-zoom-in').onclick=()=>{S.resultGraphScale=Math.min(S.resultGraphScale+0.2,3);renderResultPage();};
+  $('rg-zoom-out').onclick=()=>{S.resultGraphScale=Math.max(S.resultGraphScale-0.2,0.3);renderResultPage();};
+  $('rg-fit').onclick=()=>{S.resultGraphScale=1;S.resultGraphOffX=0;S.resultGraphOffY=0;renderResultPage();};
+  setupResultGraphDrag();
+}
+
+function buildMooreTableHTML(moore){
+  let h='<div class="table-wrap"><table class="trans-table" aria-label="Moore table">';
+  h+='<caption style="text-align:left;padding:.4rem;font-size:.72rem;color:var(--text-muted)">Moore: λ(q) on state</caption>';
+  h+='<thead><tr><th>State</th><th>λ(q)</th>';
+  moore.inputAlphabet.forEach(s=>h+=`<th>${s}</th>`);
+  h+='</tr></thead><tbody>';
+  moore.states.forEach(s=>{
+    const isInit=s===moore.initialState;
+    h+=`<tr><td class="state-cell font-mono">${isInit?'→ ':''}${s}</td>`;
+    h+=`<td class="font-mono" style="color:var(--accent)">${moore.outputs[s]||'—'}</td>`;
+    moore.inputAlphabet.forEach(sym=>{
+      const n=moore.transitions[s]&&moore.transitions[s][sym];
+      h+=`<td class="font-mono">${n||'∅'}</td>`;
+    });
+    h+='</tr>';
+  });
+  h+='</tbody></table></div>';
+  return h;
+}
+
+function buildMealyTableHTML(mealy){
+  let h='<div class="table-wrap"><table class="trans-table" aria-label="Mealy table">';
+  h+='<caption style="text-align:left;padding:.4rem;font-size:.72rem;color:var(--text-muted)">Mealy: λ\'(q,a) on transition</caption>';
+  h+='<thead><tr><th>State</th>';
+  mealy.inputAlphabet.forEach(s=>h+=`<th>${s}</th>`);
+  h+='</tr></thead><tbody>';
+  mealy.states.forEach(s=>{
+    const isInit=s===mealy.initialState;
+    h+=`<tr><td class="state-cell font-mono">${isInit?'→ ':''}${s}</td>`;
+    mealy.inputAlphabet.forEach(sym=>{
+      const t=mealy.transitions[s]&&mealy.transitions[s][sym];
+      if(t) h+=`<td class="font-mono"><strong>${t.nextState}</strong> <span style="color:var(--accent)">/ ${t.output}</span></td>`;
+      else h+=`<td class="font-mono cell-dead">—</td>`;
+    });
+    h+='</tr>';
+  });
+  h+='</tbody></table></div>';
+  return h;
+}
+
+function setupResultGraphDrag(){
+  const canvas=$('result-mealy-canvas');if(!canvas)return;
+  let drag=false,lx=0,ly=0;
+  canvas.onmousedown=e=>{drag=true;lx=e.clientX;ly=e.clientY;};
+  canvas.onmousemove=e=>{if(!drag)return;S.resultGraphOffX+=e.clientX-lx;S.resultGraphOffY+=e.clientY-ly;lx=e.clientX;ly=e.clientY;renderResultPage();};
+  canvas.onmouseup=canvas.onmouseleave=()=>drag=false;
+}
+
+$('goto-simulate-btn').addEventListener('click',()=>{showPage(4);renderSimulatePage();});
+
+// Export
+$('export-json-result').addEventListener('click',()=>exportJSON());
+$('copy-text-btn').addEventListener('click',()=>{
+  if(!S.mooreSrc) return;
+  navigator.clipboard.writeText(serializeMoore(S.mooreSrc)).then(()=>alert('Copied to clipboard.'));
+});
+
+function exportJSON(){
+  if(!S.mooreSrc||!S.mealy) return;
+  const data=JSON.stringify({moore:S.mooreSrc,mealy:S.mealy},null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='automata-lab-moore-mealy.json';
+  a.click(); URL.revokeObjectURL(url);
+}
+
+// ─────────────────────────────────────────────────────────────
+// SIMULATE PAGE
+// ─────────────────────────────────────────────────────────────
+function renderSimulatePage(){
+  if(!S.mealy||!S.mooreSrc){
+    alert('Run the conversion first.'); showPage(0); return;
+  }
+}
+
+$('sim-btn').addEventListener('click',()=>{
+  const input=$('sim-input').value;
+  runSimulation(input);
+});
+$('sim-input').addEventListener('keydown',e=>{if(e.key==='Enter') $('sim-btn').click();});
+
+$('random-string-btn').addEventListener('click',()=>{
+  if(!S.mooreSrc) return;
+  const alpha=S.mooreSrc.inputAlphabet;
+  const len=Math.floor(Math.random()*5)+2;
+  let s=''; for(let i=0;i<len;i++) s+=alpha[Math.floor(Math.random()*alpha.length)];
+  $('sim-input').value=s; runSimulation(s);
+});
+
+function runSimulation(input){
+  if(!S.mooreSrc||!S.mealy){alert('Convert first.');return;}
+  const mooreRes=simulateMoore(S.mooreSrc, input);
+  const mealyRes=simulateMealy(S.mealy, input);
+  const equiv=checkEquivalence(S.mooreSrc, S.mealy, input);
+  renderSimResult(mooreRes, mealyRes, equiv, input);
+}
+
+function renderSimResult(mooreRes, mealyRes, equiv, input){
+  const el=$('sim-result'); if(!el) return;
+  const ε=!input||input==='';
+  let html='';
+
+  // Output comparison boxes
+  html+=`<div class="output-compare">`;
+  html+=`<div class="output-box">
+    <div class="panel-title">Moore Output</div>
+    <div class="output-string">`;
+  if(mooreRes.outputString){
+    // First symbol highlighted (initial state output)
+    const first=mooreRes.outputString[0];
+    const rest=mooreRes.outputString.slice(1);
+    html+=`<span class="output-highlight-first" title="λ(q₀) — dropped by Mealy">${first}</span>${rest}`;
+  } else html+='ε';
+  html+=`</div>
+    <div class="text-muted text-sm">n+1 = ${mooreRes.outputString.length} symbols</div>
+    <div class="text-muted text-sm" style="margin-top:.25rem">Underlined = λ(q₀), not in Mealy output</div>
+  </div>`;
+
+  html+=`<div class="output-box">
+    <div class="panel-title">Mealy Output</div>
+    <div class="output-string" style="color:var(--accent)">${mealyRes.outputString||'ε'}</div>
+    <div class="text-muted text-sm">n = ${mealyRes.outputString.length} symbols</div>
+  </div></div>`;
+
+  // Equivalence check
+  if(!mooreRes.error&&!mealyRes.error){
+    const ok=equiv.equivalent;
+    html+=`<div class="alert ${ok?'alert-success':'alert-error'}" style="margin-top:.75rem">
+      ${ok?'✓':'✗'} Equivalence check:
+      Moore[1:] = "${equiv.mooreDropped}"  ${ok?'=':'≠'}  Mealy = "${equiv.mealyOut}"
+      ${ok?' — ✓ Correct!':` — MISMATCH: ${equiv.diff}`}
+    </div>`;
+  }
+
+  if(mooreRes.error) html+=`<div class="alert alert-error" style="margin-top:.5rem">Moore error: ${mooreRes.error}</div>`;
+  if(mealyRes.error) html+=`<div class="alert alert-error" style="margin-top:.5rem">Mealy error: ${mealyRes.error}</div>`;
+
+  // Trace tables
+  if(!mooreRes.error&&!mealyRes.error&&!ε){
+    html+=`<div class="grid-2" style="gap:1rem;margin-top:1rem">`;
+    // Moore trace
+    html+=`<div><div class="panel-title" style="margin-bottom:.5rem">Moore Trace</div>
+      <div class="table-wrap"><table class="trans-table" style="font-size:.8rem">
+      <thead><tr><th>#</th><th>Input</th><th>State</th><th>Output</th></tr></thead><tbody>`;
+    html+=`<tr><td>0</td><td>—</td><td class="font-mono">${S.mooreSrc.initialState}</td><td class="font-mono" style="color:var(--accent)">${S.mooreSrc.outputs[S.mooreSrc.initialState]||'?'}</td></tr>`;
+    mooreRes.trace.forEach(t=>{
+      html+=`<tr><td>${t.step}</td><td class="font-mono">${t.char}</td><td class="font-mono">${t.toState}</td><td class="font-mono" style="color:var(--accent)">${t.output}</td></tr>`;
+    });
+    html+=`</tbody></table></div></div>`;
+    // Mealy trace
+    html+=`<div><div class="panel-title" style="margin-bottom:.5rem">Mealy Trace</div>
+      <div class="table-wrap"><table class="trans-table" style="font-size:.8rem">
+      <thead><tr><th>#</th><th>Input</th><th>From→To</th><th>Output</th></tr></thead><tbody>`;
+    mealyRes.trace.forEach(t=>{
+      html+=`<tr><td>${t.step}</td><td class="font-mono">${t.char}</td><td class="font-mono">${t.fromState}→${t.toState}</td><td class="font-mono" style="color:var(--accent)">${t.output}</td></tr>`;
+    });
+    html+=`</tbody></table></div></div></div>`;
+  }
+
+  el.innerHTML=html;
+}
+
+// Batch tester
+$('batch-run-btn').addEventListener('click',()=>{
+  if(!S.mooreSrc||!S.mealy){alert('Convert first.');return;}
+  const lines=$('batch-input').value.split('\n').map(l=>l.trim()).filter(Boolean);
+  renderBatchResults(lines);
+});
+
+$('batch-gen-btn').addEventListener('click',()=>{
+  if(!S.mooreSrc){alert('Define a machine first.');return;}
+  const alpha=S.mooreSrc.inputAlphabet;
+  const strings=[''];
+  for(let len=1;len<=4;len++){
+    const generateAll=(prefix,remaining)=>{
+      if(remaining===0){strings.push(prefix);return;}
+      alpha.forEach(a=>generateAll(prefix+a,remaining-1));
+    };
+    generateAll('',len);
+  }
+  $('batch-input').value=strings.join('\n');
+});
+
+function renderBatchResults(lines){
+  const el=$('batch-result'); if(!el) return;
+  let passed=0,failed=0,errors=0;
+  let html=`<div class="table-wrap"><table class="trans-table" style="font-size:.8rem">
+    <thead><tr><th>Input</th><th>Moore out</th><th>Mealy out</th><th>Moore[1:]</th><th>Equiv?</th></tr></thead><tbody>`;
+  lines.forEach(input=>{
+    const equiv=checkEquivalence(S.mooreSrc,S.mealy,input);
+    if(equiv.error){errors++;
+      html+=`<tr><td class="font-mono">${input||'ε'}</td><td colspan="4" style="color:var(--danger)">${equiv.error}</td></tr>`;
+      return;
+    }
+    if(equiv.equivalent) passed++;else failed++;
+    const ok=equiv.equivalent;
+    html+=`<tr ${!ok?'style="background:var(--danger-bg)"':''}>
+      <td class="font-mono">${input||'ε'}</td>
+      <td class="font-mono">${equiv.mooreOut}</td>
+      <td class="font-mono">${equiv.mealyOut}</td>
+      <td class="font-mono">${equiv.mooreDropped}</td>
+      <td style="color:${ok?'var(--success)':'var(--danger)';font-weight:600}">${ok?'✓ Yes':'✗ No'}</td>
+    </tr>`;
+  });
+  html+=`</tbody></table></div>`;
+  html+=`<div style="margin-top:.5rem;font-size:.8rem;display:flex;gap:1rem">
+    <span style="color:var(--success)">✓ ${passed} equivalent</span>
+    ${failed?`<span style="color:var(--danger)">✗ ${failed} mismatch</span>`:''}
+    ${errors?`<span style="color:var(--warning)">⚠ ${errors} error</span>`:''}
+  </div>`;
+  el.innerHTML=html;
+}
+
+// ─────────────────────────────────────────────────────────────
+// PRACTICE MODE
+// ─────────────────────────────────────────────────────────────
+function renderPracticePage(){
+  generateQuiz();
+  setupRandGen();
+}
+
+function generateQuiz(machine){
+  const m=machine||MOORE_EXAMPLES[Math.floor(Math.random()*MOORE_EXAMPLES.length)];
+  S.quizMoore=m;
+  const result=mooreToMealy({
+    states:m.states,inputAlphabet:m.inputAlphabet,outputAlphabet:m.outputAlphabet,
+    initialState:m.initialState,outputs:m.outputs,
+    transitions:JSON.parse(JSON.stringify(m.transitions))
+  });
+  S.quizMealy=result.mealy;
+
+  // Display Moore machine
+  const disp=$('quiz-moore-display'); if(disp) disp.innerHTML=buildMooreTableHTML(m);
+
+  // Build answer table
+  const wrap=$('quiz-answer-table'); if(!wrap) return;
+  let html='<div style="overflow-x:auto"><table class="trans-table" style="font-size:.8rem">';
+  html+='<thead><tr><th>State</th>';
+  m.inputAlphabet.forEach(s=>html+=`<th>on ${s}</th>`);
+  html+='</tr></thead><tbody>';
+  m.states.forEach(s=>{
+    html+=`<tr><td class="state-cell font-mono">${s===m.initialState?'→ ':''} ${s}</td>`;
+    m.inputAlphabet.forEach(sym=>{
+      html+=`<td><input class="answer-cell" data-state="${s}" data-sym="${sym}" placeholder="next/out" aria-label="Answer for δ(${s},${sym})" /></td>`;
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table></div>';
+  html+='<p class="form-hint" style="margin-top:.5rem">Format: <code>nextState/output</code> e.g. <code>B/1</code></p>';
+  wrap.innerHTML=html;
+  $('quiz-feedback').innerHTML='';
+}
+
+$('quiz-check-btn').addEventListener('click',()=>{
+  if(!S.quizMoore||!S.quizMealy) return;
+  let correct=0, total=0, wrong=[];
+  document.querySelectorAll('.answer-cell').forEach(inp=>{
+    const s=inp.dataset.state, sym=inp.dataset.sym;
+    const expected=S.quizMealy.transitions[s]&&S.quizMealy.transitions[s][sym];
+    const val=inp.value.trim();
+    total++;
+    if(!expected){inp.classList.add('correct');correct++;return;}
+    const parts=val.split('/');
+    const ok=parts.length===2&&parts[0].trim()===expected.nextState&&parts[1].trim()===expected.output;
+    inp.classList.toggle('correct',ok); inp.classList.toggle('wrong',!ok);
+    if(!ok) wrong.push(`δ(${s},${sym}): expected ${expected.nextState}/${expected.output}`);
+    if(ok) correct++;
+  });
+  const fb=$('quiz-feedback');
+  if(correct===total){
+    fb.innerHTML='<div class="alert alert-success">🎉 All correct! Well done.</div>';
+  } else {
+    fb.innerHTML=`<div class="alert alert-error">✗ ${total-correct} wrong. Check highlighted cells.</div>`;
+  }
+});
+
+$('quiz-hint-btn').addEventListener('click',()=>{
+  if(!S.quizMealy) return;
+  // Reveal the first unanswered cell
+  const cell=document.querySelector('.answer-cell:not(.correct):not(.wrong)');
+  if(!cell){$('quiz-feedback').innerHTML='<div class="alert alert-info">Fill in the cells first.</div>';return;}
+  const s=cell.dataset.state, sym=cell.dataset.sym;
+  const t=S.quizMealy.transitions[s]&&S.quizMealy.transitions[s][sym];
+  $('quiz-feedback').innerHTML=`<div class="alert alert-info">Hint for δ(${s},${sym}): the destination state's Moore output is λ(${t?t.nextState:'?'}) = ${t?t.output:'?'}</div>`;
+});
+
+$('quiz-reveal-btn').addEventListener('click',()=>{
+  if(!S.quizMealy) return;
+  document.querySelectorAll('.answer-cell').forEach(inp=>{
+    const s=inp.dataset.state,sym=inp.dataset.sym;
+    const t=S.quizMealy.transitions[s]&&S.quizMealy.transitions[s][sym];
+    if(t){inp.value=`${t.nextState}/${t.output}`;inp.classList.add('correct');inp.classList.remove('wrong');}
+  });
+  $('quiz-feedback').innerHTML='<div class="alert alert-warning">Solution revealed. Try a new question next time!</div>';
+});
+
+$('quiz-new-btn').addEventListener('click',()=>{
+  const m=MOORE_EXAMPLES[Math.floor(Math.random()*MOORE_EXAMPLES.length)];
+  generateQuiz(m);
+});
+
+function setupRandGen(){
+  const sEl=$('rand-states'), aEl=$('rand-alpha'), oEl=$('rand-out');
+  const sV=$('rand-states-val'), aV=$('rand-alpha-val'), oV=$('rand-out-val');
+  if(!sEl) return;
+  sEl.oninput=()=>{ sV.textContent=sEl.value+' states'; };
+  aEl.oninput=()=>{ aV.textContent=aEl.value+' symbols'; };
+  oEl.oninput=()=>{ oV.textContent=oEl.value+' output symbols'; };
+  $('rand-gen-btn').addEventListener('click',()=>{
+    const m=generateRandom({states:parseInt(sEl.value),alphabetSize:parseInt(aEl.value),outputSize:parseInt(oEl.value)});
+    loadMachine(m); showPage(0);
+    alert(`Generated a random ${m.states.length}-state machine. Edit it or click "Convert to Mealy Machine".`);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// TEXT EDITOR
+// ─────────────────────────────────────────────────────────────
+$('parse-text-btn').addEventListener('click',()=>{
+  const text=$('text-editor').value;
+  const {machine,errors}=parseMooreText(text);
+  const errEl=$('text-errors'); errEl.innerHTML='';
+  if(errors.length){
+    errEl.innerHTML=errors.map(e=>`<div class="alert alert-error" style="margin-bottom:.25rem">Line ${e.line}: ${e.msg}</div>`).join('');
+    return;
+  }
+  loadMachine(machine);
+  alert('Machine loaded from text. Switch to the Form tab to verify.');
+});
+
+$('generate-text-btn').addEventListener('click',()=>{
+  const moore=buildMooreObject();
+  $('text-editor').value=serializeMoore(moore);
+});
+
+// ─────────────────────────────────────────────────────────────
+// SAVE / LOAD (localStorage)
+// ─────────────────────────────────────────────────────────────
+const STORAGE_KEY='automata-lab-saved-machines';
+
+function getSaved(){ try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}catch{return[];} }
+function setSaved(arr){ localStorage.setItem(STORAGE_KEY,JSON.stringify(arr)); }
+
+$('save-machine-btn').addEventListener('click',()=>{
+  const name=$('save-name-input').value.trim();
+  if(!name){alert('Enter a name first.');return;}
+  if(!S.states.length){alert('Define a machine first.');return;}
+  const saved=getSaved();
+  const existing=saved.findIndex(m=>m.name===name);
+  const entry={name,machine:buildMooreObject(),savedAt:Date.now()};
+  if(existing>=0) saved[existing]=entry; else saved.push(entry);
+  setSaved(saved); $('save-name-input').value=''; renderSavedList();
+});
+
+function renderSavedList(){
+  const el=$('saved-list'); if(!el) return;
+  const saved=getSaved();
+  if(!saved.length){
+    el.innerHTML='<div class="empty-state" style="padding:1.5rem"><div class="empty-icon">💾</div><p>No saved machines yet.</p></div>';
+    return;
+  }
+  el.innerHTML='';
+  saved.forEach((entry,i)=>{
+    const row=document.createElement('div');
+    row.className='saved-item';
+    row.innerHTML=`
+      <span class="saved-name">${entry.name}</span>
+      <button class="btn btn-secondary btn-sm" data-i="${i}">Load</button>
+      <button class="btn btn-danger btn-sm" data-del="${i}">✕</button>
+    `;
+    row.querySelector('[data-i]').addEventListener('click',()=>{loadMachine(saved[i].machine);});
+    row.querySelector('[data-del]').addEventListener('click',()=>{
+      saved.splice(i,1); setSaved(saved); renderSavedList();
+    });
+    el.appendChild(row);
+  });
+}
+renderSavedList();
+
+$('export-json-btn').addEventListener('click',()=>{
+  const data=JSON.stringify({moore:buildMooreObject()},null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='moore-machine.json'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+$('import-json-input').addEventListener('change',function(){
+  const file=this.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      const m=data.moore||data;
+      if(m.states) loadMachine(m);
+      else alert('Invalid JSON: missing "states" field.');
+    }catch{ alert('Invalid JSON file.'); }
+  };
+  reader.readAsText(file);
+  this.value='';
+});
+
+// ─────────────────────────────────────────────────────────────
+// CLEAR
+// ─────────────────────────────────────────────────────────────
+$('clear-btn').addEventListener('click',()=>{ if(confirm('Clear all input?')) clearAll(); });
+
+function clearAll(silent){
+  Object.assign(S,{states:[],inputAlphabet:[],outputAlphabet:[],initialState:'',outputs:{},transitions:{},
+    mealy:null,mooreSrc:null,steps:[],currentStep:-1,isPlaying:false});
+  clearInterval(S.playTimer);
+  $('example-select').value='';
+  $('validation-panel').innerHTML='<div class="val-item val-ok">Define a machine to see validation results.</div>';
+  $('run-btn').disabled=true;
   refreshAll();
+}
+
+// ─────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────
+runValidation();
+showPage(0);
 
 })();
 </script>
